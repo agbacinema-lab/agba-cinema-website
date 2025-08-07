@@ -1,0 +1,371 @@
+/* Global Reset */
+* {
+  margin: 0;
+  padding: 0;
+ box-sizing: border-box
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+}
+
+/* Navigation */
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  background-color: black;
+  color: white;
+  padding: 3px;
+  margin-bottom: 20px;
+}
+
+nav a {
+  text-decoration: none;
+  text-transform: capitalize;
+  color: #898989;
+  font-size: 20px;
+  font-weight: 600;
+  padding: 0 10px;
+  margin: 0 30px;
+  position: relative;
+}
+
+nav a:hover {
+  color: white;
+}
+
+nav a::before {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background-color: yellow;
+  transition: all 0.5s;
+}
+
+nav a:hover::before {
+  width: 100%;
+}
+
+/* Announcement Bar */
+.one {
+  background-color: rgb(43, 44, 46);
+  height: 3vh;
+  padding: 3px;
+  text-align: center;
+}
+
+.one h5 {
+  margin-top: 3px;
+  color: #898989;
+}
+
+.one h5:hover {
+  color: white;
+  cursor: pointer;
+}
+
+/* Third Section */
+.third {
+  text-align: center;
+  padding: 10px;
+  font-size: 30px;
+}
+
+.third a {
+  text-decoration: none;
+  text-transform: capitalize;
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+  position: relative;
+  margin: 0 15px;
+}
+
+.third a::before {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 0%;
+  height: 3px;
+  background-color: yellow;
+  transition: all 0.5s;
+}
+
+.third a:hover {
+  color: white;
+}
+
+.third a:hover::before {
+  width: 100%;
+}
+
+/* Fourth Section */
+.fourth {
+  padding: 20px 50px;
+}
+
+.fourth ul {
+  list-style: none;
+}
+
+/* Buttons */
+button {
+  display: inline-block;
+  padding: 10px 30px;
+  background-color: black;
+  color: white;
+  border-radius: 20px;
+  height: 40px;
+  border: none;
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: yellow;
+  color: black;
+  font-weight: bold;
+  transition: 0.5s;
+}
+
+/* Fifth Section */
+.five {
+  background: black;
+  height: auto;
+  margin-top: -20px;
+  padding: 50px 20px;
+  color: white;
+  text-align: center;
+}
+
+.fifth h1 {
+  font-size: 80px;
+  margin: 10px 0;
+}
+
+.fifth p {
+  font-size: 24px;
+  color: yellow;
+  margin: 10px 0 50px;
+}
+
+/* Sixth Section */
+.six {
+  display: flex;
+  flex-wrap: row;
+  align-items: flex-start;
+  justify-content: left;
+  gap: 20px;
+  padding: 20px;
+}
+
+.sifth img {
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  border-radius: 10px;
+}
+
+/* Seven Section */
+.seven {
+  display: grid;
+  font-size: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(152, 153, 114, 0.659);
+  margin-bottom: 7px;
+  margin-top: 3px;
+  cursor: pointer;
+  height: 100%;           /* Make .seven take full height of .six */
+  align-self: stretch;   
+}
+
+.seven p {
+    justify-content: center;
+  font-size: 19px;
+  padding: 15px;
+}
+
+.seven h1 {
+  text-decoration: underline;
+}
+
+.seven h2 {
+  margin-top: 80px;
+}
+
+.seven:hover h1 {
+  color: yellow;
+  transition: 0.5s;
+  cursor: pointer;
+}
+
+
+.daughter{
+    /* margin-right: 400px; */
+    font-family: "Poppins", sans-serif;
+    font-size: 18px;
+    margin-top: 30px;
+    text-align: center;
+    color: rgb(162, 157, 157)
+}
+
+.son{
+    margin-left: 100px;
+    font-size: 25px;
+    margin-bottom: 10px;
+    margin-bottom: 10px;
+    justify-content: center;
+    text-align: center;
+    font-family: "Merienda", cursive;
+    font-optical-sizing: auto;
+    font-weight: weight;
+
+}
+/* Gallery Grid */
+.stepmom {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  margin: 0 auto;
+  max-width: 1200px;
+}
+
+.stepmom img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: 0.6s;
+}
+
+.stepmom img:hover {
+  transform: scale(0.95);
+}
+
+/* Footer */
+
+.third1 {
+    margin-left: 650px;
+    font-size: 20px;
+    margin-top: 15px;
+    padding: 10px;
+    text-decoration: underline;
+    font-family: "Poppins", sans-serif;
+    } 
+
+.bro{
+    display: flex;
+    margin-top: 20px;
+}
+
+.omo{
+    margin-left: 100px;
+}
+
+.omo h1{
+    font-size: 50px;
+    font-family: "Merienda", cursive;
+    font-optical-sizing: auto;
+    font-weight: weight;
+}
+
+.omo p{
+    font-family: "Poppins", sans-serif;
+    color: rgb(122, 118, 118)
+}
+
+.omo2{
+    margin-left: 700px;
+}
+
+.omo6{
+    margin-left: 500px;
+}
+footer {
+  background-color: #0f0e0e;
+  color: white;
+  padding: 40px 20px;
+  text-align: center;
+}
+.bye4{
+    margin-top: 150px;
+    font-size: 18px;
+    margin-left: 100px;
+    font-family: "Open Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: weight;
+}
+
+.bye5{
+    margin-left: 400px;
+    margin-top: 150px;
+    font-family: "Open Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: weight;
+    font-size: 30px;
+    padding: 5px;
+
+}
+.bye{
+    display: flex;
+    direction: underline;
+}
+
+.bye1{
+    margin-left: 100px;
+    font-size: 35px;
+    margin-top: 35px;
+    font-family: "Signika Negative", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: weight;
+}
+
+.bye2{
+    margin-left: 600px;
+    margin-top: 50px;
+}
+
+
+span {
+  color: yellow;
+}
+
+/* Media Queries */
+@media screen and (max-width: 768px) {
+  nav,
+  .third,
+  .five,
+  .fifth,
+  .seven,
+  .fourth {
+    padding: 10px;
+  }
+
+  .fifth h1 {
+    font-size: 40px;
+  }
+
+  .fifth p {
+    font-size: 18px;
+  }
+
+  .stepmom {
+    grid-template-columns: 1fr;
+  }
+
+    footer .bye3 {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
