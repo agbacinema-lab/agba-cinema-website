@@ -4,258 +4,231 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ÀGBÀ CINEMA</title>
-    <link rel="stylesheet" href=".\css\style.css">
+   <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Merienda:wght@300..900&family=Qwitcher+Grypen:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="one">
-        <h5>WELCOME TO THE HOME OF STORYTELLING</h5>
-    </div>
-    <section id="nav">
-        <div class="first">
-            <div class="second">
-                <nav>
-                    <div class="fourth">
-                        <ul>
-                            <a href="index.html" class="button">home</a>
-                             <a href="project.html" class="button">projects</a>
-                            <a href="about .html" class="button">about</a>
-                            <a href="blog post.html" class="button">blogs</a>
-                        </ul>
-                    </div>
-                    <div class="third">
-                        <a href="lets talk.html">LET'S TALK</a>
-                    </div>
-                </nav>
-            </div>
-            <div class="five">
-                <div class="fifth">
-                    <h1>ÀGBÀ CINEMA</h1>
-                    <p>"The Video Education & Production Company"</p>
-                </div>
-                <div class="six">
-                    <div class="sixth">
-                        <div class="sifth">
-                        <iframe 
-                            id="videoPlayer" 
-                            width="560" 
-                            height="315" 
-                            src="https://www.youtube.com/embed/hBbywzcz254" 
-                            title="YouTube video player" 
-                            frameborder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowfullscreen>
-                        </iframe>
+    
 
-                        <div id="videoDots"></div>
-
-                        </div>
-                    </div>
-                    <div class="seven">
-                        <h2>DID YOU KNOW???</h2>
-                        <p>Did You Know? The first camera ever made was the camera obscura, used as early as the 11th century. <br> However, <br>the first portable camera for practical photography was invented by <br>Joseph Nicéphore Niépce and Louis Daguerre in the early 19th century. <br> This innovation paved the way for modern photography!
-                        <br> agab ciem am is the biggest storyy tellking brabnd you can ever meet 
-                    </p>
-                        <h1>LET'S TALK</h1>
-                    </div> 
-                </div>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>ÀGBÀ CINEMA</h2>
             </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="index.html" class="nav-link active">Home</a>
+                <a href="projects.html" class="nav-link">Projects</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="blog.html" class="nav-link">Blog</a>
+                <a href="lets-talk.html" class="nav-btn">LET'S TALK</a>
+            </div>
+        </div>
+        <div class="nav-overlay" id="navOverlay"></div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-background"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="welcome-text">
+                <p>WELCOME TO THE HOME OF STORYTELLING</p>
+            </div>
+            <h1 class="hero-title">
+                <span class="title-line">ÀGBÀ</span>
+                <span class="title-line">CINEMA</span>
+            </h1>
+            <p class="hero-subtitle">"The Video Education & Production Company"</p>
+            <div class="hero-buttons">
+                <a href="#about" class="btn btn-primary">Discover Our Story</a>
+                <a href="lets-talk.html" class="btn btn-secondary">Let's Talk</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Video Section -->
+    <section class="container featured-video-section">
+        <div class="video-container">
+            <iframe 
+                id="videoPlayer" 
+                src="https://www.youtube.com/embed/hBbywzcz254" 
+                title="YouTube video player" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+            </iframe>
+            <div id="videoDots"></div>
+        </div>
+        
+        <div class="section-header">
+            <h2>DID YOU KNOW???</h2>
+            <p>Did You Know? The first camera ever made was the camera obscura, used as early as the 11th century. However, the first portable camera for practical photography was invented by Joseph Nicéphore Niépce and Louis Daguerre in the early 19th century. This innovation paved the way for modern photography! ÀGBÀ CINEMA is the biggest storytelling brand you can ever meet.</p>
         </div>
     </section>
       <br>
         
-    <section id="Mega">
-        <div class="baba">
-            <div class="son">
-                <h1>ABOUT ME</h1>
-            </div>
-            <div class="daughter">
-                <p>ÀGBÀ CINEMA is a creative video education and production company dedicated to telling powerful stories through film. Based in Nigeria, we specialize in producing educational content, documentaries, and cinematic projects that inspire, inform, and entertain. Our team combines artistic vision with technical expertise to deliver high-quality videos that capture the essence of every subject. At ÀGBÀ CINEMA, we believe in the transformative power of storytelling and are committed to nurturing talent, promoting cultural heritage, and making a positive impact through visual media.</p>
-            </div>
-            </div>    
-            <br>
-        </div>
-        <div class="stepmom">
-            <div class="Mom">
-                 <iframe 
-    width="100%" 
-    height="500" 
-    src="https://www.youtube.com/embed/gnyDFq2NSGE" 
-    title="YouTube Shorts video player" 
-    frameborder="0" 
-    allow="autoplay; encrypted-media" 
-    allowfullscreen
-    onmouseover='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"playVideo\",\"args\":\"\"}", "*")' 
-    onmouseout='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"pauseVideo\",\"args\":\"\"}", "*")'>
-</iframe>
-            </div>
-            <div class="Mom">
-                <iframe 
-    width="100%" 
-    height="500" 
-    src="https://www.youtube.com/embed/lwS-tyCQOjs" 
-    title="YouTube Shorts video player" 
-    frameborder="0" 
-    allow="autoplay; encrypted-media" 
-    allowfullscreen
-    onmouseover='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"playVideo\",\"args\":\"\"}", "*")' 
-    onmouseout='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"pauseVideo\",\"args\":\"\"}", "*")'>
-</iframe>
-
-            </div>
-            <div class="Mom">
-                 <iframe 
-    width="100%" 
-    height="500" 
-    src="https://www.youtube.com/embed/ScjrLP5Ap3w" 
-    title="YouTube Shorts video player" 
-    frameborder="0" 
-    allow="autoplay; encrypted-media" 
-    allowfullscreen
-    onmouseover='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"playVideo\",\"args\":\"\"}", "*")' 
-    onmouseout='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"pauseVideo\",\"args\":\"\"}", "*")'>
-</iframe>
-            </div> 
-        </div>
-        <div class="third1">
-            <a href="lets talk.html"><button id="ggs">LET'S TALK</button></a>
-        </div>
-    </section>  
-    <section id="grandma">
-        <div class="bro">
-            <div class="omo">
-                <h1>PROJECTS</h1>
-                <p>Exploring our Student Portfolio Showcasing Diverse Projects. Each Tells A Unique <br> Story. Capturing Moments And Emotions With Artistic Flair</p>
-            </div>
-            <div class="omo6">
-                <a href="lets talk.html"><button id="ggs">LET'S TALK</button></a>
-            </div>
-        </div>
-        <div class="stepmom">
-            <div class="Mom">
-                  <iframe 
-    width="100%" 
-    height="500" 
-    src="https://www.youtube.com/embed/mX-gLwMjbiM" 
-    title="YouTube Shorts video player" 
-    frameborder="0" 
-    allow="autoplay; encrypted-media" 
-    allowfullscreen
-    onmouseover='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"playVideo\",\"args\":\"\"}", "*")' 
-    onmouseout='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"pauseVideo\",\"args\":\"\"}", "*")'>
-</iframe>
-            </div>
-            <div class="Mom">
-            <iframe 
-    width="100%" 
-    height="500" 
-    src="https://www.youtube.com/embed/y_i2dVnDLsk" 
-    title="YouTube Shorts video player" 
-    frameborder="0" 
-    allow="autoplay; encrypted-media" 
-    allowfullscreen
-    onmouseover='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"playVideo\",\"args\":\"\"}", "*")' 
-    onmouseout='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"pauseVideo\",\"args\":\"\"}", "*")'>
-</iframe>
-            </div>
-            <div class="Mom">
-                    <iframe
-    width="100%" 
-    height="500" 
-    src="https://www.youtube.com/embed/fv2CTijPU5Y" 
-    title="YouTube Shorts video player" 
-    frameborder="0" 
-    allow="autoplay; encrypted-media" 
-    allowfullscreen
-    onmouseover='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"playVideo\",\"args\":\"\"}", "*")' 
-    onmouseout='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"pauseVideo\",\"args\":\"\"}", "*")'>
-</iframe>
-            </div> 
-            <div class="Mom">
-                 <iframe 
-    width="100%" 
-    height="500" 
-    src="https://www.youtube.com/embed/OdNCD6aPiOo" 
-    title="YouTube Shorts video player" 
-    frameborder="0" 
-    allow="autoplay; encrypted-media" 
-    allowfullscreen
-    onmouseover='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"playVideo\",\"args\":\"\"}", "*")' 
-    onmouseout='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"pauseVideo\",\"args\":\"\"}", "*")'>
-</iframe>
-            </div> 
-            <div class="Mom">
-                  <iframe 
-    width="100%" 
-    height="500" 
-    src="https://www.youtube.com/embed/5yTKGGx2Eyo" 
-    title="YouTube Shorts video player" 
-    frameborder="0" 
-    allow="autoplay; encrypted-media" 
-    allowfullscreen
-    onmouseover='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"playVideo\",\"args\":\"\"}", "*")' 
-    onmouseout='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"pauseVideo\",\"args\":\"\"}", "*")'>
-</iframe>
-            </div> 
-             <div class="Mom">
-                  <iframe 
-    width="100%" 
-    height="500" 
-    src="https://www.youtube.com/embed/3wdmOHyepCg" 
-    title="YouTube Shorts video player" 
-    frameborder="0" 
-    allow="autoplay; encrypted-media" 
-    allowfullscreen
-    onmouseover='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"playVideo\",\"args\":\"\"}", "*")' 
-    onmouseout='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"pauseVideo\",\"args\":\"\"}", "*")'>
-</iframe>
-            </div> 
-
- <div class="Mom">
- <iframe 
-    width="100%" 
-    height="500" 
-    src="https://www.youtube.com/embed/8lpvFhMEG2I" 
-    title="YouTube Shorts video player" 
-    frameborder="0" 
-    allow="autoplay; encrypted-media" 
-    allowfullscreen
-    onmouseover='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"playVideo\",\"args\":\"\"}", "*")' 
-    onmouseout='this.contentWindow.postMessage("{\"event\":\"command\",\"func\":\"pauseVideo\",\"args\":\"\"}", "*")'>
-</iframe>
-            </div> 
-              </div> 
-            <div class="Mom">
-        
-            </div> 
-        </div>
-        <div class="omo2">
-            <a href="lets talk.html"><button id="ggs">LET'S TALK</button></a>
+    <!-- About Section -->
+    <section id="about" class="container">
+        <div class="section-header">
+            <h2>ABOUT US</h2>
+            <div class="section-line"></div>
+            <p>ÀGBÀ CINEMA is a creative video education and production company dedicated to telling powerful stories through film. Based in Nigeria, we specialize in producing educational content, documentaries, and cinematic projects that inspire, inform, and entertain. Our team combines artistic vision with technical expertise to deliver high-quality videos that capture the essence of every subject. At ÀGBÀ CINEMA, we believe in the transformative power of storytelling and are committed to nurturing talent, promoting cultural heritage, and making a positive impact through visual media.</p>
         </div>
     </section>
-    <footer>
-        <div class="bye">
-            <div class="bye1">
-                <h3>Say <span>Hello</span><br>agbacinema@gmail.com</h3>
+    <!-- Video Gallery Section -->
+    <section class="container">
+        <div class="video-grid">
+            <div class="video-container">
+                <iframe 
+ 
+                    src="https://www.youtube.com/embed/gnyDFq2NSGE" 
+                    title="YouTube Shorts video player" 
+                    frameborder="0" 
+                    allow="autoplay; encrypted-media" 
+                    allowfullscreen>
+                </iframe>
             </div>
-            <div class="bye2">
-                <a href="lets talk.html"><button id="ggg">LET'S TALK</button></a>
+            <div class="video-container">
+                <iframe 
+ 
+                    src="https://www.youtube.com/embed/lwS-tyCQOjs" 
+                    title="YouTube Shorts video player" 
+                    frameborder="0" 
+                    allow="autoplay; encrypted-media" 
+                    allowfullscreen>
+                </iframe>
             </div>
-            </div> 
-            <div class="bye3">
-                <div class=
-                
-                    <p>Your Moments, Behaviours and Interaction all matters with DOA Shots. <br> Capturing Life Essence, One frame at a time. Let's Make it Clean Shall We?</p>
-                </div>
-                <div class="bye5">
-                    </p>Support <br> Home <br> About <br>Tips <br> Contact </p>
-                </div>
-            </div>
-            <div class="goodbye">
-                <p>Copyright 2025 ÀGBÀ CINEMA</p>
+            <div class="video-container">
+                <iframe 
+ 
+                    src="https://www.youtube.com/embed/ScjrLP5Ap3w" 
+                    title="YouTube Shorts video player" 
+                    frameborder="0" 
+                    allow="autoplay; encrypted-media" 
+                    allowfullscreen>
+                </iframe>
             </div> 
         </div>
+        <div class="cta-section">
+            <a href="lets-talk.html" class="btn btn-primary">LET'S TALK</a>
+        </div>
+    </section>
+    <!-- Projects Section -->
+    <section id="projects" class="container">
+        <div class="section-header">
+            <h2>PROJECTS</h2>
+            <div class="section-line"></div>
+            <p>Exploring our Student Portfolio Showcasing Diverse Projects. Each Tells A Unique Story. Capturing Moments And Emotions With Artistic Flair</p>
+        </div>
+        <div class="video-grid">
+            <div class="video-container">
+                <iframe 
+ 
+                    src="https://www.youtube.com/embed/mX-gLwMjbiM" 
+                    title="YouTube Shorts video player" 
+                    frameborder="0" 
+                    allow="autoplay; encrypted-media" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+            <div class="video-container">
+                <iframe 
+ 
+                    src="https://www.youtube.com/embed/y_i2dVnDLsk" 
+                    title="YouTube Shorts video player" 
+                    frameborder="0" 
+                    allow="autoplay; encrypted-media" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+            <div class="video-container">
+                <iframe
+ 
+                    src="https://www.youtube.com/embed/fv2CTijPU5Y" 
+                    title="YouTube Shorts video player" 
+                    frameborder="0" 
+                    allow="autoplay; encrypted-media" 
+                    allowfullscreen>
+                </iframe>
+            </div> 
+            <div class="video-container">
+                <iframe 
+ 
+                    src="https://www.youtube.com/embed/OdNCD6aPiOo" 
+                    title="YouTube Shorts video player" 
+                    frameborder="0" 
+                    allow="autoplay; encrypted-media" 
+                    allowfullscreen>
+                </iframe>
+            </div> 
+            <div class="video-container">
+                <iframe 
+ 
+                    src="https://www.youtube.com/embed/5yTKGGx2Eyo" 
+                    title="YouTube Shorts video player" 
+                    frameborder="0" 
+                    allow="autoplay; encrypted-media" 
+                    allowfullscreen>
+                </iframe>
+            </div> 
+            <div class="video-container">
+                <iframe 
+ 
+                    src="https://www.youtube.com/embed/3wdmOHyepCg" 
+                    title="YouTube Shorts video player" 
+                    frameborder="0" 
+                    allow="autoplay; encrypted-media" 
+                    allowfullscreen>
+                </iframe>
+            </div> 
+            <div class="video-container">
+                <iframe 
+ 
+                    src="https://www.youtube.com/embed/8lpvFhMEG2I" 
+                    title="YouTube Shorts video player" 
+                    frameborder="0" 
+                    allow="autoplay; encrypted-media" 
+                    allowfullscreen>
+                </iframe>
+            </div> 
+        </div>
+        <!--div class="cta-section">
+            <a href="lets-talk.html" class="btn btn-primary">LET'S TALK</a>
+        </div-->
+    </section>
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Say <span>Hello</span></h3>
+                <p>agbacinema@gmail.com</p>
+                <a href="lets-talk.html" class="btn btn-primary">LET'S TALK</a>
+            </div>
+            <div class="footer-section">
+                <h4>About ÀGBÀ CINEMA</h4>
+                <p>Your Moments, Behaviours and Interaction all matters with us. Capturing Life Essence, One frame at a time. Let's Make it Clean Shall We?</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="projects.html">Projects</a></li>
+                    <li><a href="blog.html">Blog</a></li>
+                    <li><a href="lets-talk.html">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>Copyright 2025 ÀGBÀ CINEMA. All rights reserved.</p>
+        </div>
     </footer>
-  <script src="scripts\player.js"></script>
+  <script src="scripts/player.js"></script>
+  <script src="js/mobile-nav.js"></script>
+  <script src="js/page-transitions.js"></script>
 </body>
 </html>

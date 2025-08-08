@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - ÀGBÀ CINEMA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>ÀGBÀ CINEMA</h2>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="projects.html" class="nav-link">Projects</a>
+                <a href="blog.html" class="nav-link active">Blog</a>
+                <a href="contact.html" class="nav-btn">Let's Talk</a>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header blog-header">
+        <div class="container">
+            <h1>ÀGBÀ CINEMA Blog</h1>
+            <p>Stories, training, and insights from our creative journey</p>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search articles...">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Categories -->
+    <section class="blog-categories">
+        <div class="container">
+            <div class="category-buttons">
+                <button class="category-btn active" data-category="all">All Posts</button>
+                <button class="category-btn" data-category="storytelling">Storytelling</button>
+                <button class="category-btn" data-category="production">Production</button>
+                <button class="category-btn" data-category="education">Education</button>
+                <button class="category-btn" data-category="industry">Industry</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Post -->
+    <section class="featured-post">
+        <div class="container">
+            <article class="featured-article">
+                <div class="featured-image">
+                    <img src="/placeholder.svg?height=400&width=800&text=Featured+Blog+Post" alt="Featured Post">
+                    <div class="featured-overlay">
+                        <span class="featured-badge">Featured</span>
+                    </div>
+                </div>
+                <div class="featured-content">
+                    <div class="post-meta">
+                        <span class="category">Storytelling</span>
+                        <span class="date">January 15, 2025</span>
+                        <span class="read-time">8 min read</span>
+                    </div>
+                    <h2>The Art of Visual Storytelling in Modern Cinema</h2>
+                    <p>Discover how contemporary filmmakers are revolutionizing the way stories are told through innovative visual techniques and cutting-edge technology. From color grading to cinematography, explore the elements that make a story truly captivating.</p>
+                    <a href="#" class="read-more">Read Full Article <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- Blog Grid -->
+    <section class="blog-grid">
+        <div class="container">
+            <div class="posts-grid">
+                <article class="blog-post" data-category="storytelling">
+                    <div class="post-image">
+                        <img src="/placeholder.svg?height=250&width=400&text=Blog+Post+1" alt="The Story Behind ÀGBÀ CINEMA">
+                        <div class="post-overlay">
+                            <span class="category-tag">Story</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <div class="post-meta">
+                            <span class="date">January 10, 2025</span>
+                            <span class="read-time">5 min read</span>
+                        </div>
+                        <h3>The Story Behind ÀGBÀ CINEMA</h3>
+                        <p>A founder's reflection on purpose, storytelling, and how this all began. Discover the journey that led to the creation of our video production company.</p>
+                        <a href="https://agbacinema.substack.com/p/the-story-behind-agba-cinema" target="_blank" class="read-more">
+                            Read More <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <article class="blog-post" data-category="education">
+                    <div class="post-image">
+                        <img src="/placeholder.svg?height=250&width=400&text=Blog+Post+2" alt="How to Tell Better Stories">
+                        <div class="post-overlay">
+                            <span class="category-tag">Tutorial</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <div class="post-meta">
+                            <span class="date">January 8, 2025</span>
+                            <span class="read-time">8 min read</span>
+                        </div>
+                        <h3>How to Tell Better Stories</h3>
+                        <p>Tips to transform how you think about video, content, and emotion. Learn the fundamental principles of compelling storytelling.</p>
+                        <a href="https://agbacienma.substack.com/p/the-complete-beginners-guide-to-video" target="_blank" class="read-more">
+                            Read More <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <article class="blog-post" data-category="production">
+                    <div class="post-image">
+                        <img src="/placeholder.svg?height=250&width=400&text=Blog+Post+3" alt="Growing a Creative Brand">
+                        <div class="post-overlay">
+                            <span class="category-tag">Business</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <div class="post-meta">
+                            <span class="date">January 5, 2025</span>
+                            <span class="read-time">6 min read</span>
+                        </div>
+                        <h3>Growing a Creative Brand</h3>
+                        <p>How we built ÀGBÀ CINEMA without burnout and with purpose. Insights into building a sustainable creative business.</p>
+                        <a href="https://agbacinema.substack.com/p/growing-a-creative-brand" target="_blank" class="read-more">
+                            Read More <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <article class="blog-post" data-category="industry">
+                    <div class="post-image">
+                        <img src="/placeholder.svg?height=250&width=400&text=Blog+Post+4" alt="The Future of African Cinema">
+                        <div class="post-overlay">
+                            <span class="category-tag">Industry</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <div class="post-meta">
+                            <span class="date">January 3, 2025</span>
+                            <span class="read-time">7 min read</span>
+                        </div>
+                        <h3>The Future of African Cinema</h3>
+                        <p>Exploring the emerging trends and opportunities in African film industry. What lies ahead for storytellers on the continent.</p>
+                        <a href="#" class="read-more">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <article class="blog-post" data-category="education">
+                    <div class="post-image">
+                        <img src="/placeholder.svg?height=250&width=400&text=Blog+Post+5" alt="Video Production Basics">
+                        <div class="post-overlay">
+                            <span class="category-tag">Tutorial</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <div class="post-meta">
+                            <span class="date">December 30, 2024</span>
+                            <span class="read-time">10 min read</span>
+                        </div>
+                        <h3>Video Production Basics for Beginners</h3>
+                        <p>Everything you need to know to start your journey in video production. From equipment to post-production workflows.</p>
+                        <a href="#" class="read-more">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </article>
+
+                <article class="blog-post" data-category="storytelling">
+                    <div class="post-image">
+                        <img src="/placeholder.svg?height=250&width=400&text=Blog+Post+6" alt="Cultural Storytelling">
+                        <div class="post-overlay">
+                            <span class="category-tag">Culture</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <div class="post-meta">
+                            <span class="date">December 28, 2024</span>
+                            <span class="read-time">6 min read</span>
+                        </div>
+                        <h3>Preserving Culture Through Film</h3>
+                        <p>How documentary filmmaking can help preserve and celebrate cultural heritage for future generations.</p>
+                        <a href="#" class="read-more">
+                            Read More <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Load More Button -->
+            <div class="load-more-container">
+                <button class="btn btn-outline" id="loadMore">Load More Articles</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="newsletter-section">
+        <div class="container">
+            <div class="newsletter-content">
+                <h2>Stay Updated</h2>
+                <p>Subscribe to our newsletter for the latest insights, tips, and behind-the-scenes content from ÀGBÀ CINEMA.</p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Enter your email address" required>
+                    <button type="submit" class="btn btn-primary">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>ÀGBÀ CINEMA</h3>
+                    <p>Crafting stories that inspire, educate, and connect communities through the power of cinema.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="projects.html">Projects</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#">Video Production</a></li>
+                        <li><a href="#">Educational Content</a></li>
+                        <li><a href="#">Documentaries</a></li>
+                        <li><a href="#">Training</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p><i class="fas fa-envelope"></i> agbacinema@gmail.com</p>
+                    <p><i class="fas fa-phone"></i> +234 XXX XXX XXXX</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Nigeria</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 ÀGBÀ CINEMA. All rights reserved. Made with ❤️ for storytellers.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/blog.js"></script>
+</body>
+</html>
