@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "TechCorp",
+    "logo": "/placeholder.svg?height=64&width=128"
+  },
+  {
+    "id": 2,
+    "name": "Fashion Forward",
+    "logo": "/placeholder.svg?height=64&width=128"
+  },
+  {
+    "id": 3,
+    "name": "Green Initiative",
+    "logo": "/placeholder.svg?height=64&width=128"
+  },
+  {
+    "id": 4,
+    "name": "StartupLagos",
+    "logo": "/placeholder.svg?height=64&width=128"
+  },
+  {
+    "id": 5,
+    "name": "Elite Events",
+    "logo": "/placeholder.svg?height=64&width=128"
+  },
+  {
+    "id": 6,
+    "name": "Global Solutions",
+    "logo": "/placeholder.svg?height=64&width=128"
+  }
+]

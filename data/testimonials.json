@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "Sarah Johnson",
+    "position": "Marketing Director",
+    "company": "TechCorp Nigeria",
+    "content": "ÀGBÀ CINEMA delivered exceptional quality for our corporate video. The team was professional, creative, and exceeded our expectations.",
+    "rating": 5
+  },
+  {
+    "id": 2,
+    "name": "Michael Adebayo",
+    "position": "CEO",
+    "company": "StartupLagos",
+    "content": "Our wedding film was absolutely stunning. They captured every moment beautifully and the final product brought tears to our eyes.",
+    "rating": 5
+  },
+  {
+    "id": 3,
+    "name": "Jennifer Okafor",
+    "position": "Event Coordinator",
+    "company": "Elite Events",
+    "content": "Professional, reliable, and incredibly talented. ÀGBÀ CINEMA has become our go-to video production partner.",
+    "rating": 5
+  },
+  {
+    "id": 4,
+    "name": "David Thompson",
+    "position": "Brand Manager",
+    "company": "Fashion Forward",
+    "content": "The commercial they produced for us increased our engagement by 300%. Outstanding creative vision and execution.",
+    "rating": 5
+  },
+  {
+    "id": 5,
+    "name": "Amina Hassan",
+    "position": "Founder",
+    "company": "Green Initiative",
+    "content": "Their documentary work helped us tell our story in a compelling way. The attention to detail was remarkable.",
+    "rating": 5
+  },
+  {
+    "id": 6,
+    "name": "Robert Clarke",
+    "position": "Operations Manager",
+    "company": "Global Solutions",
+    "content": "From concept to delivery, ÀGBÀ CINEMA provided exceptional service. Highly recommend for any video production needs.",
+    "rating": 5
+  }
+]

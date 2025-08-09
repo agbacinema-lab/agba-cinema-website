@@ -1,0 +1,16 @@
+.DS_Store
+
+.env
+.next/
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+.env
+node_modules
+dist
+coverage

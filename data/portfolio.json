@@ -1,0 +1,41 @@
+[
+  {
+    "id": 1,
+    "title": "Corporate Brand Story",
+    "slug": "corporate-brand-story",
+    "category": "Corporate",
+    "client": "TechCorp Nigeria",
+    "description": "A compelling brand story video showcasing TechCorp's journey and values.",
+    "image": "/placeholder.svg?height=400&width=600",
+    "videoUrl": "https://example.com/video1",
+    "tags": ["Corporate", "Brand Story", "Professional"],
+    "year": 2024,
+    "duration": "3:45"
+  },
+  {
+    "id": 2,
+    "title": "Elegant Wedding Film",
+    "slug": "elegant-wedding-film",
+    "category": "Wedding",
+    "client": "Michael & Jennifer",
+    "description": "A cinematic wedding film capturing the beauty and emotion of a perfect day.",
+    "image": "/placeholder.svg?height=400&width=600",
+    "videoUrl": "https://example.com/video2",
+    "tags": ["Wedding", "Cinematic", "Romance"],
+    "year": 2024,
+    "duration": "8:20"
+  },
+  {
+    "id": 3,
+    "title": "Product Launch Event",
+    "slug": "product-launch-event",
+    "category": "Event",
+    "client": "Fashion Forward",
+    "description": "Complete coverage of a high-profile product launch event.",
+    "image": "/placeholder.svg?height=400&width=600",
+    "videoUrl": "https://example.com/video3",
+    "tags": ["Event", "Product Launch", "Fashion"],
+    "year": 2024,
+    "duration": "5:15"
+  }
+]
