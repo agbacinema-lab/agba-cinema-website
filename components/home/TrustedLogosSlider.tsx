@@ -17,7 +17,7 @@ export default function TrustedLogosSlider() {
             {[...brands, ...brands].map((brand, index) => (
               <div key={`${brand.id}-${index}`} className="flex-shrink-0 w-32 h-16 flex items-center justify-center">
                 <Image
-                  src={brand.logo || "/placeholder.svg"}
+                  src={brand.logo || "/LIGHT.png"}
                   alt={brand.name}
                   width={128}
                   height={64}

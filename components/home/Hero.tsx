@@ -27,8 +27,7 @@ export default function Hero() {
           </h1>
 
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-gray-200">
-            Professional video production services that bring your vision to life. From corporate videos to wedding
-            cinematography, we create visual stories that captivate and inspire.
+            Professional video production, training, and consultancy that bring your vision to life. From corporate videos to weddings, we craft visual stories that captivate, inspire, and equip you for success.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

@@ -13,21 +13,21 @@ const stats = [
 
 const team = [
   {
-    name: "Adebayo Ogundimu",
+    name: "Agbele ololade Abel",
     role: "Founder & Creative Director",
-    image: "/professional-filmmaker-portrait.png",
+    image: "/haybel picture.jpeg",
     bio: "With over 8 years in the industry, Adebayo brings creative vision and technical expertise to every project.",
   },
   {
     name: "Kemi Adebisi",
     role: "Lead Cinematographer",
-    image: "/female-cinematographer.png",
+    image: "/IMG-20240515-WA0020.jpg",
     bio: "Kemi specializes in cinematic storytelling and has worked on numerous award-winning productions.",
   },
   {
     name: "Tunde Okafor",
     role: "Post-Production Specialist",
-    image: "/video-editor-portrait.png",
+    image: "/IMG-20240515-WA0032.jpg",
     bio: "Tunde transforms raw footage into compelling stories through expert editing and color grading.",
   },
 ]
@@ -51,7 +51,7 @@ export default function AboutPage() {
             </div>
             <div>
               <Image
-                src="/placeholder-2saz0.png"
+                src="/IMG-20240515-WA0028.jpg"
                 alt="ÀGBÀ CINEMA Team"
                 width={600}
                 height={500}

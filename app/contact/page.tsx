@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Mail, Phone, MapPin, Clock } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import emailjs from "@emailjs/browser" // ✅ Import EmailJS
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -19,15 +19,32 @@ export default function ContactPage() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate form submission
-    setTimeout(() => {
+    const form = e.currentTarget
+
+    try {
+      await emailjs.sendForm(
+        "service_a1sqad8", // ✅ Your Service ID
+        "template_87aom8b", // ✅ Your Template ID
+        form,
+        "JH5HK81ALIHAE-ELW" // ✅ Your Public Key
+      )
+
       toast({
         title: "Message Sent!",
         description: "We'll get back to you within 24 hours.",
       })
+
+      form.reset()
+    } catch (error) {
+      console.error("EmailJS Error:", error)
+      toast({
+        title: "Error Sending Message",
+        description: "Please try again later.",
+        variant: "destructive",
+      })
+    } finally {
       setIsSubmitting(false)
-      e.currentTarget.reset()
-    }, 1000)
+    }
   }
 
   return (
@@ -57,7 +74,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Email</h3>
-                    <p className="text-gray-600">hello@agbacinema.com</p>
+                    <p className="text-gray-600">agbacinema@gmail.com</p>
                   </div>
                 </div>
 
@@ -67,7 +84,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Phone</h3>
-                    <p className="text-gray-600">+234 (0) 123 456 7890</p>
+                    <p className="text-gray-600">+234 90652360464</p>
                   </div>
                 </div>
 

@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Video, Camera, Users, Briefcase, Heart, Mic } from "lucide-react"
+import { Video, Camera, Users, Briefcase, Heart, Mic, Edit, Palette, PenLine,MonitorPlay, MonitorStop  } from "lucide-react"
 import { motion } from "framer-motion"
 
 const services = [
@@ -14,33 +14,33 @@ const services = [
     href: "/services",
   },
   {
-    icon: Heart,
-    title: "Wedding Cinematography",
-    description: "Cinematic wedding films that capture your special day beautifully.",
+     icon: PenLine,
+    title: "Script Writing",
+    description:  "Compelling scripts that bring stories and messages to life",
     href: "/services",
   },
   {
     icon: Users,
-    title: "Event Coverage",
-    description: "Complete event documentation with multiple camera angles and professional editing.",
+    title: "Live Event Coverage",
+    description: "Professional live streaming services for events, conferences, and broadcasts",
     href: "/services",
   },
   {
     icon: Briefcase,
-    title: "Commercial Production",
-    description: "High-quality commercials and promotional videos for your business.",
+    title:"Content Stragist",
+    description: " Strategic content planning to engage audiences and achieve your brand goals.",
     href: "/services",
   },
   {
-    icon: Camera,
-    title: "Documentary Films",
-    description: "Compelling documentary storytelling that engages and informs your audience.",
+    icon: MonitorPlay,
+    title:"One on one Mentorship",
+    description: "Professional Premiere Pro training for video editing, andd After Efectts",
     href: "/services",
   },
   {
-    icon: Mic,
-    title: "Live Streaming",
-    description: "Professional live streaming services for events, conferences, and broadcasts.",
+   icon: Palette,
+    title: "Creative Cnsulting",
+    description: "Creative consulting that helps you shape ideas into impactful visuals.",
     href: "/services",
   },
 ]

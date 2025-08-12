@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "ÀGBÀ CINEMA - Professional Video Production Services",
-  description: "Premium video production, cinematography, and creative services for brands, events, and storytelling.",
+  description: "premium video production, cinematography, creative storytelling, and training for brands, events, and creators",
     generator: 'v0.dev'
 }
 

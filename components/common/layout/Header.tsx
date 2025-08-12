@@ -2,8 +2,10 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Menu, X, Camera } from "lucide-react"
 import { Button } from "@/components/ui/button"
+
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -22,10 +24,15 @@ export default function Header() {
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <Camera className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold text-primary">ÀGBÀ CINEMA</span>
-          </Link>
+          <Link href="/" className="flex items-center">
+  <Image
+    src="/agba  white.jpg"
+    alt="ÀGBÀ CINEMA Logo"
+    width={150}
+    height={50}
+    priority
+  />
+</Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">

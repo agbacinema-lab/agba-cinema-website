@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Camera, Mail, Phone, MapPin, Facebook, Instagram, Twitter, Youtube } from "lucide-react"
+import { Camera, Mail, Phone, MapPin, Facebook, Instagram, Twitter, Youtube, Linkedin } from "lucide-react"
 
 export default function Footer() {
   return (
@@ -17,17 +17,17 @@ export default function Footer() {
               experiences that captivate and inspire.
             </p>
             <div className="flex space-x-4">
-              <Link href="#" className="text-gray-300 hover:text-white transition-colors">
+              <Link href="https://web.facebook.com/profile.php?id=61561591466125" className="text-gray-300 hover:text-white transition-colors">
                 <Facebook className="h-5 w-5" />
               </Link>
-              <Link href="#" className="text-gray-300 hover:text-white transition-colors">
+              <Link href="https://www.instagram.com/agbacinema/" className="text-gray-300 hover:text-white transition-colors">
                 <Instagram className="h-5 w-5" />
               </Link>
-              <Link href="#" className="text-gray-300 hover:text-white transition-colors">
+              <Link href="https://x.com/AgbaCinema" className="text-gray-300 hover:text-white transition-colors">
                 <Twitter className="h-5 w-5" />
               </Link>
-              <Link href="#" className="text-gray-300 hover:text-white transition-colors">
-                <Youtube className="h-5 w-5" />
+              <Link href="https://www.linkedin.com/company/agbacinema/" className="text-gray-300 hover:text-white transition-colors">
+                <Linkedin className="h-5 w-5" />
               </Link>
             </div>
           </div>
@@ -70,11 +70,11 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-center space-x-2">
                 <Mail className="h-4 w-4 text-primary" />
-                <span className="text-gray-300">hello@agbacinema.com</span>
+                <span className="text-gray-300">agbacinema@gmail.com</span>
               </li>
               <li className="flex items-center space-x-2">
                 <Phone className="h-4 w-4 text-primary" />
-                <span className="text-gray-300">+234 (0) 123 456 7890</span>
+                <span className="text-gray-300">+234 9065230464</span>
               </li>
               <li className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4 text-primary" />
