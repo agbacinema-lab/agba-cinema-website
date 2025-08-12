@@ -27,19 +27,19 @@ const services = [
   },
   {
     icon: Briefcase,
-    title:"Content Stragist",
-    description: " Strategic content planning to engage audiences and achieve your brand goals.",
+    title:"Content Strategist",
+    description: "Strategist content planning to engage audiences and achieve your brand goals.",
     href: "/services",
   },
   {
     icon: MonitorPlay,
-    title:"One on one Mentorship",
+    title:"One on One Mentorship",
     description: "Professional Premiere Pro training for video editing, andd After Efectts",
     href: "/services",
   },
   {
    icon: Palette,
-    title: "Creative Cnsulting",
+    title: "Creative Consulting",
     description: "Creative consulting that helps you shape ideas into impactful visuals.",
     href: "/services",
   },

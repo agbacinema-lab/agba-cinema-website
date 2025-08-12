@@ -13,7 +13,7 @@ const stats = [
 
 const team = [
   {
-    name: "Agbele ololade Abel",
+    name: "Agbele Ololade Abel",
     role: "Founder & Creative Director",
     image: "/haybel picture.jpeg",
     bio: "With over 8 years in the industry, Adebayo brings creative vision and technical expertise to every project.",

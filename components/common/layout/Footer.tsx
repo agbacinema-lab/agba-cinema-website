@@ -78,7 +78,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4 text-primary" />
-                <span className="text-gray-300">Lagos, Nigeria</span>
+                <span className="text-gray-300">Nigeria</span>
               </li>
             </ul>
           </div>
