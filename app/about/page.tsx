@@ -16,19 +16,19 @@ const team = [
     name: "Agbele Ololade Abel",
     role: "Founder & Creative Director",
     image: "/haybel picture.jpeg",
-    bio: "With over 8 years in the industry, Adebayo brings creative vision and technical expertise to every project.",
+    bio: "With close to a decade in the industry, Oloade Abel brings creative vision and technical expertise to every project.",
   },
   {
-    name: "Kemi Adebisi",
-    role: "Lead Cinematographer",
-    image: "/IMG-20240515-WA0020.jpg",
-    bio: "Kemi specializes in cinematic storytelling and has worked on numerous award-winning productions.",
+    name: "Oloniyo Testimony",
+    role: "Lead writter and Storyteller",
+    image: "/testimony.jpg",
+    bio: "Testimoy brings a rare blend of storytelling brilliance and editorial precision, leading every project with creativity, clarity, and purpose.",
   },
   {
     name: "Tunde Okafor",
-    role: "Post-Production Specialist",
+    role: "Head of Training & Mentorship",
     image: "/IMG-20240515-WA0032.jpg",
-    bio: "Tunde transforms raw footage into compelling stories through expert editing and color grading.",
+    bio: "Tunde empowers creatives to transform their skills into impactful careers. With close to a decade of industry insight, they guide the next generation with clarity, creativity, and real-world expertise.",
   },
 ]
 
@@ -84,12 +84,12 @@ export default function AboutPage() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Our Story</h2>
             <div className="prose prose-lg mx-auto text-gray-600">
               <p>
-                Founded in 2016, ÀGBÀ CINEMA began as a passion project with a simple mission: to tell compelling
-                stories through the art of cinematography. What started as a small team of creative enthusiasts has
-                grown into one of Nigeria's most trusted video production companies.
+                Founded in 2020, ÀGBÀ CINEMA began as a passion project with a simple mission: to tell compelling
+                stories through the art of storytelling. What started as a small team of creative enthusiasts has
+                grown into one of Nigeria's most trusted Video Education & Production Company.
               </p>
               <p>
-                Our name "ÀGBÀ" means "elder" or "master" in Yoruba, reflecting our commitment to mastery in our craft
+                Our name "ÀGBÀ"(agba) means "elder" or "master" in Yoruba, reflecting our commitment to mastery in our craft
                 and respect for the storytelling traditions that inspire us. We believe every project, whether it's a
                 corporate video, wedding film, or documentary, deserves the same level of artistic attention and
                 technical excellence.
