@@ -1,41 +1,168 @@
 [
   {
     "id": 1,
-    "title": "Corporate Brand Story",
+    "title": "THE ROMAN EMPIRE",
     "slug": "corporate-brand-story",
-    "category": "Corporate",
-    "client": "TechCorp Nigeria",
-    "description": "A compelling brand story video showcasing TechCorp's journey and values.",
-    "image": "/placeholder.svg?height=400&width=600",
-    "videoUrl": "https://example.com/video1",
-    "tags": ["Corporate", "Brand Story", "Professional"],
-    "year": 2024,
-    "duration": "3:45"
+    "category": "Documentary",
+    "client": "Youtube",
+    "description": "A compelling documentay story video showcasing Roman enpire journey and values.",
+    "image": "thre roman.jpg?height=400&width=600",
+     "youtubeEmbedUrl": "https://www.youtube.com/embed/Idk8Z5QA65E",
+    "tags": ["History", "Documentary", "storytelling"],
+    "year": 2023,
+    "duration": "3:40"
   },
   {
     "id": 2,
-    "title": "Elegant Wedding Film",
-    "slug": "elegant-wedding-film",
-    "category": "Wedding",
-    "client": "Michael & Jennifer",
-    "description": "A cinematic wedding film capturing the beauty and emotion of a perfect day.",
-    "image": "/placeholder.svg?height=400&width=600",
-    "videoUrl": "https://example.com/video2",
-    "tags": ["Wedding", "Cinematic", "Romance"],
+    "title": "Yule Tradition and History",
+    "slug": "corporate-brand-story",
+    "category":"Documentary",
+    "client": "Youtube",
+    "description": "Long before Christmas, there was Yule, a festival of fire, feasts, and ancient winter magic",
+    "image": "/yule.jpg?height=400&width=600",
+    "youtubeEmbedUrl": "https://www.youtube.com/embed/JvXJAphGgAM",
+    "tags": ["Documentary", "History", "Tradition"],
     "year": 2024,
-    "duration": "8:20"
+    "duration": "4:51"
   },
   {
     "id": 3,
-    "title": "Product Launch Event",
+    "title": "Importapay",
     "slug": "product-launch-event",
-    "category": "Event",
-    "client": "Fashion Forward",
-    "description": "Complete coverage of a high-profile product launch event.",
-    "image": "/placeholder.svg?height=400&width=600",
-    "videoUrl": "https://example.com/video3",
-    "tags": ["Event", "Product Launch", "Fashion"],
+    "category": "Product Launch",
+    "client": "Importapay",
+    "image": "/mq2.webp?height=400&width=600",
+    "description": "Complete coverage of a high-profile product launch.",
+    "youtubeEmbedUrl": "https://www.youtube.com/embed/G_fGfa-1tZY",
+    "tags": ["Event", "Product Launch", "Fintech"],
+    "year": 2025,
+    "duration": "0:36"
+  },
+
+  {
+    "id": 4,
+    "title": "The Rise, Fall and Rise again of Florian Wirtz",
+    "slug": "product-launch-event",
+    "category": "Sport",
+    "client": "Youtube",
+    "image": "/Florian Wirtz.jpeg?height=400&width=600",
+    "description": "From teenage prodigy to career-threatening injury, and back to the top of world football.",
+    "youtubeEmbedUrl": "https://www.youtube.com/embed//ojYaznRbBa4",
+    "tags": ["sport", "Entertament", "Football"],
     "year": 2024,
-    "duration": "5:15"
+    "duration": "0:58"
+  },
+
+  {
+    "id": 5,
+    "title": "World's Top 5 Referees",
+    "slug": "product-launch-event",
+    "category": "Sport",
+   "client": "Youtube",
+   "image": "/World's Top 5 Referees.jpeg?height=400&width=600",
+    "description": "From the biggest World Cup finals to intense Champions League nights, referees have commanded the game at the highest level.",
+    "youtubeEmbedUrl": "https://www.youtube.com/embed//eYgvcbxQcuQ",
+   "tags": ["sport", "Entertament", "Football"],
+    "year": 2024,
+    "duration": "1:00"
+  },
+
+  {
+    "id": 6,
+    "title": "History of China",
+    "slug": "product-launch-event",
+    "category": "Documentary",
+    "client": "Youtube",
+     "image": "/history of china.jpeg?height=400&width=600",
+    "description": "From the dawn of ancient dynasties to the rise of modern power, China’s history spans over years of empire, and transformation.",
+    "youtubeEmbedUrl": "https://www.youtube.com/embed//mX-gLwMjbiM",
+    "tags": ["Event", "Product Launch", "Fashion"],
+    "year": 2025,
+    "duration": "1:13"
+  },
+
+  {
+    "id": 7,
+    "title": "Skoolified",
+    "slug": "product-launch-event",
+    "category": "Product Launch",
+    "client": "Skoolified",
+    "image": "/Skoolified.webp?height=400&width=600",
+    "description":"Complete coverage of a high-profile product launch.",
+    "youtubeEmbedUrl": "https://www.youtube.com/embed//IimlCWz9bdY",
+    "tags": ["Event", "Product Launch", "Edutech"],
+    "year": 2025,
+    "duration": "0:18"
+  },
+
+  {
+    "id": 8,
+    "title": "The Richest Black Person in the World (ALIKO DANGOTE)",
+    "slug": "product-launch-event",
+    "category": "Documentary",
+    "client": "Youtube",
+    "image": "/The Richest Black Person in the World (ALIKO DANGOTE).jpg?height=400&width=600",
+    "description": "Aliko Dangote built an empire that changed the busines landscape of Africa.",
+    "youtubeEmbedUrl": "https://www.youtube.com/embed//wLiRk3K8Fow",
+   "tags": ["History", "Documentary", "storytelling"],
+    "year": 2024,
+    "duration": "5:50"
+  },
+
+  {
+    "id": 9,
+    "title": "sony wf-1000xm5",
+    "slug": "product-launch-event",
+    "category": "Product sales",
+    "client": "Retobar",
+    "image": "/sony wf-1000xm5.jpeg?height=400&width=600",
+    "description": "Experience pure sound and unmatched silence with the Sony WF-1000XM5.",
+    "youtubeEmbedUrl": "https://www.youtube.com/embed//y4SiSYgxAA8",
+    "tags": ["salesroduct Launch", "Fashion"],
+    "year": 2025,
+    "duration": "0:51"
+  },
+
+  {
+    "id": 10,
+    "title": "Texas Rising to Power",
+    "slug": "product-launch-event",
+    "category": "Documentary",
+    "client": "Youtube",
+     "image": "/Texas Rising to Power.png?height=400&width=600",
+    "description": "Texas has carved a unique path to influence. This is the story of how the Lone Star State rose to power.",
+    "youtubeEmbedUrl": "https://www.youtube.com/embed//Z7IP_uO__pE",
+   "tags": ["History", "Documentary", "storytelling"],
+    "year": 2024,
+    "duration": "0:58"
+  },
+
+  {
+    "id": 11,
+    "title": "Ronaldo THE GOAT",
+    "slug": "product-launch-event",
+     "category": "Sport",
+   "client": "Youtube",
+    "description": "Cristiano Ronaldo’s journey is a story of talent, hard work, and unshakable belief.",
+    "youtubeEmbedUrl": "https://www.youtube.com/embed//5yTKGGx2Eyo",
+    "image": "/Ronaldo THE GOAT.jpeg?height=400&width=600",
+    "tags": ["sport", "Entertament", "Football"],
+    "year": 2024,
+    "duration": "0:13"
+  },
+
+  {
+    "id": 12,
+    "title": "The Suez Canal",
+    "slug": "product-launch-event",
+     "category": "Documentary",
+    "client": "Youtube",
+    "description": "A man-made waterway that changed global trade forever.",
+    "youtubeEmbedUrl": "https://www.youtube.com/embed//109jl8ZKxmM",
+    "image": "/The Suez Canal.jpeg?height=400&width=600",
+   "tags": ["History", "Documentary", "storytelling"],
+    "year": 2024,
+    "duration": "0:58"
   }
+
 ]

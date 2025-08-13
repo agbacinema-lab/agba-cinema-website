@@ -28,5 +28,11 @@
     "id": 6,
     "name": "retobar",
     "logo":"/retobar.png?height=64&width=128"
+  },
+
+   {
+    "id": 7,
+    "name": "Healthgo",
+    "logo":"/healthgo.jpeg?height=64&width=128"
   }
 ]
