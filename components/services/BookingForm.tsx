@@ -1,68 +1,56 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useToast } from "@/hooks/use-toast"
+import type React from "react";
+import { useState, useRef } from "react";
+import emailjs from "@emailjs/browser";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/hooks/use-toast";
 
 interface BookingFormProps {
-  service: string
+  service: string;
 }
 
 export default function BookingForm({ service }: BookingFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const { toast } = useToast()
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
-    const formData = new FormData(e.currentTarget)
-    const data = {
-      fullName: formData.get("fullName"),
-      email: formData.get("email"),
-      phone: formData.get("phone"),
-      service: service,
-      projectLocation: formData.get("projectLocation"),
-      projectBrief: formData.get("projectBrief"),
-      idealDates: formData.get("idealDates"),
-      preferredCommunication: formData.get("preferredCommunication"),
-    }
+    if (!formRef.current) return;
 
     try {
-      const response = await fetch("/api/bookings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      })
+      await emailjs.sendForm(
+        "service_a1sqad8", // ✅ Your Service ID
+        "template_xdd2ddo", // ✅ Your Template ID
+        formRef.current,
+        "JH5HK81ALIHAE-ELW" // ✅ Your Public Key
+      );
 
-      if (response.ok) {
-        toast({
-          title: "Booking Request Sent!",
-          description: "We'll get back to you within 24 hours.",
-        })
-        e.currentTarget.reset()
-      } else {
-        throw new Error("Failed to send booking request")
-      }
+      toast({
+        title: "Booking Request Sent!",
+        description: "We'll get back to you within 24 hours.",
+      });
+
+      formRef.current.reset();
     } catch (error) {
+      console.error("EmailJS Error:", error);
       toast({
         title: "Error",
         description: "Failed to send booking request. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Card>
@@ -73,7 +61,7 @@ export default function BookingForm({ service }: BookingFormProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="fullName">Full Name *</Label>
@@ -134,11 +122,14 @@ export default function BookingForm({ service }: BookingFormProps) {
             </RadioGroup>
           </div>
 
+          {/* Hidden field to include the selected service */}
+          <input type="hidden" name="service" value={service} />
+
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Sending Request..." : "Send Booking Request"}
           </Button>
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }
