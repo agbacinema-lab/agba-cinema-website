@@ -30,7 +30,7 @@ const services = [
   },
   {
     icon: Briefcase,
-    title: "Content Stragist",
+    title: "Content Strategist",
     description: " Strategic content planning to engage audiences and achieve your brand goals.",
     features: ["Audience research", "Content planning", "SEO optimization", "Performance tracking"],
     price: "From #100,000",
