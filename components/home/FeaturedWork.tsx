@@ -125,7 +125,7 @@ export default function FeaturedWork() {
                 <CardContent className="p-6">
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">{project.title}</h3>
                   <Button variant="outline" asChild>
-                    <Link href={project.href}>View Project</Link>
+                   
                   </Button>
                 </CardContent>
               </Card>
