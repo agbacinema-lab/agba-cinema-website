@@ -6,7 +6,7 @@ import portfolio from "@/data/portfolio.json"; // ✅ point this at your actual 
 
 export default function PortfolioGrid() {
   const [items] = useState(
-    Array.isArray(portfolio) ? portfolio.slice(0, 12) : []
+    Array.isArray(portfolio) ? portfolio.slice(0, 15) : []
   );
 
   return (

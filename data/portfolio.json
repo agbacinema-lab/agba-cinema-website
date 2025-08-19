@@ -14,16 +14,16 @@
   },
   {
     "id": 2,
-    "title": "Yule Tradition and History",
+    "title": "Washed conference 2023",
     "slug": "corporate-brand-story",
-    "category":"Documentary",
-    "client": "Youtube",
-    "description": "Long before Christmas, there was Yule, a festival of fire, feasts, and ancient winter magic",
-    "image": "/yule.jpg?height=400&width=600",
-    "youtubeEmbedUrl": "https://www.youtube.com/embed/JvXJAphGgAM",
-    "tags": ["Documentary", "History", "Tradition"],
-    "year": 2024,
-    "duration": "4:51"
+    "category":"Church Event",
+    "client": "Globelight Chuch",
+    "description": "At Washed Conference 2023, hearts are renewed, spirits are reignited, and lives are transformed in God's presence.",
+    "image": "/washed.webp?height=400&width=600",
+    "youtubeEmbedUrl": "https://www.youtube.com/embed/F1ucSzx9yhQM",
+    "tags": ["Church", "christian ", "Tradition"],
+    "year": 2023,
+    "duration": "0:53"
   },
   {
     "id": 3,
@@ -41,16 +41,16 @@
 
   {
     "id": 4,
-    "title": "The Rise, Fall and Rise again of Florian Wirtz",
-    "slug": "product-launch-event",
-    "category": "Sport",
-    "client": "Youtube",
-    "image": "/Florian Wirtz.jpeg?height=400&width=600",
+    "title": "FUOYE Epic Award Event",
+    "slug": "award event",
+    "category": "AWARD",
+    "client": "Xpensive pr",
+    "image": "/epic award.webp?height=400&width=600",
     "description": "From teenage prodigy to career-threatening injury, and back to the top of world football.",
-    "youtubeEmbedUrl": "https://www.youtube.com/embed//ojYaznRbBa4",
-    "tags": ["sport", "Entertament", "Football"],
+    "youtubeEmbedUrl": "https://www.youtube.com/embed//dO89pc96atM",
+    "tags": ["Award", "Entertament", "Reward"],
     "year": 2024,
-    "duration": "0:58"
+    "duration": "0:35"
   },
 
   {
@@ -69,15 +69,15 @@
 
   {
     "id": 6,
-    "title": "History of China",
+    "title": "Gospel Campaign",
     "slug": "product-launch-event",
-    "category": "Documentary",
-    "client": "Youtube",
-     "image": "/history of china.jpeg?height=400&width=600",
+    "category": "Church Event",
+    "client": "Become Ministry",
+     "image": "/gospel campaign.webp?height=400&width=600",
     "description": "From the dawn of ancient dynasties to the rise of modern power, China’s history spans over years of empire, and transformation.",
-    "youtubeEmbedUrl": "https://www.youtube.com/embed//mX-gLwMjbiM",
-    "tags": ["Event", "Product Launch", "Fashion"],
-    "year": 2025,
+    "youtubeEmbedUrl": "https://www.youtube.com/embed//JDaN0iUm7XQ",
+    "tags": ["Church", "christian ", "Tradition"],
+    "year": 2024,
     "duration": "1:13"
   },
 
@@ -125,16 +125,16 @@
 
   {
     "id": 10,
-    "title": "Texas Rising to Power",
+    "title": "Fake Wedding Party",
     "slug": "product-launch-event",
-    "category": "Documentary",
-    "client": "Youtube",
-     "image": "/Texas Rising to Power.png?height=400&width=600",
-    "description": "Texas has carved a unique path to influence. This is the story of how the Lone Star State rose to power.",
-    "youtubeEmbedUrl": "https://www.youtube.com/embed//Z7IP_uO__pE",
+    "category": "Party",
+    "client": "Fake Wedding Party",
+     "image": "/fake wedding party.webp?height=400&width=600",
+    "description": "Not a real wedding. Just real vibes. Put on your finest, grab a role (bride? bridesmaid? ex?), and party like you crashed a wedding.",
+    "youtubeEmbedUrl": "https://www.youtube.com/embed//yPSvE-ymw68",
    "tags": ["History", "Documentary", "storytelling"],
     "year": 2024,
-    "duration": "0:58"
+    "duration": "0:14"
   },
 
   {
@@ -163,6 +163,45 @@
    "tags": ["History", "Documentary", "storytelling"],
     "year": 2024,
     "duration": "0:58"
-  }
+  },
+  {
+    "id": 13,
+    "title": "Fake Wedding Party 2",
+    "slug": "product-launch-event",
+    "category": "Party",
+    "client": "Fake Wedding Party",
+    "description": "Not a real wedding. Just real vibes. Put on your finest, grab a role (bride? bridesmaid? ex?), and party like you crashed a wedding.",
+    "youtubeEmbedUrl": "https://www.youtube.com/embed//ut7C6bwx9zs",
+    "image": "/fake wedding party.webp?height=400&width=600",
+    "tags": ["History", "Documentary", "storytelling"],
+    "year": 2024,
+    "duration": "1:46"
+  },
 
+  {
+    "id": 14,
+    "title": "SeamlessHR",
+    "slug": "product-launch-event",
+     "category": "Brand Promo",
+    "client": "Tutorial",
+    "description": "A man-made waterway that changed global trade forever.",
+    "youtubeEmbedUrl": "https://www.youtube.com/embed//SHZFIoKSQeUg",
+    "image": "/seamlesshr.png?height=400&width=600",
+   "tags": ["Brand", "Documentary", "storytelling"],
+    "year": 2025,
+    "duration": "0:09"
+  },
+{
+    "id": 15,
+    "title": "Brain jotter",
+    "slug": "product-launch-event",
+     "category": "Picture Highlight",
+    "client": "Tutorial",
+    "description": "A man-made to changed global conmedy forever.",
+    "youtubeEmbedUrl": "https://www.youtube.com/embed//DeQB2F0gbag",
+    "image": "/brain jotter.png?height=400&width=600",
+   "tags": ["Comedy", "Documentary", "storytelling"],
+    "year": 2025,
+    "duration": "0:04"
+  }
 ]
