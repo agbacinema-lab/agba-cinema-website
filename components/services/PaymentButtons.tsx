@@ -63,12 +63,12 @@ export default function PaymentButtons({ amount, email, service }: Props) {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center mt-6">
-      <div className="flex gap-4">
+    <div className="flex justify-center">
+      <div className="flex gap-4 items-center">
         <button
           type="button"
           onClick={handlePaystack}
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-60"
+          className="inline-block min-w-[220px] px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-60"
           disabled={paystackLoading}
         >
           {paystackLoading ? "Processing..." : "Pay with Card (Paystack)"}
@@ -77,7 +77,7 @@ export default function PaymentButtons({ amount, email, service }: Props) {
         <button
           type="button"
           onClick={handleKuda}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-60"
+          className="inline-block min-w-[220px] px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-60"
           disabled={kudaLoading}
         >
           {kudaLoading ? "Processing..." : "Pay via Kuda / Bank Transfer"}

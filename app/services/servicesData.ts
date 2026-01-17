@@ -84,7 +84,7 @@ export const serviceDetails = [
 
       {
     icon: Palette,
-    title: "Gopro Aftereffect",
+    title: "Gopro After Effect",
     description: "Gopro provide the best training for intending creative for free.",
     features: ["Concept development", "Storyboarding", "Creative direction", "Project planning"],
     price:"Refundable #20,000",

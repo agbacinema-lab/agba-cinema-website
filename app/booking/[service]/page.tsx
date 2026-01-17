@@ -17,33 +17,34 @@ const serviceDetails = {
   "Script-Writing": {
     title: "Script Writing",
     description: "Cinematic wedding films that capture your special day with artistic flair.",
-    price:"From #50,000",
+    price: "From #50,000",
     duration: "6-8 weeks",
-    deliverables:["Concept development", "Story structure", "Dialogue writing", "Tone alignment"],
+    deliverables: ["Concept development", "Story structure", "Dialogue writing", "Tone alignment"],
   },
   "live-event": {
     title: "Live Event Coverage",
-    description:  "Professional live streaming services for events, conferences, and broadcasts",
+    description: "Professional live streaming services for events, conferences, and broadcasts",
     price: "From #100,000",
     duration: "1-3 weeks",
     deliverables: ["Multi-camera footage", "Event highlights", "Live streaming", "Same-day clips"],
   },
   "content-startegist": {
     title: "Content Stragist",
-    description:  " Strategic content planning to engage audiences and achieve your brand goals.",
-    price: "From $5,000",
-    duration: "From #100,000",
+    description: "Strategic content planning to engage audiences and achieve your brand goals.",
+    price: "From #5,000",
+    duration: "Varies",
     deliverables: ["Audience research", "Content planning", "SEO optimization", "Performance tracking"],
   },
   "video-editing": {
-    title:"Premirere Pro Training",
-    description:  "Professional Premiere Pro training for video editing, storytelling, and content creation.",
-    price:  "From #70,000",
+    title: "Premiere Pro Training",
+    description: "Professional Premiere Pro training for video editing, storytelling, and content creation.",
+    price: "From #70,000",
     duration: "8-12 weeks",
-   
+    deliverables: ["Editing workflow", "Color grading basics", "Audio sync & mixing", "Exporting best practices"],
+  },
   "aftereffect": {
     title: "After Effect Training",
-    description:  "Professional After Effects training for animation, motion graphics, and video effects.",
+    description: "Professional After Effects training for animation, motion graphics, and video effects.",
     price: "From #150,000",
     duration: "4-6 weeks",
     deliverables: ["Motion graphics", "Visual effects", "Animation", "Compositing"],
@@ -57,27 +58,26 @@ const serviceDetails = {
   },
   "creative-consulting": {
     title: "Creative Consulting",
-    description:  "Creative consulting that helps you shape ideas into impactful visuals.",
+    description: "Creative consulting that helps you shape ideas into impactful visuals.",
     price: "#50,000 per hour",
-    duration: "1-2 weeks",
+    duration: "Varies",
     deliverables: ["Concept development", "Storyboarding", "Creative direction", "Project planning"],
   },
-   "Gopro-Video-Editing": {
+  "Gopro-Video-Editing": {
     title: "Gopro-Video-Editing",
-    description:"Gopro provide the best training for intending ceeative for free.",
+    description: "Gopro provide the best training for intending creative professionals.",
     price: "Free with refundable commitment fee of #20,000",
-    duration: "7 Months",
-    deliverables: ["intenship oppturnity", "Storytelling", "Color correction", "Audio syncing"],
+    duration: "7 months",
+    deliverables: ["Internship opportunity", "Storytelling", "Color correction", "Audio syncing"],
   },
-   "Gopro-Aftereffect": {
+  "Gopro-Aftereffect": {
     title: "Gopro Aftereffect",
     description: "Gopro provide the best training for intending creatives for free.",
     price: "Free with refundable commitment fee of #20,000",
-    duration: "7 Months",
-    deliverables: ["Motion graphics", "Visual effects", "Animation", "Compositing", "Job intenship"],
+    duration: "7 months",
+    deliverables: ["Motion graphics", "Visual effects", "Animation", "Compositing", "Job internship"],
   },
 }
-
 
 export default function BookingPage({ params }: { params: { service: string } }) {
   const service = serviceDetails[params.service as keyof typeof serviceDetails]
