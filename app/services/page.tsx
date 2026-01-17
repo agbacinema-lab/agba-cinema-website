@@ -18,7 +18,7 @@ const services = [
     description: "Compelling scripts that bring stories and messages to life",
     features: ["Concept development", "Story structure", "Dialogue writing", "Tone alignment"],
     price: "From #50,000",
-   href: "/booking/wedding-cinematography",
+   href: "/booking/Script-Writing",
   },
   {
     icon: Users,
@@ -26,7 +26,7 @@ const services = [
     description: "Professional live streaming services for events, conferences, and broadcasts",
     features: ["Multi-camera setup", "Live streaming", "Post-event editing", "Same-day highlights"],
     price: "From #100,000",
-    href: "/booking/event-coverage",
+    href: "/booking/live-event",
   },
   {
     icon: Briefcase,
@@ -34,15 +34,15 @@ const services = [
     description: " Strategic content planning to engage audiences and achieve your brand goals.",
     features: ["Audience research", "Content planning", "SEO optimization", "Performance tracking"],
     price: "From #100,000",
-    href: "/booking/commercial-production",
+    href: "/booking/content-startegist",
   },
   {
     icon: MonitorPlay,
-    title: "Premirere Pro Training",
+    title: "Premire Pro Training",
     description: "Professional Premiere Pro training for video editing, storytelling, and content creation.",
     features: ["Video editing", "Storytelling", "Color correction", "Audio syncing"],
     price: "From #70,000",
-    href: "/booking/documentary-films",
+    href: "/booking/video-editing",
   },
   {
     icon: MonitorStop,
@@ -50,7 +50,7 @@ const services = [
     description: "Professional After Effects training for animation, motion graphics, and video effects.",
     features: ["Motion graphics", "Visual effects", "Animation", "Compositing"],
     price: "From #150,000",
-    href: "/booking/live-streaming",
+    href: "/booking/aftereffect",
   },
   {
     icon: Edit,
@@ -62,11 +62,28 @@ const services = [
   },
   {
     icon: Palette,
-    title: "Creative Cnsulting",
+    title: "Creative Consulting",
     description: "Creative consulting that helps you shape ideas into impactful visuals.",
     features: ["Concept development", "Storyboarding", "Creative direction", "Project planning"],
-    price: "#50,000 per hour",
+    price: "#20,000 per hour",
     href: "/booking/creative-consulting",
+  },
+  {
+    icon: Palette,
+    title: "Go Pro Video Editing",
+    description: "Go Pro provide the best training for intending creative for free.",
+    features: ["Internship Opportunity", "Storytelling", "Color correction", "Audio syncing"],
+    price: "Free",
+    href: "/booking/Gopro-Video-Editing",
+  },
+
+  {
+    icon: Palette,
+    title: "Go Pro After Effect",
+    description: "Go Pro provide the best training for intending creatives for free.",
+    features: ["After Effects", "Storytelling", "Creative direction", "Internship Opportunity"],
+    price: "Free",
+    href: "/booking/Gopro-Aftereffect",
   },
 ]
 

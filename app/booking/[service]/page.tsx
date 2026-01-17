@@ -1,7 +1,10 @@
 import BookingForm from "@/components/services/BookingForm"
+import PaymentButtons from "@/components/services/PaymentButtons"
 import CalendarRedirectButton from "@/components/services/CalendarRedirectButton"
+import ServiceBookingClient from "@/components/services/ServiceBookingClient"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { notFound } from "next/navigation"
+
 
 const serviceDetails = {
   "corporate-videos": {
@@ -11,35 +14,34 @@ const serviceDetails = {
     duration: "2-4 weeks",
     deliverables: ["Raw footage", "Edited video", "Color correction", "Audio mixing"],
   },
-  "wedding-cinematography": {
+  "Script-Writing": {
     title: "Script Writing",
     description: "Cinematic wedding films that capture your special day with artistic flair.",
     price:"From #50,000",
     duration: "6-8 weeks",
     deliverables:["Concept development", "Story structure", "Dialogue writing", "Tone alignment"],
   },
-  "event-coverage": {
+  "live-event": {
     title: "Live Event Coverage",
     description:  "Professional live streaming services for events, conferences, and broadcasts",
     price: "From #100,000",
     duration: "1-3 weeks",
     deliverables: ["Multi-camera footage", "Event highlights", "Live streaming", "Same-day clips"],
   },
-  "commercial-production": {
+  "content-startegist": {
     title: "Content Stragist",
     description:  " Strategic content planning to engage audiences and achieve your brand goals.",
     price: "From $5,000",
     duration: "From #100,000",
     deliverables: ["Audience research", "Content planning", "SEO optimization", "Performance tracking"],
   },
-  "documentary-films": {
+  "video-editing": {
     title:"Premirere Pro Training",
     description:  "Professional Premiere Pro training for video editing, storytelling, and content creation.",
     price:  "From #70,000",
     duration: "8-12 weeks",
-    deliverables: ["Video editing", "Storytelling", "Color correction", "Audio syncing"],
-  },
-  "live-streaming": {
+   
+  "aftereffect": {
     title: "After Effect Training",
     description:  "Professional After Effects training for animation, motion graphics, and video effects.",
     price: "From #150,000",
@@ -60,7 +62,22 @@ const serviceDetails = {
     duration: "1-2 weeks",
     deliverables: ["Concept development", "Storyboarding", "Creative direction", "Project planning"],
   },
+   "Gopro-Video-Editing": {
+    title: "Gopro-Video-Editing",
+    description:"Gopro provide the best training for intending ceeative for free.",
+    price: "Free with refundable commitment fee of #20,000",
+    duration: "7 Months",
+    deliverables: ["intenship oppturnity", "Storytelling", "Color correction", "Audio syncing"],
+  },
+   "Gopro-Aftereffect": {
+    title: "Gopro Aftereffect",
+    description: "Gopro provide the best training for intending creatives for free.",
+    price: "Free with refundable commitment fee of #20,000",
+    duration: "7 Months",
+    deliverables: ["Motion graphics", "Visual effects", "Animation", "Compositing", "Job intenship"],
+  },
 }
+
 
 export default function BookingPage({ params }: { params: { service: string } }) {
   const service = serviceDetails[params.service as keyof typeof serviceDetails]
@@ -109,6 +126,7 @@ export default function BookingPage({ params }: { params: { service: string } })
             </Card>
 
             <CalendarRedirectButton />
+            <PaymentButtons amount={parseFloat(service.price.replace(/[^0-9]/g, "")) || 5000} email={"client@example.com"} />
           </div>
 
           {/* Booking Form */}
