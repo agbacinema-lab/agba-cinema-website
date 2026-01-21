@@ -85,6 +85,14 @@ const services = [
     price: "Free",
     href: "/booking/Gopro-Aftereffect",
   },
+   {
+    icon: Palette,
+    title: "Go Pro Video Editing & After Effect",
+    description: "Go Pro provide the best training for intending creatives for free.",
+    features: ["After Effects", "Storytelling", "Creative direction", "Internship Opportunity"],
+    price: "Free",
+    href: "/booking/Gopro-Aftereffect",
+  },
 ]
 
 export default function ServicesPage() {
