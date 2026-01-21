@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { Resend } from "resend"
 
-const resend = new Resend(process.env.RESEND_API_KEY || "")
+const resend = new Resend(process.env.RESEND_API_KEY || "re_123")
 
 export async function GET(request: NextRequest, { params }: { params: { reference: string } }) {
   const reference = params.reference
@@ -22,14 +22,35 @@ export async function GET(request: NextRequest, { params }: { params: { referenc
 
     const tx = data.data
 
+
     // If payment successful, send receipt email
     let emailResult: any = null
+    let sheetResult: boolean = false;
+
     try {
       if (tx.status === "success" && tx.customer && tx.customer.email) {
         const toEmail = tx.customer.email
         const amountNGN = (tx.amount / 100).toLocaleString("en-NG", { style: "currency", currency: "NGN" })
         const service = tx.metadata?.service || "Your booking"
         const fullName = tx.metadata?.fullName || "Valued Customer"
+
+        // Append to Google Sheet
+        try {
+          const { appendBookingToSheet } = await import("@/lib/googleSheets");
+          sheetResult = await appendBookingToSheet({
+            reference: tx.reference,
+            fullName: fullName,
+            email: toEmail,
+            phone: tx.metadata?.phone || "",
+            service: service,
+            amount: amountNGN,
+            date: new Date().toISOString(),
+            category: tx.metadata?.category || "general",
+            status: tx.status
+          });
+        } catch (sheetError) {
+          console.error("Failed to append to sheet", sheetError);
+        }
 
         const html = `
           <div style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; color:#111; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
@@ -58,7 +79,7 @@ export async function GET(request: NextRequest, { params }: { params: { referenc
       console.error("Error sending email:", emailError)
     }
 
-    return NextResponse.json({ success: true, data: tx, emailResult })
+    return NextResponse.json({ success: true, data: tx, emailResult, sheetResult })
   } catch (error) {
     return NextResponse.json({ message: "An unexpected error occurred" }, { status: 500 })
   }

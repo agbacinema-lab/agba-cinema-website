@@ -13,6 +13,7 @@ const serviceDetails = {
     price: "From #100,000",
     duration: "2-4 weeks",
     deliverables: ["Raw footage", "Edited video", "Color correction", "Audio mixing"],
+    category: "service",
   },
   "Script-Writing": {
     title: "Script Writing",
@@ -20,6 +21,7 @@ const serviceDetails = {
     price: "From #50,000",
     duration: "6-8 weeks",
     deliverables: ["Concept development", "Story structure", "Dialogue writing", "Tone alignment"],
+    category: "academy",
   },
   "live-event": {
     title: "Live Event Coverage",
@@ -27,6 +29,7 @@ const serviceDetails = {
     price: "From #100,000",
     duration: "1-3 weeks",
     deliverables: ["Multi-camera footage", "Event highlights", "Live streaming", "Same-day clips"],
+    category: "service",
   },
   "content-startegist": {
     title: "Content Stragist",
@@ -34,6 +37,7 @@ const serviceDetails = {
     price: "From #5,000",
     duration: "Varies",
     deliverables: ["Audience research", "Content planning", "SEO optimization", "Performance tracking"],
+    category: "service",
   },
   "video-editing": {
     title: "Premiere Pro Training",
@@ -41,6 +45,7 @@ const serviceDetails = {
     price: "From #70,000",
     duration: "8-12 weeks",
     deliverables: ["Editing workflow", "Color grading basics", "Audio sync & mixing", "Exporting best practices"],
+    category: "academy",
   },
   "aftereffect": {
     title: "After Effect Training",
@@ -48,6 +53,7 @@ const serviceDetails = {
     price: "From #100",
     duration: "4-6 weeks",
     deliverables: ["Motion graphics", "Visual effects", "Animation", "Compositing"],
+    category: "academy",
   },
   "post-production": {
     title: "Post-Production",
@@ -55,6 +61,7 @@ const serviceDetails = {
     price: "From #200,000",
     duration: "1-2 weeks",
     deliverables: ["Video editing", "Color correction", "Audio mixing", "Motion graphics"],
+    category: "service",
   },
   "creative-consulting": {
     title: "Creative Consulting",
@@ -62,6 +69,7 @@ const serviceDetails = {
     price: "#50,000 per hour",
     duration: "Varies",
     deliverables: ["Concept development", "Storyboarding", "Creative direction", "Project planning"],
+    category: "service",
   },
   "Gopro-Video-Editing": {
     title: "Gopro-Video-Editing",
@@ -69,6 +77,7 @@ const serviceDetails = {
     price: "Free with refundable commitment fee of #20,000",
     duration: "7 months",
     deliverables: ["Internship opportunity", "Storytelling", "Color correction", "Audio syncing"],
+    category: "gopro",
   },
   "Gopro-Aftereffect": {
     title: "Gopro Aftereffect",
@@ -76,6 +85,7 @@ const serviceDetails = {
     price: "Free with refundable commitment fee of #20,000",
     duration: "7 months",
     deliverables: ["Motion graphics", "Visual effects", "Animation", "Compositing", "Job internship"],
+    category: "gopro",
   },
   "GoPro-Video-Editing-After-Effect": {
     title: "Go Pro Video Editing & After Effect",
@@ -83,8 +93,24 @@ const serviceDetails = {
     price: "Free with refundable commitment fee of #30,000",
     duration: "7 months",
     deliverables: ["Video Editing", "After Effect", "Creative direction", "Intenship placement"],
+    category: "gopro",
   },
-
+  "cinema-conference-2024": {
+    title: "Creativity and Legal Crises 2026",
+    description: "Join industry leaders for a day of networking, workshops, and screenings.",
+    price: "#15,000",
+    duration: "1 Day",
+    deliverables: ["Keynote speakers", "Panel discussions", "Networking lunch", "Film screenings"],
+    category: "event",
+  },
+  "filmmaking-masterclass": {
+    title: "What is creativity",
+    description: "Hands-on masterclass with award-winning directors and cinematographers.",
+    price: "#25,000",
+    duration: "1 Day",
+    deliverables: ["Directing workshop", "Lighting demo", "Q&A session", "Certificate of attendance"],
+    category: "event",
+  },
 }
 
 export default function BookingPage({ params }: { params: { service: string } }) {
@@ -137,6 +163,7 @@ export default function BookingPage({ params }: { params: { service: string } })
             <PaymentForm
               service={service.title}
               amount={parseFloat(service.price.replace(/[^0-9]/g, "")) || 50000}
+              category={service.category as "service" | "academy" | "gopro" | "event"}
             />
           </div>
 
