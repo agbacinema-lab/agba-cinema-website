@@ -73,10 +73,18 @@ const serviceDetails = {
   "Gopro-Aftereffect": {
     title: "Gopro Aftereffect",
     description: "Gopro provide the best training for intending creatives for free.",
-    price: "Free with refundable commitment fee of #20,000",
+    price: "Free with refundable commitment fee of #1,000",
     duration: "7 months",
     deliverables: ["Motion graphics", "Visual effects", "Animation", "Compositing", "Job internship"],
   },
+  "GoPro-Video-Editing-After-Effect": {
+    title: "Go Pro Video Editing & After Effect",
+    description: "Gopro provide the best training for intending creatives for free.",
+    price: "Free with refundable commitment fee of #30,000",
+    duration: "7 months",
+    deliverables: ["Motion graphics", "Visual effects", "Animation", "Compositing", "Job internship"],
+  },
+
 }
 
 export default function BookingPage({ params }: { params: { service: string } }) {

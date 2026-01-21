@@ -91,7 +91,7 @@ const services = [
     description: "Go Pro provide the best training for intending creatives for free.",
     features: ["After Effects", "Storytelling", "Creative direction", "Internship Opportunity"],
     price: "Free",
-    href: "/booking/Gopro-Aftereffect",
+    href: "/booking/GoPro-Video-EditingAfter-Effect",
   },
 ]
 

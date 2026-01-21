@@ -87,16 +87,15 @@ export const serviceDetails = [
     title: "Gopro After Effect",
     description: "Gopro provide the best training for intending creative for free.",
     features: ["Concept development", "Storyboarding", "Creative direction", "Project planning"],
-    price:"Refundable #20,000",
+    price:"Refundable 1,000",
     href: "/booking/Gopro-Aftereffect",
     },
  {
     icon: Palette,
-    title: "Go Pro Video Editing & After Effect",
+    title: "Go Pro Video Editing - After Effect",
     description: "Gopro provide the best training for intending creative for free.",
     features: ["Concept development", "Storyboarding", "Creative direction", "Project planning"],
     price:"Refundable #30,000",
-    href: "/booking/GoPro-Video-Editing&After-Effect",
+    href: "/booking/GoPro-Video-Editing-After-Effect",
     },
-
 ] as const;
