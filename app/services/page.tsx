@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Video, Camera, Users, Briefcase, Heart, Mic, Edit, Palette, PenLine,MonitorPlay, MonitorStop  } from "lucide-react"
+import { Video, Camera, Users, Briefcase, Heart, Mic, Edit, Palette, PenLine, MonitorPlay, MonitorStop } from "lucide-react"
 
 const services = [
   {
@@ -18,7 +18,7 @@ const services = [
     description: "Compelling scripts that bring stories and messages to life",
     features: ["Concept development", "Story structure", "Dialogue writing", "Tone alignment"],
     price: "From #50,000",
-   href: "/booking/Script-Writing",
+    href: "/booking/Script-Writing",
   },
   {
     icon: Users,
@@ -85,13 +85,13 @@ const services = [
     price: "Free",
     href: "/booking/Gopro-Aftereffect",
   },
-   {
+  {
     icon: Palette,
     title: "Go Pro Video Editing & After Effect",
     description: "Go Pro provide the best training for intending creatives for free.",
-    features: ["After Effects", "Storytelling", "Creative direction", "Internship Opportunity"],
+    features: ["Video Editing", "After Effect", "Creative direction", "Intenship placement"],
     price: "Free",
-    href: "/booking/GoPro-Video-EditingAfter-Effect",
+    href: "/booking/GoPro-Video-Editing-After-Effect",
   },
 ]
 

@@ -1,5 +1,5 @@
 import BookingForm from "@/components/services/BookingForm"
-import PaymentButtons from "@/components/services/PaymentButtons"
+import PaymentForm from "@/components/services/PaymentForm"
 import CalendarRedirectButton from "@/components/services/CalendarRedirectButton"
 import ServiceBookingClient from "@/components/services/ServiceBookingClient"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -82,7 +82,7 @@ const serviceDetails = {
     description: "Gopro provide the best training for intending creatives for free.",
     price: "Free with refundable commitment fee of #30,000",
     duration: "7 months",
-    deliverables: ["Motion graphics", "Visual effects", "Animation", "Compositing", "Job internship"],
+    deliverables: ["Video Editing", "After Effect", "Creative direction", "Intenship placement"],
   },
 
 }
@@ -134,7 +134,7 @@ export default function BookingPage({ params }: { params: { service: string } })
             </Card>
 
             <CalendarRedirectButton />
-            <PaymentButtons amount={parseFloat(service.price.replace(/[^0-9]/g, "")) || 5000} email={"client@example.com"} />
+            <PaymentForm service={service.title} />
           </div>
 
           {/* Booking Form */}

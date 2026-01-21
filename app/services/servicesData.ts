@@ -8,29 +8,14 @@ export interface ServiceDetail {
   href?: string
 }
 export const serviceDetails = [
-  {
-    icon: Video,
-    title: "Corporate Videos",
-    description: "Professional corporate video production for brands, training, and marketing campaigns.",
-    features: ["Brand storytelling", "Training videos", "Company profiles", "Product demos"],
-    price: "From #100,000",
-    href: "/booking/corporate-videos",
-  },
+
   {
     icon: PenLine,
-    title: "Script Writing",
+    title: "Script Writing Training",
     description: "Compelling scripts that bring stories and messages to life.",
     features: ["Concept development", "Story structure", "Dialogue writing", "Tone alignment"],
     price: "From #50,000",
     href: "/booking/Script-Writing",
-  },
-  {
-    icon: Users,
-    title: "Live Event Coverage",
-    description: "Professional live streaming services for events, conferences, and broadcasts.",
-    features: ["Multi-camera setup", "Live streaming", "Post-event editing", "Same-day highlights"],
-    price: "From #100,000",
-    href: "/booking/live-event",
   },
   {
     icon: Briefcase,
@@ -56,46 +41,30 @@ export const serviceDetails = [
     price: "From #150,000",
     href: "/booking/aftereffect",
   },
-  {
-    icon: Edit,
-    title: "Post-Production",
-    description: "Professional video editing, color grading, and post-production services.",
-    features: ["Video editing", "Color correction", "Audio mixing", "Motion graphics"],
-    price: "From #200,000",
-    href: "/booking/post-production",
-  },
-  {
-    icon: Palette,
-    title: "Creative Consulting",
-    description: "Creative consulting that helps you shape ideas into impactful visuals.",
-    features: ["Concept development", "Storyboarding", "Creative direction", "Project planning"],
-    price: "#50,000 per hour",
-    href: "/booking/creative-consulting",
-    },
 
-      {
+  {
     icon: Palette,
     title: "Gopro Video Editing",
     description: "Gopro provide the best training for intending creative for free.",
     features: ["intenship oppturnity", "Storytelling", "Color correction", "Audio syncing"],
     price: "Free with refundable commitment fee of #20,000",
     href: "/booking/Gopro-Video-Editing",
-    },
+  },
 
-      {
+  {
     icon: Palette,
     title: "Gopro After Effect",
     description: "Gopro provide the best training for intending creative for free.",
     features: ["Concept development", "Storyboarding", "Creative direction", "Project planning"],
-    price:"Refundable 1,000",
+    price: "Refundable 1,000",
     href: "/booking/Gopro-Aftereffect",
-    },
- {
+  },
+  {
     icon: Palette,
     title: "Go Pro Video Editing - After Effect",
     description: "Gopro provide the best training for intending creative for free.",
-    features: ["Concept development", "Storyboarding", "Creative direction", "Project planning"],
-    price:"Refundable #30,000",
+    features: ["Video Editing", "After Effect", "Creative direction", "Intenship placement"],
+    price: "Refundable #30,000",
     href: "/booking/GoPro-Video-Editing-After-Effect",
-    },
+  },
 ] as const;

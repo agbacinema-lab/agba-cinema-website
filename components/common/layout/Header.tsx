@@ -13,6 +13,7 @@ export default function Header() {
   const navigation = [
     { name: "Home", href: "/" },
     { name: "Services", href: "/services" },
+    { name: "Academy", href: "/academy" },
     { name: "Portfolio", href: "/portfolio" },
     { name: "Blog", href: "/blog" },
     { name: "About", href: "/about" },
@@ -25,14 +26,14 @@ export default function Header() {
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-  <Image
-    src="/agba  white.jpg"
-    alt="ÀGBÀ CINEMA Logo"
-    width={150}
-    height={50}
-    priority
-  />
-</Link>
+            <Image
+              src="/agba  white.jpg"
+              alt="ÀGBÀ CINEMA Logo"
+              width={150}
+              height={50}
+              priority
+            />
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
