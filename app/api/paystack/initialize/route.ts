@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       email,
       amount: Math.round(Number(amount) * 100), // kobo
       metadata: { service, fullName, phone },
-      callback_url: process.env.PAYSTACK_CALLBACK_URL || undefined,
+      callback_url: process.env.PAYSTACK_CALLBACK_URL || `${request.headers.get("origin") || "http://localhost:3000"}/payment/success`,
     }
 
     const res = await fetch("https://api.paystack.co/transaction/initialize", {

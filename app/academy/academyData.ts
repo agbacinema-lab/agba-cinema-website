@@ -30,7 +30,7 @@ export const academyDetails = [
         title: "After Effects Training",
         description: "Professional After Effects training for animation, motion graphics, and video effects.",
         features: ["Motion graphics", "Visual effects", "Animation", "Compositing"],
-        price: "From #150,000",
+        price: "From #100",
         href: "/booking/aftereffect",
     },
 
@@ -48,7 +48,7 @@ export const academyDetails = [
         title: "Gopro After Effect",
         description: "Gopro provide the best training for intending creative for free.",
         features: ["Concept development", "Storyboarding", "Creative direction", "Project planning"],
-        price: "Refundable 1,000",
+        price: "Free with refundable commitment fee of #20,000",
         href: "/booking/Gopro-Aftereffect",
     },
     {
@@ -56,7 +56,7 @@ export const academyDetails = [
         title: "Go Pro Video Editing - After Effect",
         description: "Gopro provide the best training for intending creative for free.",
         features: ["Video Editing", "After Effect", "Creative direction", "Intenship placement"],
-        price: "Refundable #30,000",
+        price: "Free with refundable commitment fee of #20,000",
         href: "/booking/GoPro-Video-Editing-After-Effect",
     },
 ] as const;

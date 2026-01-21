@@ -17,16 +17,16 @@ import { Loader2 } from "lucide-react"
 
 type Props = {
     service: string
+    amount: number
 }
 
-export default function PaymentForm({ service }: Props) {
+export default function PaymentForm({ service, amount }: Props) {
     const [formData, setFormData] = useState({
         fullName: "",
         email: "",
         phone: "",
     })
     const [loading, setLoading] = useState(false)
-    const [amount] = useState(50000) // Default amount logic can be improved later if needed
     const [termsAccepted, setTermsAccepted] = useState(false)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

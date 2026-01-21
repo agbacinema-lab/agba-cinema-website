@@ -36,22 +36,7 @@ const services = [
     price: "From #100,000",
     href: "/booking/content-startegist",
   },
-  {
-    icon: MonitorPlay,
-    title: "Premire Pro Training",
-    description: "Professional Premiere Pro training for video editing, storytelling, and content creation.",
-    features: ["Video editing", "Storytelling", "Color correction", "Audio syncing"],
-    price: "From #70,000",
-    href: "/booking/video-editing",
-  },
-  {
-    icon: MonitorStop,
-    title: "After Effect Training",
-    description: "Professional After Effects training for animation, motion graphics, and video effects.",
-    features: ["Motion graphics", "Visual effects", "Animation", "Compositing"],
-    price: "From #150,000",
-    href: "/booking/aftereffect",
-  },
+
   {
     icon: Edit,
     title: "Post-Production",
@@ -68,31 +53,7 @@ const services = [
     price: "#20,000 per hour",
     href: "/booking/creative-consulting",
   },
-  {
-    icon: Palette,
-    title: "Go Pro Video Editing",
-    description: "Go Pro provide the best training for intending creative for free.",
-    features: ["Internship Opportunity", "Storytelling", "Color correction", "Audio syncing"],
-    price: "Free",
-    href: "/booking/Gopro-Video-Editing",
-  },
 
-  {
-    icon: Palette,
-    title: "Go Pro After Effect",
-    description: "Go Pro provide the best training for intending creatives for free.",
-    features: ["After Effects", "Storytelling", "Creative direction", "Internship Opportunity"],
-    price: "Free",
-    href: "/booking/Gopro-Aftereffect",
-  },
-  {
-    icon: Palette,
-    title: "Go Pro Video Editing & After Effect",
-    description: "Go Pro provide the best training for intending creatives for free.",
-    features: ["Video Editing", "After Effect", "Creative direction", "Intenship placement"],
-    price: "Free",
-    href: "/booking/GoPro-Video-Editing-After-Effect",
-  },
 ]
 
 export default function ServicesPage() {

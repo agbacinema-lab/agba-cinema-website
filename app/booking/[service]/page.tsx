@@ -45,7 +45,7 @@ const serviceDetails = {
   "aftereffect": {
     title: "After Effect Training",
     description: "Professional After Effects training for animation, motion graphics, and video effects.",
-    price: "From #150,000",
+    price: "From #100",
     duration: "4-6 weeks",
     deliverables: ["Motion graphics", "Visual effects", "Animation", "Compositing"],
   },
@@ -73,7 +73,7 @@ const serviceDetails = {
   "Gopro-Aftereffect": {
     title: "Gopro Aftereffect",
     description: "Gopro provide the best training for intending creatives for free.",
-    price: "Free with refundable commitment fee of #1,000",
+    price: "Free with refundable commitment fee of #20,000",
     duration: "7 months",
     deliverables: ["Motion graphics", "Visual effects", "Animation", "Compositing", "Job internship"],
   },
@@ -134,7 +134,10 @@ export default function BookingPage({ params }: { params: { service: string } })
             </Card>
 
             <CalendarRedirectButton />
-            <PaymentForm service={service.title} />
+            <PaymentForm
+              service={service.title}
+              amount={parseFloat(service.price.replace(/[^0-9]/g, "")) || 50000}
+            />
           </div>
 
           {/* Booking Form */}

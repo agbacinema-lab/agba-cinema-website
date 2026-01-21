@@ -10,7 +10,8 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "ÀGBÀ CINEMA - Professional Video Production Services",
   description: "premium video production, cinematography, creative storytelling, and training for brands, events, and creators",
-    generator: 'v0.dev'
+  generator: 'v0.dev',
+  metadataBase: new URL("https://agba-cinema-website.vercel.app/"),
 }
 
 export default function RootLayout({
