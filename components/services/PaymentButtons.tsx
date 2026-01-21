@@ -10,7 +10,7 @@ type Props = {
 
 export default function PaymentButtons({ amount, email, service }: Props) {
   const [paystackLoading, setPaystackLoading] = useState(false)
-  const [kudaLoading, setKudaLoading] = useState(false)
+
 
   const handlePaystack = async () => {
     try {
@@ -34,34 +34,6 @@ export default function PaymentButtons({ amount, email, service }: Props) {
     }
   }
 
-  const handleKuda = async () => {
-    try {
-      setKudaLoading(true)
-      const res = await fetch("/api/kuda/initiate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount, email, service }),
-      })
-      const data = await res.json()
-      if (res.ok) {
-        if (data.paymentUrl) {
-          window.location.href = data.paymentUrl
-          return
-        }
-        alert(
-          `Transfer ${amount} NGN to:\nBank: ${data.bankName}\nAccount: ${data.accountNumber}\nName: ${data.accountName}\nReference: ${data.reference}`
-        )
-      } else {
-        alert(data.message || "Kuda payment not available")
-      }
-    } catch (err) {
-      console.error(err)
-      alert("Error initiating Kuda payment")
-    } finally {
-      setKudaLoading(false)
-    }
-  }
-
   return (
     <div className="flex justify-center">
       <div className="flex gap-4 items-center">
@@ -74,14 +46,6 @@ export default function PaymentButtons({ amount, email, service }: Props) {
           {paystackLoading ? "Processing..." : "Pay with Card (Paystack)"}
         </button>
 
-        <button
-          type="button"
-          onClick={handleKuda}
-          className="inline-block min-w-[220px] px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-60"
-          disabled={kudaLoading}
-        >
-          {kudaLoading ? "Processing..." : "Pay via Kuda / Bank Transfer"}
-        </button>
       </div>
     </div>
   )
