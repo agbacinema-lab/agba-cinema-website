@@ -50,7 +50,7 @@ const serviceDetails = {
   "aftereffect": {
     title: "After Effect Training",
     description: "Professional After Effects training for animation, motion graphics, and video effects.",
-    price: "From #,100",
+    price: "From #100",
     duration: "4-6 weeks",
     deliverables: ["Motion graphics", "Visual effects", "Animation", "Compositing"],
     category: "academy",

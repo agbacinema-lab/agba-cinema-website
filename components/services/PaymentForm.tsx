@@ -109,7 +109,7 @@ export default function PaymentForm({ service, amount, category = "service" }: P
                 <Input
                     id="fullName"
                     name="fullName"
-                    placeholder="John Doe"
+                    placeholder="agba cinema"
                     value={formData.fullName}
                     onChange={handleChange}
                     required
@@ -122,7 +122,7 @@ export default function PaymentForm({ service, amount, category = "service" }: P
                     id="email"
                     name="email"
                     type="email"
-                    placeholder="john@example.com"
+                    placeholder="agbacinema@gmail.com"
                     value={formData.email}
                     onChange={handleChange}
                     required
