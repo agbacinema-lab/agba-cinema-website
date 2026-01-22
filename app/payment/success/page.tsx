@@ -30,6 +30,11 @@ function SuccessContent() {
                     setStatus("success")
                     setDetails(data.data)
                     setEmailSent(data.emailSent)
+                    if (data.emailError) {
+                        console.error("ServerEmailError:", data.emailError)
+                        // @ts-ignore
+                        setDetails(prev => ({ ...prev, emailError: data.emailError }))
+                    }
                 } else {
                     setStatus("error")
                 }
@@ -77,17 +82,22 @@ function SuccessContent() {
             <CheckCircle2 className="h-16 w-16 text-green-500 mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
 
-            <div className="flex items-center justify-center gap-2 text-gray-600 mb-8 max-w-md">
+            <div className="flex flex-col items-center justify-center gap-2 text-gray-600 mb-8 max-w-md">
                 {emailSent ? (
-                    <>
+                    <div className="flex items-center gap-2">
                         <Mail className="h-4 w-4 text-green-500" />
                         <p>Confirmation email sent to <strong>{details?.customer?.email}</strong>.</p>
-                    </>
+                    </div>
+                ) : details?.emailError ? (
+                    <div className="flex flex-col items-center gap-1">
+                        <p className="text-red-500 text-sm">Email failed: {details.emailError}</p>
+                        <p className="text-xs text-gray-500 italic">Check your Vercel Environment Variables</p>
+                    </div>
                 ) : (
-                    <>
+                    <div className="flex items-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin text-primary" />
                         <p>Payment verified. Finalizing your booking...</p>
-                    </>
+                    </div>
                 )}
             </div>
 
@@ -109,11 +119,11 @@ function SuccessContent() {
             </div>
 
             <div className="flex gap-4">
-                <Button asChild>
-                    <Link href="/dashboard">Go to Dashboard</Link>
+                <Button onClick={() => router.replace("/")}>
+                    Return Home
                 </Button>
-                <Button asChild variant="outline">
-                    <Link href="/">Return Home</Link>
+                <Button variant="outline" onClick={() => router.replace("/")}>
+                    Go to Dashboard
                 </Button>
             </div>
         </div>

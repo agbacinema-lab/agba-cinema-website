@@ -25,12 +25,44 @@ export async function POST(request: NextRequest) {
             const data = event.data
             console.log("Payment successful via webhook:", data.reference)
 
-            // Here you would typically update your database
-            // await db.bookings.update({ where: { reference: data.reference }, data: { status: 'paid' } })
+            const toEmail = data.customer?.email || ""
+            const amountNGN = (data.amount / 100).toLocaleString("en-NG", { style: "currency", currency: "NGN" })
+            const service = data.metadata?.service || "Your booking"
+            const fullName = data.metadata?.fullName || "Valued Customer"
 
-            // Note: We are already sending email in the verify endpoint (client-side trigger).
-            // Ideally, email sending should be moved here to be robust against client-side failures,
-            // but for now we'll keep it simple and just log.
+            // Send Email via EmailJS REST API
+            try {
+                const emailResponse = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        service_id: process.env.EMAILJS_SERVICE_ID,
+                        template_id: process.env.EMAILJS_TEMPLATE_ID,
+                        user_id: process.env.EMAILJS_PUBLIC_KEY,
+                        accessToken: process.env.EMAILJS_PRIVATE_KEY,
+                        template_params: {
+                            to_name: fullName,
+                            to_email: toEmail,
+                            amount: amountNGN,
+                            reference: data.reference,
+                            service: service,
+                            date: new Date(data.transaction_date || Date.now()).toLocaleDateString(),
+                            message: "Thank you for your payment! Your booking is confirmed.",
+                        },
+                    }),
+                })
+
+                if (emailResponse.ok) {
+                    console.log("Email sent successfully via webhook")
+                } else {
+                    const errorText = await emailResponse.text()
+                    console.error("Webhook EmailJS Error:", errorText)
+                }
+            } catch (emailError) {
+                console.error("Failed to send email via webhook:", emailError)
+            }
+
+            // Note: DB/Sheet updates should ideally be handled here too if not already done by verify
         }
 
         return NextResponse.json({ received: true }, { status: 200 })

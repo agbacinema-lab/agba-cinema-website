@@ -58,6 +58,8 @@ export async function GET(request: NextRequest, { params }: { params: { referenc
         } else {
           const errorText = await emailResponse.text();
           console.error("EmailJS Server Error:", errorText);
+          // @ts-ignore
+          data.emailError = errorText; // Pass error back to UI for debugging
         }
       } catch (emailError) {
         console.error("Failed to send email from server:", emailError);
