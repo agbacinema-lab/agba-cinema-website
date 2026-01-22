@@ -96,7 +96,8 @@ function SuccessContent() {
                 ) : (
                     <div className="flex items-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                        <p>Payment verified. Finalizing your booking...</p>
+                        <p>Payment verified, </p>
+                        <p><a href="https://chat.whatsapp.com/Hu8ZRryOCkg96G90oELK6J" target="_blank" style={{ color: "red", textDecoration: "underline" }}> Click here to join the class </a>...</p>
                     </div>
                 )}
             </div>

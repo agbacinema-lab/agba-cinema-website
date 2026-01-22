@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
                             reference: data.reference,
                             service: service,
                             date: new Date(data.transaction_date || Date.now()).toLocaleDateString(),
-                            message: "Thank you for your payment! Your booking is confirmed.",
+                            message: "Thank you for your payment! Your booking is confirmed. Next step 👇Join the class WhatsApp group here:https://chat.whatsapp.com/Hu8ZRryOCkg96G90oELK6J",
                         },
                     }),
                 })

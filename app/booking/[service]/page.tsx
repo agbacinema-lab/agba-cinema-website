@@ -34,7 +34,7 @@ const serviceDetails = {
   "content-startegist": {
     title: "Content Stragist",
     description: "Strategic content planning to engage audiences and achieve your brand goals.",
-    price: "From #5,000",
+    price: "From #50,000",
     duration: "Varies",
     deliverables: ["Audience research", "Content planning", "SEO optimization", "Performance tracking"],
     category: "service",
@@ -50,7 +50,7 @@ const serviceDetails = {
   "aftereffect": {
     title: "After Effect Training",
     description: "Professional After Effects training for animation, motion graphics, and video effects.",
-    price: "From #,100",
+    price: "From #150,000",
     duration: "4-6 weeks",
     deliverables: ["Motion graphics", "Visual effects", "Animation", "Compositing"],
     category: "academy",
