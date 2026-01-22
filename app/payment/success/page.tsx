@@ -14,19 +14,26 @@ function SuccessContent() {
     const router = useRouter()
     const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
     const [details, setDetails] = useState<any>(null)
+    const [isSendingEmail, setIsSendingEmail] = useState(false)
+    const [emailError, setEmailError] = useState<string | null>(null)
+    const [emailSent, setEmailSent] = useState(false)
 
     // Helper to send email
     const sendReceiptEmail = async (data: any) => {
         const storageKey = `receipt_sent_${data.reference}`
         if (localStorage.getItem(storageKey)) {
             console.log("Email already sent for this reference.")
+            setEmailSent(true)
             return
         }
+
+        setIsSendingEmail(true)
+        setEmailError(null)
 
         try {
             await emailjs.send(
                 "service_s989ikk", // Service ID
-                "template_6wuf22p", // Suggestion: Create a new template for receipts
+                "template_6wuf22p", // Template ID
                 {
                     to_name: data.customer?.name || data.metadata?.fullName || "Valued Customer",
                     to_email: data.customer?.email,
@@ -34,14 +41,18 @@ function SuccessContent() {
                     reference: data.reference,
                     service: data.metadata?.service || "Service",
                     date: new Date(data.transaction_date || Date.now()).toLocaleDateString(),
-                    message: "Thank you for your payment! Your booking is confirmed.", // Fallback if using contact template
+                    message: "Thank you for your payment! Your booking is confirmed.",
                 },
                 "YC6yU4cwKctlcDUre" // Public Key
             )
             console.log("Receipt email sent successfully")
             localStorage.setItem(storageKey, "true")
-        } catch (error) {
+            setEmailSent(true)
+        } catch (error: any) {
             console.error("Failed to send receipt email:", error)
+            setEmailError(error?.text || error?.message || "Failed to send email")
+        } finally {
+            setIsSendingEmail(false)
         }
     }
 
@@ -107,11 +118,33 @@ function SuccessContent() {
         <div className="flex flex-col items-center justify-center py-12 text-center">
             <CheckCircle2 className="h-16 w-16 text-green-500 mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
-            <p className="text-gray-600 mb-8 max-w-md">
-                Thank you for your booking. We have sent a confirmation email to <strong>{details?.customer?.email}</strong>.
-            </p>
 
-            <div className="bg-gray-50 rounded-lg p-6 mb-8 w-full max-w-md text-left">
+            {emailSent ? (
+                <p className="text-gray-600 mb-2 max-w-md">
+                    Thank you for your booking. We have sent a confirmation email to <strong>{details?.customer?.email}</strong>.
+                </p>
+            ) : emailError ? (
+                <div className="mb-4">
+                    <p className="text-red-600 mb-2">
+                        Payment verified, but email failed: <span className="font-mono text-xs">{emailError}</span>
+                    </p>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => sendReceiptEmail(details)}
+                        disabled={isSendingEmail}
+                    >
+                        {isSendingEmail ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        {isSendingEmail ? "Retrying..." : "Retry Sending Email"}
+                    </Button>
+                </div>
+            ) : (
+                <p className="text-gray-600 mb-2 max-w-md italic">
+                    {isSendingEmail ? "Sending confirmation email..." : "Verification complete."}
+                </p>
+            )}
+
+            <div className="bg-gray-50 rounded-lg p-6 mb-8 w-full max-w-md text-left mt-4">
                 <div className="flex justify-between mb-2">
                     <span className="text-gray-500">Reference:</span>
                     <span className="font-mono font-medium">{details?.reference}</span>
