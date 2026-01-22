@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react"
+import emailjs from "@emailjs/browser"
 
 function SuccessContent() {
     const searchParams = useSearchParams()
@@ -13,6 +14,36 @@ function SuccessContent() {
     const router = useRouter()
     const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
     const [details, setDetails] = useState<any>(null)
+
+    // Helper to send email
+    const sendReceiptEmail = async (data: any) => {
+        const storageKey = `receipt_sent_${data.reference}`
+        if (localStorage.getItem(storageKey)) {
+            console.log("Email already sent for this reference.")
+            return
+        }
+
+        try {
+            await emailjs.send(
+                "service_s989ikk", // Service ID
+                "template_6wuf22p", // Suggestion: Create a new template for receipts
+                {
+                    to_name: data.customer?.name || data.metadata?.fullName || "Valued Customer",
+                    to_email: data.customer?.email,
+                    amount: (data.amount / 100).toLocaleString("en-NG", { style: "currency", currency: "NGN" }),
+                    reference: data.reference,
+                    service: data.metadata?.service || "Service",
+                    date: new Date(data.transaction_date || Date.now()).toLocaleDateString(),
+                    message: "Thank you for your payment! Your booking is confirmed.", // Fallback if using contact template
+                },
+                "YC6yU4cwKctlcDUre" // Public Key
+            )
+            console.log("Receipt email sent successfully")
+            localStorage.setItem(storageKey, "true")
+        } catch (error) {
+            console.error("Failed to send receipt email:", error)
+        }
+    }
 
     useEffect(() => {
         if (!reference) {
@@ -28,6 +59,8 @@ function SuccessContent() {
                 if (res.ok && data.success) {
                     setStatus("success")
                     setDetails(data.data)
+                    // Trigger email sending
+                    sendReceiptEmail(data.data)
                 } else {
                     setStatus("error")
                 }
