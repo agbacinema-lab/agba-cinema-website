@@ -56,7 +56,7 @@ export const academyDetails = [
         title: "Go Pro Video Editing - After Effect",
         description: "Gopro provide the best training for intending creative for free.",
         features: ["Video Editing", "After Effect", "Creative direction", "Intenship placement"],
-        price: "Free with refundable commitment fee of #20,000",
+        price: "Free with refundable commitment fee of #30,000",
         href: "/booking/GoPro-Video-Editing-After-Effect",
     },
 ] as const;
