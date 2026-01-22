@@ -30,7 +30,7 @@ export const academyDetails = [
         title: "After Effects Training",
         description: "Professional After Effects training for animation, motion graphics, and video effects.",
         features: ["Motion graphics", "Visual effects", "Animation", "Compositing"],
-        price: "From #150,000",
+        price: "From #100",
         href: "/booking/aftereffect",
     },
 
