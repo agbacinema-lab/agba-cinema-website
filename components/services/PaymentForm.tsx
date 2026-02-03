@@ -224,7 +224,7 @@ export default function PaymentForm({ service, amount, category = "service" }: P
                                         <h4 className="font-bold">2. RULES & REGULATIONS</h4>
                                         <p><strong>2.1 Attendance & Participation</strong></p>
                                         <ul className="list-disc pl-5">
-                                            <li>Missing training sessions for five (5) days (consecutively or cumulatively) will result in a fine of ₦5,000.</li>
+                                            <li>Missing training sessions for five (5) days (consecutively or cumulatively) without aproval  will result in a fine of ₦5,000.</li>
                                             <li>The Talent must actively engage in the program, including discussions, assignments, and practical projects to qualify for every stage.</li>
                                         </ul>
 
@@ -242,7 +242,7 @@ export default function PaymentForm({ service, amount, category = "service" }: P
                                         <p><strong>2.4 Conduct & Termination</strong></p>
                                         <ul className="list-disc pl-5">
                                             <li><strong>Professionalism & Respect:</strong> The Talent is expected to maintain a respectful attitude towards trainers, team members, and clients. If the Talent receives three (3) formal queries from partnered brands, the contract will be terminated immediately.</li>
-                                            <li><strong>Social Media & Engagement:</strong> The Talent must participate in the 42-day challenge, which requires daily posts about the program.</li>
+                                            <li><strong>Social Media & Engagement:</strong> The Talent must participate in the daily challenge, which requires daily posts through out the program.</li>
                                             <li><strong>Defamation & Reputation:</strong> Any act of defamation or spreading false information that damages the reputation of ÀGBÀ CINEMA will result in immediate termination of the contract.</li>
                                         </ul>
 
