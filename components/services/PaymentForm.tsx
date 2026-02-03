@@ -219,7 +219,7 @@ export default function PaymentForm({ service, amount, category = "service" }: P
                                 {category === "gopro" && (
                                     <>
                                         <h4 className="font-bold">1. PROGRAM OVERVIEW</h4>
-                                        <p>The Talent is enrolling in the "Go PRO WITH ÀGBÀ CINEMA" program, a six-week intensive training followed by a six-month internship. During the internship, the Talent will work on real-life projects from ÀGBÀ CINEMA and partnered brands.</p>
+                                        <p>The Talent is enrolling in the "Go PRO WITH ÀGBÀ CINEMA" program, a Four-week intensive training followed by a six-month internship. During the internship, the Talent will work on real-life projects from ÀGBÀ CINEMA and partnered brands.</p>
 
                                         <h4 className="font-bold">2. RULES & REGULATIONS</h4>
                                         <p><strong>2.1 Attendance & Participation</strong></p>
