@@ -53,7 +53,18 @@ export default function EventsPage() {
 
                                     <div className="flex space-x-3">
                                         <Button asChild className="flex-1">
-                                            <Link href={event.href}>Get Ticket</Link>
+                                            {event.lumaUrl ? (
+                                                <a
+                                                    href={event.lumaUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-center justify-center w-full h-full"
+                                                >
+                                                    Get Ticket on Luma
+                                                </a>
+                                            ) : (
+                                                <Link href={event.href}>Get Ticket</Link>
+                                            )}
                                         </Button>
                                     </div>
                                 </CardContent>
