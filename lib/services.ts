@@ -15,7 +15,6 @@ import {
   deleteDoc
 } from "firebase/firestore";
 import { 
-  BlogPost, 
   PortfolioItem, 
   StudentProfile, 
   BrandProfile, 
@@ -28,13 +27,13 @@ import {
 
 // BLOG SERVICE
 export const blogService = {
-  async getAllPosts() {
+  getAllPosts: async (): Promise<BlogPost[]> => {
     const postsCol = collection(db, "posts");
     const postsSnapshot = await getDocs(query(postsCol, orderBy("publishedAt", "desc")));
     return postsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost));
   },
 
-  async getPostBySlug(slug: string) {
+  getPostBySlug: async (slug: string): Promise<BlogPost | null> => {
     const postsCol = collection(db, "posts");
     const q = query(postsCol, where("slug", "==", slug), limit(1));
     const querySnapshot = await getDocs(q);
@@ -46,7 +45,7 @@ export const blogService = {
 
 // PORTFOLIO SERVICE
 export const portfolioService = {
-  async getAllItems() {
+  getAllItems: async (): Promise<PortfolioItem[]> => {
     const itemsCol = collection(db, "portfolio");
     const itemsSnapshot = await getDocs(query(itemsCol, orderBy("year", "desc")));
     return itemsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PortfolioItem));
@@ -55,13 +54,13 @@ export const portfolioService = {
 
 // ADMIN SERVICE
 export const adminService = {
-  async getAllUsers() {
+  getAllUsers: async (): Promise<UserProfile[]> => {
     const usersCol = collection(db, "users");
     const snapshot = await getDocs(query(usersCol, orderBy("createdAt", "desc")));
     return snapshot.docs.map(doc => doc.data() as UserProfile);
   },
 
-  async promoteToAdmin(userId: string, type: 'tutor' | 'staff' | 'both') {
+  promoteToAdmin: async (userId: string, type: 'tutor' | 'staff' | 'both'): Promise<void> => {
     await updateDoc(doc(db, "users", userId), { role: 'admin' });
     await setDoc(doc(db, "admins", userId), {
       userId,
@@ -75,21 +74,21 @@ export const adminService = {
     });
   },
 
-  async demoteFromAdmin(userId: string, newRole: 'student' | 'staff' | 'tutor' = 'student') {
+  demoteFromAdmin: async (userId: string, newRole: 'student' | 'staff' | 'tutor' = 'student'): Promise<void> => {
     await updateDoc(doc(db, "users", userId), { role: newRole });
     await deleteDoc(doc(db, "admins", userId));
   },
 
-  async updateUserRole(userId: string, newRole: any) {
+  updateUserRole: async (userId: string, newRole: any): Promise<void> => {
     await updateDoc(doc(db, "users", userId), { role: newRole });
   },
 
-  async upgradeBrandAccess(userId: string) {
+  upgradeBrandAccess: async (userId: string): Promise<void> => {
     await updateDoc(doc(db, "users", userId), { hasPaidAccess: true });
     await updateDoc(doc(db, "brands", userId), { hasPaidAccess: true });
   },
 
-  async createApprovalRequest(request: Omit<ApprovalRequest, 'id' | 'status' | 'createdAt'>) {
+  createApprovalRequest: async (request: Omit<ApprovalRequest, 'id' | 'status' | 'createdAt'>): Promise<void> => {
     const approvalsCol = collection(db, "approvals");
     await addDoc(approvalsCol, {
       ...request,
@@ -98,14 +97,14 @@ export const adminService = {
     });
   },
 
-  async getPendingApprovals() {
+  getPendingApprovals: async (): Promise<ApprovalRequest[]> => {
     const approvalsCol = collection(db, "approvals");
     const q = query(approvalsCol, where("status", "==", "pending"), orderBy("createdAt", "desc"));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ApprovalRequest));
   },
 
-  async processApproval(id: string, approved: boolean) {
+  processApproval: async (id: string, approved: boolean): Promise<void> => {
     const approvalRef = doc(db, "approvals", id);
     const snap = await getDoc(approvalRef);
     if (!snap.exists()) return;
@@ -129,7 +128,7 @@ export const adminService = {
     }
   },
 
-  async togglePermission(userId: string, permission: string, value: boolean) {
+  togglePermission: async (userId: string, permission: string, value: boolean): Promise<void> => {
     const adminRef = doc(db, "admins", userId);
     await updateDoc(adminRef, {
       [`permissions.${permission}`]: value
@@ -139,18 +138,18 @@ export const adminService = {
 
 // STUDENT SERVICE
 export const studentService = {
-  async getStudentProfile(userId: string) {
+  getStudentProfile: async (userId: string): Promise<StudentProfile | null> => {
     const snap = await getDoc(doc(db, "students", userId));
     return snap.exists() ? snap.data() as StudentProfile : null;
   },
 
-  async updatePortfolio(userId: string, links: Partial<StudentProfile['portfolioLinks']>) {
+  updatePortfolio: async (userId: string, links: Partial<StudentProfile['portfolioLinks']>): Promise<void> => {
     await updateDoc(doc(db, "students", userId), {
       portfolioLinks: links
     });
   },
 
-  async getAllTalent(isPremiumOnly = false) {
+  getAllTalent: async (isPremiumOnly = false): Promise<StudentProfile[]> => {
     const studentsCol = collection(db, "students");
     let q = query(studentsCol, where("status", "==", "internship_ready"));
     if (isPremiumOnly) {
@@ -163,7 +162,7 @@ export const studentService = {
 
 // BRAND SERVICE
 export const brandService = {
-  async requestInternship(brandId: string, studentId: string) {
+  requestInternship: async (brandId: string, studentId: string): Promise<string> => {
     const requestsCol = collection(db, "internship_requests");
     const docRef = await addDoc(requestsCol, {
       brandId,
@@ -175,7 +174,7 @@ export const brandService = {
     return docRef.id;
   },
 
-  async getBrandProfile(userId: string) {
+  getBrandProfile: async (userId: string): Promise<BrandProfile | null> => {
     const snap = await getDoc(doc(db, "brands", userId));
     return snap.exists() ? snap.data() as BrandProfile : null;
   }
@@ -183,7 +182,7 @@ export const brandService = {
 
 // REVIEW SERVICE
 export const reviewService = {
-  async submitReview(review: Omit<PortfolioReview, 'reviewId' | 'createdAt'>) {
+  submitReview: async (review: Omit<PortfolioReview, 'reviewId' | 'createdAt'>): Promise<void> => {
     const reviewsCol = collection(db, "portfolio_reviews");
     await addDoc(reviewsCol, {
       ...review,
@@ -195,7 +194,7 @@ export const reviewService = {
 // LMS (Learning Management System) SERVICE
 export const lmsService = {
   // Classes
-  async createClassSession(session: Omit<any, 'id' | 'date'>) {
+  createClassSession: async (session: Omit<any, 'id' | 'date'>): Promise<void> => {
     const classesCol = collection(db, "classes");
     await addDoc(classesCol, {
       ...session,
@@ -203,14 +202,14 @@ export const lmsService = {
     });
   },
 
-  async getAllClasses() {
+  getAllClasses: async (): Promise<{}[]> => {
     const classesCol = collection(db, "classes");
     const snapshot = await getDocs(query(classesCol, orderBy("date", "desc")));
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   },
 
   // Assignments
-  async createAssignment(assignment: Omit<any, 'id' | 'createdAt'>) {
+  createAssignment: async (assignment: Omit<any, 'id' | 'createdAt'>): Promise<void> => {
     const assignmentsCol = collection(db, "assignments");
     await addDoc(assignmentsCol, {
       ...assignment,
@@ -218,7 +217,7 @@ export const lmsService = {
     });
   },
 
-  async getAssignments(subject?: string) {
+  getAssignments: async (subject?: string): Promise<{}[]> => {
     const assignmentsCol = collection(db, "assignments");
     let q = query(assignmentsCol, orderBy("createdAt", "desc"));
     if (subject) q = query(assignmentsCol, where("subject", "==", subject), orderBy("createdAt", "desc"));
@@ -226,12 +225,12 @@ export const lmsService = {
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   },
 
-  async toggleAssignmentStatus(id: string, isOpen: boolean) {
+  toggleAssignmentStatus: async (id: string, isOpen: boolean): Promise<void> => {
     await updateDoc(doc(db, "assignments", id), { isOpen });
   },
 
   // Submissions
-  async submitAssignment(submission: Omit<any, 'id' | 'status' | 'submittedAt'>) {
+  submitAssignment: async (submission: Omit<any, 'id' | 'status' | 'submittedAt'>): Promise<void> => {
     const submissionsCol = collection(db, "submissions");
     await addDoc(submissionsCol, {
       ...submission,
@@ -240,19 +239,19 @@ export const lmsService = {
     });
   },
 
-  async getSubmissionsByAssignment(assignmentId: string) {
+  getSubmissionsByAssignment: async (assignmentId: string): Promise<{}[]> => {
     const submissionsCol = collection(db, "submissions");
     const snapshot = await getDocs(query(submissionsCol, where("assignmentId", "==", assignmentId), orderBy("submittedAt", "desc")));
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   },
 
-  async getSubmissionsByStudent(studentUID: string) {
+  getSubmissionsByStudent: async (studentUID: string): Promise<{}[]> => {
     const submissionsCol = collection(db, "submissions");
     const snapshot = await getDocs(query(submissionsCol, where("studentUID", "==", studentUID), orderBy("submittedAt", "desc")));
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   },
 
-  async gradeSubmission(id: string, status: 'approved' | 'redo', grade?: number, tutorComment?: string) {
+  gradeSubmission: async (id: string, status: 'approved' | 'redo', grade?: number, tutorComment?: string): Promise<void> => {
     await updateDoc(doc(db, "submissions", id), {
       status,
       grade: grade || null,
@@ -261,3 +260,18 @@ export const lmsService = {
     });
   }
 };
+
+export interface BlogPost {
+  id: string
+  slug: string
+  title: string
+  excerpt: string
+  content: string
+  image: string
+  category: string
+  tags: string[]
+  author: string
+  publishedAt: string
+  readTime: string
+}
+

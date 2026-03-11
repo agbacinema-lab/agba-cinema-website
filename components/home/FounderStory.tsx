@@ -28,7 +28,7 @@ export default function FounderStory() {
           >
             <div className="relative rounded-2xl overflow-hidden aspect-[4/5] max-w-md mx-auto lg:mx-0 shadow-2xl">
               <Image
-                src="/founder-ololade.jpg"
+                src="/haybel picture.jpeg"
                 alt="Ololade Abel — Creative Director at ÀGBÀ CINEMA"
                 fill
                 className="object-cover"

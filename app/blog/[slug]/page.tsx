@@ -8,25 +8,32 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Calendar, Clock, Tag, ArrowLeft, Share2 } from "lucide-react"
 import { blogService, BlogPost } from "@/lib/services"
 
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
+interface BlogPostPageProps {
+  params: { slug: string }
+}
+
+export default function BlogPostPage({ params }: BlogPostPageProps) {
   const [post, setPost] = useState<BlogPost | null>(null)
   const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function fetchPost() {
-      const data = await blogService.getPostBySlug(params.slug)
-      if (data) {
-        setPost(data)
+    const fetchData = async () => {
+      const postData = await blogService.getPostBySlug(params.slug)
+      setPost(postData)
+
+      if (postData) {
         const allPosts = await blogService.getAllPosts()
-        const related = allPosts
-          .filter((p) => p.category === data.category && p.id !== data.id)
-          .slice(0, 2)
+        const related = allPosts.filter(
+          (p) => p.category === postData.category && p.slug !== postData.slug
+        ).slice(0, 2)
         setRelatedPosts(related)
       }
+
       setLoading(false)
     }
-    fetchPost()
+
+    fetchData()
   }, [params.slug])
 
   if (loading) {
@@ -47,7 +54,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
       <section className="relative py-24 md:py-32 overflow-hidden bg-black text-white">
         {/* Background glow */}
         <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.05)_0%,transparent_70%)]" />
-        
+
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <Button
             variant="outline"
@@ -235,5 +242,29 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
 
 // Generate static params for all blog posts
 export async function generateStaticParams() {
-  return [] 
+  const allPosts = await blogService.getAllPosts()
+  return allPosts.map((post) => ({
+    slug: post.slug,
+  }))
+}
+
+// Generate metadata for each blog post
+export async function generateMetadata({ params }: BlogPostPageProps) {
+  const post = await blogService.getPostBySlug(params.slug)
+
+  if (!post) {
+    return {
+      title: "Post Not Found",
+    }
+  }
+
+  return {
+    title: `${post.title} | ÀGBÀ CINEMA Blog`,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      images: [post.image],
+    },
+  }
 }
