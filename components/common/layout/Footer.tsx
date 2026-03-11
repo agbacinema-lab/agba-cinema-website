@@ -65,6 +65,11 @@ export default function Footer() {
                   Contact
                 </a>
               </li>
+              <li>
+                <a href="/admin" className="text-gray-300/50 hover:text-white transition-colors text-xs">
+                  Admin Dashboard
+                </a>
+              </li>
             </ul>
           </div>
 

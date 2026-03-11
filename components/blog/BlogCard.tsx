@@ -4,7 +4,7 @@ import Image from "next/image"
 import { Calendar, Clock, Tag } from "lucide-react"
 
 interface BlogPost {
-  id: number
+  id: string | number
   title: string
   slug: string
   excerpt: string

@@ -5,7 +5,7 @@ import Image from "next/image"
 import { Play, Clock } from "lucide-react"
 
 interface PortfolioItem {
-  id: number
+  id: string | number
   title: string
   slug: string
   category: string

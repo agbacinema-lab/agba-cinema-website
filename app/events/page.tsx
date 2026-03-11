@@ -2,18 +2,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { eventsDetails } from "./eventsData"
 
+import PageHero from "@/components/common/layout/PageHero"
+
 export default function EventsPage() {
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Hero Section */}
-            <section className="bg-gradient-to-br from-indigo-900 to-purple-800 text-white py-20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h1 className="text-4xl md:text-5xl font-bold mb-6">Upcoming Events</h1>
-                    <p className="text-xl md:text-2xl text-gray-200 max-w-3xl mx-auto">
-                        Connect, learn, and grow with our community at these exclusive events.
-                    </p>
-                </div>
-            </section>
+            <PageHero 
+                title="Upcoming Events"
+                subtitle="Connect, learn, and grow with our community at these exclusive events."
+                backgroundImage="/event-videography-coverage.png"
+            />
 
             {/* Events Grid */}
             <section className="py-20">

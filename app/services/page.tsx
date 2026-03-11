@@ -55,18 +55,16 @@ const services = [
 
 ]
 
+import PageHero from "@/components/common/layout/PageHero"
+
 export default function ServicesPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-gray-900 to-gray-800 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">Our Services</h1>
-          <p className="text-xl md:text-2xl text-gray-200 max-w-3xl mx-auto">
-            Comprehensive video production services tailored to meet your unique needs and vision.
-          </p>
-        </div>
-      </section>
+      <PageHero 
+        title="Our Services"
+        subtitle="Comprehensive video production services tailored to meet your unique needs and vision."
+        backgroundImage="/corporate-video-production.png"
+      />
 
       {/* Services Grid */}
       <section className="py-20">

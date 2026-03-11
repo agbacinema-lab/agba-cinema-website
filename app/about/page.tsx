@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Camera, Users, Award, Heart } from "lucide-react";
@@ -74,35 +75,48 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero / Gallery Section */}
-      <section className="bg-gradient-to-br from-gray-900 to-gray-800 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">About ÀGBÀ CINEMA</h1>
-            <p className="text-xl text-gray-200 mb-8">
+      <section className="relative py-24 overflow-hidden bg-black text-white">
+        {/* Background glow */}
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.05)_0%,transparent_70%)]" />
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="space-y-8">
+            <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-tight">
+              About <span className="text-yellow-400">ÀGBÀ CINEMA</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-300 leading-relaxed font-medium">
               We are passionate storytellers dedicated to creating cinematic experiences that captivate, inspire, and leave lasting impressions.
             </p>
-            <Button size="lg" asChild>
-              <a href="/contact">Work With Us</a>
-            </Button>
+            <div className="pt-4">
+              <Button size="lg" asChild className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-10 py-7 rounded-2xl text-xl transition-all duration-300 hover:scale-[1.05] shadow-[0_0_20px_rgba(250,204,21,0.2)]">
+                <a href="/contact">Work With Us</a>
+              </Button>
+            </div>
+            {/* Decorative line */}
+            <div className="h-1.5 w-20 bg-yellow-400 rounded-full" />
           </div>
 
-          <div className="relative w-full">
+          <div className="relative w-full group">
+            <div className="absolute -inset-4 bg-yellow-400/10 blur-2xl rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <Slider {...sliderSettings}>
               {images.map((src, index) => (
-                <div key={index}>
-                  <Image
-                    src={src}
-                    alt={`Gallery Image ${index + 1}`}
-                    width={800}
-                    height={450}
-                    className="rounded-lg object-cover w-full h-[450px]"
-                    unoptimized
-                  />
+                <div key={index} className="outline-none">
+                  <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+                    <Image
+                      src={src}
+                      alt={`Gallery Image ${index + 1}`}
+                      width={800}
+                      height={500}
+                      className="object-cover w-full h-[500px]"
+                      unoptimized
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  </div>
                 </div>
               ))}
             </Slider>
-            <div className="absolute top-4 left-4 bg-black/50 text-white px-4 py-2 rounded-md text-lg font-semibold">
-              Gallery
+            <div className="absolute -top-4 -right-4 bg-yellow-400 text-black px-6 py-2 rounded-2xl text-sm font-black uppercase tracking-widest shadow-xl transform rotate-3">
+              Our Journey
             </div>
           </div>
         </div>

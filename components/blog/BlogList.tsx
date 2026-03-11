@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import BlogCard from "./BlogCard"
 import { Button } from "@/components/ui/button"
-import blog from "@/data/blog.json"
+import { blogService, BlogPost } from "@/lib/services"
 
 const POSTS_PER_PAGE = 6
 
@@ -12,15 +12,24 @@ interface BlogListProps {
 }
 
 export default function BlogList({ selectedCategory = "All" }: BlogListProps) {
+  const [posts, setPosts] = useState<BlogPost[]>([])
+  const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
+
+  useEffect(() => {
+    blogService.getAllPosts().then(data => {
+      setPosts(data)
+      setLoading(false)
+    })
+  }, [])
 
   // Filter posts by category
   const filteredPosts = useMemo(() => {
     if (selectedCategory === "All") {
-      return blog
+      return posts
     }
-    return blog.filter((post) => post.category === selectedCategory)
-  }, [selectedCategory])
+    return posts.filter((post) => post.category === selectedCategory)
+  }, [posts, selectedCategory])
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE)
@@ -29,7 +38,7 @@ export default function BlogList({ selectedCategory = "All" }: BlogListProps) {
   const currentPosts = filteredPosts.slice(startIndex, endIndex)
 
   // Reset to page 1 when category changes
-  useMemo(() => {
+  useEffect(() => {
     setCurrentPage(1)
   }, [selectedCategory])
 
@@ -42,17 +51,25 @@ export default function BlogList({ selectedCategory = "All" }: BlogListProps) {
   return (
     <div>
       {/* Posts Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-        {currentPosts.map((post) => (
-          <BlogCard key={post.id} post={post} />
-        ))}
-      </div>
-
-      {/* No posts message */}
-      {filteredPosts.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">No posts found in this category.</p>
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
         </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            {currentPosts.map((post) => (
+              <BlogCard key={post.id} post={post} />
+            ))}
+          </div>
+
+          {/* No posts message */}
+          {filteredPosts.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">No posts found in this category.</p>
+            </div>
+          )}
+        </>
       )}
 
       {/* Pagination */}

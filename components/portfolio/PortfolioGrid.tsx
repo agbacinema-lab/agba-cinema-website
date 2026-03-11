@@ -1,20 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PortfolioItemCard from "./PortfolioItemCard";
-import portfolio from "@/data/portfolio.json"; // ✅ point this at your actual data
+import { portfolioService, PortfolioItem as FirebasePortfolioItem } from "@/lib/services";
 
-export default function PortfolioGrid() {
-  const [items] = useState(
-    Array.isArray(portfolio) ? portfolio.slice(0, 15) : []
+export default function PortfolioGrid({ selectedCategory = "All" }: { selectedCategory?: string }) {
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    portfolioService.getAllItems().then(data => {
+      setItems(data);
+      setLoading(false);
+    });
+  }, []);
+
+  const filteredItems = items.filter(item => 
+    selectedCategory === "All" || item.category === selectedCategory
   );
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {items.map((item, idx) => (
+      {filteredItems.map((item, idx) => (
         item ? (
-          <PortfolioItemCard key={`${item.id}-${idx}`} item={item} />
-
+          <PortfolioItemCard key={item.id || idx} item={item} />
         ) : null
       ))}
     </div>

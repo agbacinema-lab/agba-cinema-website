@@ -11,6 +11,8 @@ import { Mail, Phone, MapPin, Clock } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import emailjs from "@emailjs/browser" // ✅ Import EmailJS
 
+import PageHero from "@/components/common/layout/PageHero"
+
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
@@ -49,15 +51,10 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-gray-900 to-gray-800 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">Get In Touch</h1>
-          <p className="text-xl md:text-2xl text-gray-200 max-w-3xl mx-auto">
-            Ready to bring your vision to life? Let's discuss your project and create something amazing together.
-          </p>
-        </div>
-      </section>
+      <PageHero 
+        title="Get In Touch"
+        subtitle="Ready to bring your vision to life? Let's discuss your project and create something amazing together."
+      />
 
       {/* Contact Content */}
       <section className="py-20">

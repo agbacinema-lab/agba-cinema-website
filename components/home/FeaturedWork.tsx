@@ -7,58 +7,20 @@ import Image from "next/image"
 import { Play } from "lucide-react"
 import { motion } from "framer-motion"
 import { useEffect, useState } from "react"
-type Project = {
-  id: string
-  title: string
-  category: string
-  image: string
-  href: string
-  youtubeEmbedUrl: string
-}
-
-const YOUTUBE_VIDEO_IDS = [
-  {
-    id: "1",
-    videoId: "IimlCWz9bdY",
-    title: "Corporate Brand Story",
-    category: "Corporate",
-    image: "/corporate-video-production.png",
-    href: "/portfolio/corporate-brand-story",
-  },
-  {
-    id: "2",
-    videoId: "Idk8Z5QA65E",
-    title: "Youtube Series",
-    category: "History",
-    href: "/portfolio/elegant-wedding-film",
-  },
-  {
-    id: "3",
-    videoId: "G_fGfa-1tZY",
-    title: "Product Launch Event",
-    category: "Product",
-    image: "/event-videography-coverage.png",
-    href: "/portfolio/product-launch-event",
-  },
-]
-
-const getYoutubeThumbnail = (videoId: string) =>
-  `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
-
-const getYoutubeEmbedUrl = (videoId: string) =>
-  `https://www.youtube.com/embed/${videoId}`
-
-const featuredProjects: Project[] = YOUTUBE_VIDEO_IDS.map((item) => ({
-  id: item.id,
-  title: item.title,
-  category: item.category,
-  image: getYoutubeThumbnail(item.videoId),
-  href: item.href,
-  youtubeEmbedUrl: getYoutubeEmbedUrl(item.videoId),
-}))
-
+import { portfolioService } from "@/lib/services"
 export default function FeaturedWork() {
   const [playingVideo, setPlayingVideo] = useState<string | null>(null);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    portfolioService.getAllItems().then(data => {
+      setProjects(data.slice(0, 3));
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) return null;
 
   return (
     <section className="py-20 bg-white">
@@ -77,7 +39,7 @@ export default function FeaturedWork() {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          {featuredProjects.map((project, index) => (
+          {projects.map((project, index) => (
             <motion.div
               key={project.id}
               initial={{ opacity: 0, y: 30 }}
