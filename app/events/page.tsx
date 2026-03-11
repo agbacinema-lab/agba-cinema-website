@@ -1,6 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import { eventsDetails } from "./eventsData"
 
 export default function EventsPage() {
@@ -63,7 +62,7 @@ export default function EventsPage() {
                                                     Get Ticket on Luma
                                                 </a>
                                             ) : (
-                                                <Link href={event.href}>Get Ticket</Link>
+                                                <a href={event.href}>Get Ticket</a>
                                             )}
                                         </Button>
                                     </div>
@@ -83,7 +82,7 @@ export default function EventsPage() {
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Button size="lg" variant="secondary" asChild>
-                            <Link href="/contact">Contact Us</Link>
+                            <a href="/contact">Contact Us</a>
                         </Button>
                     </div>
                 </div>

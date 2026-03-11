@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
 import Image from "next/image"
 import { Menu, X, Camera } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -12,13 +11,12 @@ export default function Header() {
 
   const navigation = [
     { name: "Home", href: "/" },
-    { name: "Services", href: "/services" },
-    { name: "Academy", href: "/academy" },
-    { name: "Events", href: "/events" },
-    { name: "Portfolio", href: "/portfolio" },
+    { name: "Programs", href: "/academy" },
+    { name: "Student Work", href: "/portfolio" },
+    { name: "Hire Editors", href: "/services" },
     { name: "Blog", href: "/blog" },
+    { name: "Events", href: "/events" },
     { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
   ]
 
   return (
@@ -26,7 +24,7 @@ export default function Header() {
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
+          <a href="/" className="flex items-center">
             <Image
               src="/agba  white.jpg"
               alt="ÀGBÀ CINEMA Logo"
@@ -34,21 +32,27 @@ export default function Header() {
               height={50}
               priority
             />
-          </Link>
+          </a>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navigation.map((item) => (
-              <Link
+          <div className="hidden md:flex items-center space-x-6">
+            <a
+              href="/"
+              className="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200 text-sm"
+            >
+              Home
+            </a>
+            {navigation.slice(1).map((item) => (
+              <a
                 key={item.name}
                 href={item.href}
-                className="text-gray-700 hover:text-primary transition-colors duration-200"
+                className="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200 text-sm"
               >
                 {item.name}
-              </Link>
+              </a>
             ))}
-            <Button asChild>
-              <Link href="/contact">Get Quote</Link>
+            <Button asChild className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold border-0">
+              <a href="/apply">Apply Now</a>
             </Button>
           </div>
 
@@ -65,18 +69,18 @@ export default function Header() {
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
               {navigation.map((item) => (
-                <Link
+                <a
                   key={item.name}
                   href={item.href}
                   className="block px-3 py-2 text-gray-700 hover:text-primary transition-colors duration-200"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.name}
-                </Link>
+                </a>
               ))}
               <div className="px-3 py-2">
-                <Button asChild className="w-full">
-                  <Link href="/contact">Get Quote</Link>
+                <Button asChild className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-bold border-0">
+                  <a href="/apply" onClick={() => setIsMenuOpen(false)}>Apply Now</a>
                 </Button>
               </div>
             </div>

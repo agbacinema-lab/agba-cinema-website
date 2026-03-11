@@ -1,6 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import Image from "next/image"
 import { Calendar, Clock, Tag } from "lucide-react"
 
@@ -48,13 +47,10 @@ export default function BlogCard({ post }: BlogCardProps) {
           {post.readTime}
         </div>
 
-        <h2 className="text-xl font-bold text-foreground mb-3 line-clamp-2">
-          <Link href={`/blog/${post.slug}`} className="hover:text-primary transition-colors">
-            {post.title}
-          </Link>
-        </h2>
-
-        <p className="text-muted-foreground mb-4 flex-1 line-clamp-3">{post.excerpt}</p>
+        <a href={`/blog/${post.slug}`} className="hover:text-primary transition-colors">
+          <h3 className="text-xl font-bold mb-2 line-clamp-2">{post.title}</h3>
+        </a>
+        <p className="text-gray-600 mb-4 line-clamp-3 text-sm">{post.excerpt}</p>
 
         <div className="flex flex-wrap gap-2 mb-4">
           {post.tags.slice(0, 2).map((tag) => (
@@ -67,9 +63,12 @@ export default function BlogCard({ post }: BlogCardProps) {
 
         <div className="flex items-center justify-between mt-auto">
           <span className="text-sm text-muted-foreground">By {post.author}</span>
-          <Button variant="outline" asChild>
-            <Link href={`/blog/${post.slug}`}>Read More</Link>
-          </Button>
+          <a
+            href={`/blog/${post.slug}`}
+            className="text-primary font-bold text-sm hover:underline"
+          >
+            Read More →
+          </a>
         </div>
       </CardContent>
     </Card>

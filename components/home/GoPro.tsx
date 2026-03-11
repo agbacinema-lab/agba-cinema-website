@@ -123,15 +123,18 @@ export default function GoPro() {
               <span className="text-yellow-400 font-bold text-lg">⚡</span>
               <span className="text-yellow-300 font-semibold text-sm">Only <strong>3 slots</strong> remaining for this cohort</span>
             </div>
+            <Button size="lg" asChild className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-lg py-6 rounded-xl transition-all duration-300 hover:scale-[1.02] mb-4">
+              <a href="/portfolio">View Full Portfolio</a>
+            </Button>
             <Button
               size="lg"
               asChild
               className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-lg py-6 rounded-xl transition-all duration-300 hover:scale-[1.02]"
             >
-              <Link href="/academy">
+              <a href="/academy">
                 Apply for the Next Cohort
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
+              </a>
             </Button>
             <p className="text-center text-gray-400 text-sm mt-4">Free consultation call included</p>
           </motion.div>

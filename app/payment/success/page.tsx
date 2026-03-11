@@ -4,7 +4,6 @@ import { useEffect, useState, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import { CheckCircle2, XCircle, Loader2, Mail } from "lucide-react"
 
 function SuccessContent() {
@@ -67,10 +66,10 @@ function SuccessContent() {
                 </p>
                 <div className="flex gap-4">
                     <Button asChild variant="outline">
-                        <Link href="/contact">Contact Support</Link>
+                        <a href="/contact">Contact Support</a>
                     </Button>
                     <Button asChild>
-                        <Link href="/">Return Home</Link>
+                        <a href="/">Return Home</a>
                     </Button>
                 </div>
             </div>

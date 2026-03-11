@@ -104,10 +104,10 @@ function ServiceCard({
             : ""
         }`}
       >
-        <Link href={href}>
+        <a href={href}>
           {cta}
           <ArrowRight className="ml-2 h-4 w-4" />
-        </Link>
+        </a>
       </Button>
     </motion.div>
   )

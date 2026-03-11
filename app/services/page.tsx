@@ -1,6 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import { Video, Camera, Users, Briefcase, Heart, Mic, Edit, Palette, PenLine, MonitorPlay, MonitorStop } from "lucide-react"
 
 const services = [
@@ -101,10 +100,10 @@ export default function ServicesPage() {
 
                   <div className="flex space-x-3">
                     <Button asChild className="flex-1">
-                      <Link href={service.href}>Book Now</Link>
+                      <a href={service.href}>Book Now</a>
                     </Button>
                     <Button variant="outline" asChild>
-                      <Link href="/contact">Learn More</Link>
+                      <a href="/contact">Learn More</a>
                     </Button>
                   </div>
                 </CardContent>
@@ -123,7 +122,7 @@ export default function ServicesPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary" asChild>
-              <Link href="/contact">Get Free Quote</Link>
+              <a href="/contact">Get Free Quote</a>
             </Button>
             <Button
               size="lg"
@@ -131,7 +130,7 @@ export default function ServicesPage() {
               asChild
               className="bg-transparent border-white text-white hover:bg-white hover:text-primary"
             >
-              <Link href="/portfolio">View Our Work</Link>
+              <a href="/portfolio">View Our Work</a>
             </Button>
           </div>
         </div>

@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Camera, Users, Award, Heart } from "lucide-react";
@@ -83,7 +82,7 @@ export default function AboutPage() {
               We are passionate storytellers dedicated to creating cinematic experiences that captivate, inspire, and leave lasting impressions.
             </p>
             <Button size="lg" asChild>
-              <Link href="/contact">Work With Us</Link>
+              <a href="/contact">Work With Us</a>
             </Button>
           </div>
 

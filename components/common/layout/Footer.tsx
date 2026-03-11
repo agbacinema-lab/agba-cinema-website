@@ -1,4 +1,3 @@
-import Link from "next/link"
 import { Camera, Mail, Phone, MapPin, Facebook, Instagram, Twitter, Youtube, Linkedin } from "lucide-react"
 
 export default function Footer() {
@@ -8,27 +7,27 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="col-span-1 md:col-span-2">
-            <Link href="/" className="flex items-center space-x-2 mb-4">
+            <a href="/" className="flex items-center space-x-2 mb-4">
               <Camera className="h-8 w-8 text-primary" />
               <span className="text-2xl font-bold">ÀGBÀ CINEMA</span>
-            </Link>
+            </a>
             <p className="text-gray-300 mb-6 max-w-md">
               Professional video production services for brands, events, and storytelling. Creating cinematic
               experiences that captivate and inspire.
             </p>
             <div className="flex space-x-4">
-              <Link href="https://web.facebook.com/profile.php?id=61561591466125" className="text-gray-300 hover:text-white transition-colors">
+              <a href="https://web.facebook.com/profile.php?id=61561591466125" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <Facebook className="h-5 w-5" />
-              </Link>
-              <Link href="https://www.instagram.com/agbacinema/" className="text-gray-300 hover:text-white transition-colors">
+              </a>
+              <a href="https://www.instagram.com/agbacinema/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <Instagram className="h-5 w-5" />
-              </Link>
-              <Link href="https://x.com/AgbaCinema" className="text-gray-300 hover:text-white transition-colors">
+              </a>
+              <a href="https://x.com/AgbaCinema" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <Twitter className="h-5 w-5" />
-              </Link>
-              <Link href="https://www.linkedin.com/company/agbacinema/" className="text-gray-300 hover:text-white transition-colors">
+              </a>
+              <a href="https://www.linkedin.com/company/agbacinema/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                 <Linkedin className="h-5 w-5" />
-              </Link>
+              </a>
             </div>
           </div>
 
@@ -37,29 +36,34 @@ export default function Footer() {
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/services" className="text-gray-300 hover:text-white transition-colors">
+                <a href="/services" className="text-gray-300 hover:text-white transition-colors">
                   Services
-                </Link>
+                </a>
               </li>
               <li>
-                <Link href="/portfolio" className="text-gray-300 hover:text-white transition-colors">
+                <a href="/portfolio" className="text-gray-300 hover:text-white transition-colors">
                   Portfolio
-                </Link>
+                </a>
               </li>
               <li>
-                <Link href="/blog" className="text-gray-300 hover:text-white transition-colors">
+                <a href="/blog" className="text-gray-300 hover:text-white transition-colors">
                   Blog
-                </Link>
+                </a>
               </li>
               <li>
-                <Link href="/about" className="text-gray-300 hover:text-white transition-colors">
+                <a href="/events" className="text-gray-300 hover:text-white transition-colors">
+                  Events
+                </a>
+              </li>
+              <li>
+                <a href="/about" className="text-gray-300 hover:text-white transition-colors">
                   About
-                </Link>
+                </a>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-300 hover:text-white transition-colors">
+                <a href="/contact" className="text-gray-300 hover:text-white transition-colors">
                   Contact
-                </Link>
+                </a>
               </li>
             </ul>
           </div>

@@ -124,8 +124,8 @@ export default function FeaturedWork() {
                 </div>
                 <CardContent className="p-6">
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">{project.title}</h3>
-                  <Button variant="outline" asChild>
-                   
+                  <Button variant="outline" asChild className="w-full">
+                    <a href="/portfolio">View Details</a>
                   </Button>
                 </CardContent>
               </Card>
@@ -141,7 +141,7 @@ export default function FeaturedWork() {
           className="text-center"
         >
           <Button size="lg" asChild>
-            <Link href="/portfolio">View Full Portfolio</Link>
+            <a href="/portfolio">View Full Portfolio</a>
           </Button>
         </motion.div>
       </div>

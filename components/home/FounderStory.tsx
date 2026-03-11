@@ -101,10 +101,10 @@ export default function FounderStory() {
               asChild
               className="bg-gray-900 hover:bg-gray-800 text-white font-bold px-8 py-6 rounded-xl transition-all duration-300 hover:scale-[1.02]"
             >
-              <Link href="/about">
+              <a href="/about">
                 Read the Full Story
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
+              </a>
             </Button>
           </motion.div>
         </div>

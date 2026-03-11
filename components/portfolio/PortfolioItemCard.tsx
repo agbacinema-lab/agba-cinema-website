@@ -5,7 +5,7 @@ import Image from "next/image"
 import { Play, Clock } from "lucide-react"
 
 interface PortfolioItem {
-  id: string
+  id: number
   title: string
   slug: string
   category: string
@@ -14,7 +14,7 @@ interface PortfolioItem {
   image: string
   duration: string
   year: number
-  href: string
+  href?: string
   youtubeEmbedUrl: string
 }
 

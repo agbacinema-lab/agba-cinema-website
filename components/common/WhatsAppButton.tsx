@@ -26,7 +26,7 @@ export default function WhatsAppButton() {
 
       {/* Main button */}
       <a
-        href="https://wa.me/2349000000000"
+        href="https://wa.me/2349065230464"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat with ÀGBÀ CINEMA on WhatsApp"

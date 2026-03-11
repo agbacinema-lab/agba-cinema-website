@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation"
 import Image from "next/image"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Calendar, Clock, Tag, ArrowLeft, Share2 } from "lucide-react"
@@ -32,10 +31,10 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             asChild
             className="mb-6 bg-transparent border-white text-white hover:bg-white hover:text-gray-900"
           >
-            <Link href="/blog">
+            <a href="/blog">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Blog
-            </Link>
+            </a>
           </Button>
 
           <div className="flex items-center space-x-4 mb-6">
@@ -158,15 +157,15 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                     </div>
                     <CardContent className="p-6">
                       <h4 className="text-lg font-semibold text-foreground mb-2 line-clamp-2">
-                        <Link href={`/blog/${relatedPost.slug}`} className="hover:text-primary transition-colors">
+                        <a href={`/blog/${relatedPost.slug}`} className="hover:text-primary transition-colors">
                           {relatedPost.title}
-                        </Link>
+                        </a>
                       </h4>
                       <p className="text-muted-foreground mb-4 line-clamp-2">{relatedPost.excerpt}</p>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-muted-foreground">{relatedPost.readTime}</span>
                         <Button variant="outline" size="sm" asChild>
-                          <Link href={`/blog/${relatedPost.slug}`}>Read More</Link>
+                          <a href={`/blog/${relatedPost.slug}`}>Read More</a>
                         </Button>
                       </div>
                     </CardContent>
@@ -184,7 +183,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" variant="secondary" asChild>
-                <Link href="/contact">Get Free Quote</Link>
+                <a href="/contact">Get Free Quote</a>
               </Button>
               <Button
                 size="lg"
@@ -192,7 +191,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 asChild
                 className="bg-transparent border-white text-white hover:bg-white hover:text-primary"
               >
-                <Link href="/portfolio">View Our Work</Link>
+                <a href="/portfolio">View Our Work</a>
               </Button>
             </div>
           </div>

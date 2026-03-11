@@ -144,10 +144,10 @@ export default function Testimonials() {
           className="text-center mt-12"
         >
           <Button size="lg" variant="outline" asChild className="font-semibold px-8">
-            <Link href="/contact">
+            <a href="/contact">
               Start Your Success Story
               <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
+            </a>
           </Button>
         </motion.div>
       </div>
