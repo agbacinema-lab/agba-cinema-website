@@ -14,6 +14,7 @@ export default function Header() {
     { name: "Programs", href: "/academy" },
     { name: "Student Work", href: "/portfolio" },
     { name: "Talent Board", href: "/talent" },
+    { name: "Events", href: "/events" },
     { name: "Blog", href: "/blog" },
     { name: "About", href: "/about" },
   ]
