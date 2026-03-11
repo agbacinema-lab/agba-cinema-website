@@ -1,34 +1,32 @@
 import { db } from "@/lib/firebase";
-import { collection, getDocs, query, orderBy, limit, where, doc, getDoc } from "firebase/firestore";
+import { 
+  collection, 
+  getDocs, 
+  query, 
+  orderBy, 
+  limit, 
+  where, 
+  doc, 
+  getDoc, 
+  setDoc, 
+  updateDoc, 
+  addDoc, 
+  serverTimestamp,
+  deleteDoc
+} from "firebase/firestore";
+import { 
+  BlogPost, 
+  PortfolioItem, 
+  StudentProfile, 
+  BrandProfile, 
+  PortfolioReview, 
+  InternshipRequest, 
+  UserProfile,
+  AdminProfile,
+  ApprovalRequest
+} from "./types";
 
-export interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  author: string;
-  publishedAt: string;
-  image: string;
-  tags: string[];
-  category: string;
-  readTime: string;
-}
-
-export interface PortfolioItem {
-  id: string;
-  title: string;
-  slug: string;
-  category: string;
-  client: string;
-  description: string;
-  image: string;
-  youtubeEmbedUrl: string;
-  tags: string[];
-  year: number;
-  duration: string;
-}
-
+// BLOG SERVICE
 export const blogService = {
   async getAllPosts() {
     const postsCol = collection(db, "posts");
@@ -46,10 +44,220 @@ export const blogService = {
   }
 };
 
+// PORTFOLIO SERVICE
 export const portfolioService = {
   async getAllItems() {
     const itemsCol = collection(db, "portfolio");
     const itemsSnapshot = await getDocs(query(itemsCol, orderBy("year", "desc")));
     return itemsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PortfolioItem));
+  }
+};
+
+// ADMIN SERVICE
+export const adminService = {
+  async getAllUsers() {
+    const usersCol = collection(db, "users");
+    const snapshot = await getDocs(query(usersCol, orderBy("createdAt", "desc")));
+    return snapshot.docs.map(doc => doc.data() as UserProfile);
+  },
+
+  async promoteToAdmin(userId: string, type: 'tutor' | 'staff' | 'both') {
+    await updateDoc(doc(db, "users", userId), { role: 'admin' });
+    await setDoc(doc(db, "admins", userId), {
+      userId,
+      type,
+      permissions: {
+        reviewPortfolio: true,
+        approveStudents: true,
+        assignProjects: type === 'both' || type === 'staff',
+        manageBrands: type === 'both' || type === 'staff'
+      }
+    });
+  },
+
+  async demoteFromAdmin(userId: string, newRole: 'student' | 'staff' | 'tutor' = 'student') {
+    await updateDoc(doc(db, "users", userId), { role: newRole });
+    await deleteDoc(doc(db, "admins", userId));
+  },
+
+  async updateUserRole(userId: string, newRole: any) {
+    await updateDoc(doc(db, "users", userId), { role: newRole });
+  },
+
+  async upgradeBrandAccess(userId: string) {
+    await updateDoc(doc(db, "users", userId), { hasPaidAccess: true });
+    await updateDoc(doc(db, "brands", userId), { hasPaidAccess: true });
+  },
+
+  async createApprovalRequest(request: Omit<ApprovalRequest, 'id' | 'status' | 'createdAt'>) {
+    const approvalsCol = collection(db, "approvals");
+    await addDoc(approvalsCol, {
+      ...request,
+      status: 'pending',
+      createdAt: serverTimestamp()
+    });
+  },
+
+  async getPendingApprovals() {
+    const approvalsCol = collection(db, "approvals");
+    const q = query(approvalsCol, where("status", "==", "pending"), orderBy("createdAt", "desc"));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ApprovalRequest));
+  },
+
+  async processApproval(id: string, approved: boolean) {
+    const approvalRef = doc(db, "approvals", id);
+    const snap = await getDoc(approvalRef);
+    if (!snap.exists()) return;
+
+    const request = snap.data() as ApprovalRequest;
+
+    if (approved) {
+      if (request.type === 'role_change') {
+        await updateDoc(doc(db, "users", request.data.userId), { role: request.data.targetRole });
+      } else if (request.type === 'internship_ready') {
+        const studentRef = collection(db, "students");
+        const q = query(studentRef, where("studentUID", "==", request.data.userId));
+        const sSnap = await getDocs(q);
+        if (!sSnap.empty) {
+          await updateDoc(sSnap.docs[0].ref, { status: 'internship_ready' });
+        }
+      }
+      await updateDoc(approvalRef, { status: 'approved' });
+    } else {
+      await updateDoc(approvalRef, { status: 'rejected' });
+    }
+  },
+
+  async togglePermission(userId: string, permission: string, value: boolean) {
+    const adminRef = doc(db, "admins", userId);
+    await updateDoc(adminRef, {
+      [`permissions.${permission}`]: value
+    });
+  }
+};
+
+// STUDENT SERVICE
+export const studentService = {
+  async getStudentProfile(userId: string) {
+    const snap = await getDoc(doc(db, "students", userId));
+    return snap.exists() ? snap.data() as StudentProfile : null;
+  },
+
+  async updatePortfolio(userId: string, links: Partial<StudentProfile['portfolioLinks']>) {
+    await updateDoc(doc(db, "students", userId), {
+      portfolioLinks: links
+    });
+  },
+
+  async getAllTalent(isPremiumOnly = false) {
+    const studentsCol = collection(db, "students");
+    let q = query(studentsCol, where("status", "==", "internship_ready"));
+    if (isPremiumOnly) {
+      q = query(q, where("programType", "==", "mentorship"));
+    }
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => doc.data() as StudentProfile);
+  }
+};
+
+// BRAND SERVICE
+export const brandService = {
+  async requestInternship(brandId: string, studentId: string) {
+    const requestsCol = collection(db, "internship_requests");
+    const docRef = await addDoc(requestsCol, {
+      brandId,
+      studentId,
+      status: 'pending',
+      requestedAt: serverTimestamp()
+    });
+    // Cloud function would trigger email here
+    return docRef.id;
+  },
+
+  async getBrandProfile(userId: string) {
+    const snap = await getDoc(doc(db, "brands", userId));
+    return snap.exists() ? snap.data() as BrandProfile : null;
+  }
+};
+
+// REVIEW SERVICE
+export const reviewService = {
+  async submitReview(review: Omit<PortfolioReview, 'reviewId' | 'createdAt'>) {
+    const reviewsCol = collection(db, "portfolio_reviews");
+    await addDoc(reviewsCol, {
+      ...review,
+      createdAt: serverTimestamp()
+    });
+  }
+};
+
+// LMS (Learning Management System) SERVICE
+export const lmsService = {
+  // Classes
+  async createClassSession(session: Omit<any, 'id' | 'date'>) {
+    const classesCol = collection(db, "classes");
+    await addDoc(classesCol, {
+      ...session,
+      date: serverTimestamp()
+    });
+  },
+
+  async getAllClasses() {
+    const classesCol = collection(db, "classes");
+    const snapshot = await getDocs(query(classesCol, orderBy("date", "desc")));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  },
+
+  // Assignments
+  async createAssignment(assignment: Omit<any, 'id' | 'createdAt'>) {
+    const assignmentsCol = collection(db, "assignments");
+    await addDoc(assignmentsCol, {
+      ...assignment,
+      createdAt: serverTimestamp()
+    });
+  },
+
+  async getAssignments(subject?: string) {
+    const assignmentsCol = collection(db, "assignments");
+    let q = query(assignmentsCol, orderBy("createdAt", "desc"));
+    if (subject) q = query(assignmentsCol, where("subject", "==", subject), orderBy("createdAt", "desc"));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  },
+
+  async toggleAssignmentStatus(id: string, isOpen: boolean) {
+    await updateDoc(doc(db, "assignments", id), { isOpen });
+  },
+
+  // Submissions
+  async submitAssignment(submission: Omit<any, 'id' | 'status' | 'submittedAt'>) {
+    const submissionsCol = collection(db, "submissions");
+    await addDoc(submissionsCol, {
+      ...submission,
+      status: 'pending',
+      submittedAt: serverTimestamp()
+    });
+  },
+
+  async getSubmissionsByAssignment(assignmentId: string) {
+    const submissionsCol = collection(db, "submissions");
+    const snapshot = await getDocs(query(submissionsCol, where("assignmentId", "==", assignmentId), orderBy("submittedAt", "desc")));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  },
+
+  async getSubmissionsByStudent(studentUID: string) {
+    const submissionsCol = collection(db, "submissions");
+    const snapshot = await getDocs(query(submissionsCol, where("studentUID", "==", studentUID), orderBy("submittedAt", "desc")));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  },
+
+  async gradeSubmission(id: string, status: 'approved' | 'redo', grade?: number, tutorComment?: string) {
+    await updateDoc(doc(db, "submissions", id), {
+      status,
+      grade: grade || null,
+      tutorComment: tutorComment || "",
+      gradedAt: serverTimestamp()
+    });
   }
 };

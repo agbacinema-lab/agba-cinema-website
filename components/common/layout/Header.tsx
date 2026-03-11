@@ -2,58 +2,67 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Menu, X, Camera } from "lucide-react"
+import { Menu, X, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
+import { useAuth } from "@/context/AuthContext"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { user, profile } = useAuth()
 
   const navigation = [
-    { name: "Home", href: "/" },
     { name: "Programs", href: "/academy" },
     { name: "Student Work", href: "/portfolio" },
-    { name: "Hire Editors", href: "/services" },
+    { name: "Talent Board", href: "/talent" },
     { name: "Blog", href: "/blog" },
-    { name: "Events", href: "/events" },
     { name: "About", href: "/about" },
   ]
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100">
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
-          <a href="/" className="flex items-center">
+          <a href="/" className="flex items-center group">
             <Image
               src="/agba  white.jpg"
               alt="ÀGBÀ CINEMA Logo"
-              width={150}
-              height={50}
+              width={140}
+              height={45}
+              className="group-hover:opacity-80 transition-opacity"
               priority
             />
           </a>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
-            <a
-              href="/"
-              className="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200 text-sm"
-            >
-              Home
-            </a>
-            {navigation.slice(1).map((item) => (
+          <div className="hidden md:flex items-center space-x-8">
+            {navigation.map((item) => (
               <a
                 key={item.name}
                 href={item.href}
-                className="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200 text-sm"
+                className="text-gray-600 hover:text-black font-semibold transition-colors duration-200 text-sm tracking-tight"
               >
                 {item.name}
               </a>
             ))}
-            <Button asChild className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold border-0">
-              <a href="/apply">Apply Now</a>
-            </Button>
+            
+            <div className="h-4 w-px bg-gray-200 mx-2" />
+
+            {user ? (
+               <Button asChild className="bg-black hover:bg-gray-800 text-white font-bold h-11 px-6 rounded-xl text-sm">
+                <a href="/admin" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  My Dashboard
+                </a>
+              </Button>
+            ) : (
+              <div className="flex items-center gap-4">
+                <a href="/login" className="text-sm font-bold text-gray-900 hover:text-yellow-600 transition-colors">Log In</a>
+                <Button asChild className="bg-yellow-400 hover:bg-yellow-300 text-black font-extrabold h-11 px-6 rounded-xl text-sm border-0 shadow-lg shadow-yellow-400/20">
+                  <a href="/register">Join Academy</a>
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -67,21 +76,32 @@ export default function Header() {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
+            <div className="px-2 pt-2 pb-6 space-y-1 sm:px-3 bg-white border-t">
               {navigation.map((item) => (
                 <a
                   key={item.name}
                   href={item.href}
-                  className="block px-3 py-2 text-gray-700 hover:text-primary transition-colors duration-200"
+                  className="block px-3 py-3 text-gray-700 font-bold hover:text-yellow-600 transition-colors duration-200 border-b border-gray-50"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.name}
                 </a>
               ))}
-              <div className="px-3 py-2">
-                <Button asChild className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-bold border-0">
-                  <a href="/apply" onClick={() => setIsMenuOpen(false)}>Apply Now</a>
-                </Button>
+              <div className="pt-6 px-3 space-y-3">
+                {user ? (
+                  <Button asChild className="w-full bg-black text-white font-bold h-12 rounded-xl">
+                    <a href="/admin" onClick={() => setIsMenuOpen(false)}>My Dashboard</a>
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="outline" asChild className="w-full font-bold h-12 rounded-xl border-gray-200">
+                      <a href="/login" onClick={() => setIsMenuOpen(false)}>Log In</a>
+                    </Button>
+                    <Button asChild className="w-full bg-yellow-400 text-black font-extrabold h-12 rounded-xl">
+                      <a href="/register" onClick={() => setIsMenuOpen(false)}>Join Academy</a>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>

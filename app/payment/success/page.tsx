@@ -76,54 +76,64 @@ function SuccessContent() {
         )
     }
 
+    const isStudentService = details?.metadata?.service?.toLowerCase().includes('academy') || 
+                             details?.metadata?.service?.toLowerCase().includes('gopro') ||
+                             details?.metadata?.service?.toLowerCase().includes('class');
+
     return (
         <div className="flex flex-col items-center justify-center py-12 text-center">
             <CheckCircle2 className="h-16 w-16 text-green-500 mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
+            <h2 className="text-3xl font-black text-gray-900 mb-2">Payment Successful!</h2>
 
             <div className="flex flex-col items-center justify-center gap-2 text-gray-600 mb-8 max-w-md">
                 {emailSent ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 bg-green-50 px-4 py-2 rounded-full border border-green-100">
                         <Mail className="h-4 w-4 text-green-500" />
-                        <p>Confirmation email sent to <strong>{details?.customer?.email}</strong>.</p>
-                    </div>
-                ) : details?.emailError ? (
-                    <div className="flex flex-col items-center gap-1">
-                        <p className="text-red-500 text-sm">Email failed: {details.emailError}</p>
-                        <p className="text-xs text-gray-500 italic">Check your Vercel Environment Variables</p>
+                        <p className="text-sm font-medium">Confirmation sent to <strong>{details?.customer?.email}</strong></p>
                     </div>
                 ) : (
-                    <div className="flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                        <p>Payment verified, </p>
-                        <p><a href="https://chat.whatsapp.com/Hu8ZRryOCkg96G90oELK6J" target="_blank" style={{ color: "red", textDecoration: "underline" }}> Click here to join the class </a>...</p>
-                    </div>
+                    <p className="text-gray-500">Your transaction has been verified successfully.</p>
                 )}
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-6 mb-8 w-full max-w-md text-left">
-                <div className="flex justify-between mb-2">
-                    <span className="text-gray-500">Reference:</span>
-                    <span className="font-mono font-medium">{details?.reference}</span>
+            {isStudentService && (
+                <Card className="bg-yellow-400 border-none p-8 rounded-[2rem] mb-10 shadow-xl shadow-yellow-400/20 max-w-md w-full">
+                    <h3 className="text-2xl font-black text-black mb-3 text-center">Step 2: Create Account</h3>
+                    <p className="text-black/80 font-medium mb-6">You've successfully paid for your class. Now, create your student portal to access your dashboard and portfolio.</p>
+                    <Button 
+                        onClick={() => router.push(`/register?role=student&ref=${reference}&email=${details?.customer?.email}&name=${details?.metadata?.fullName}`)} 
+                        className="w-full bg-black text-white hover:bg-gray-900 h-14 rounded-2xl font-black text-lg"
+                    >
+                        Claim Your Student Portal →
+                    </Button>
+                </Card>
+            )}
+
+            <div className="bg-white border border-gray-100 rounded-[2rem] p-8 mb-10 w-full max-w-md text-left shadow-sm">
+                <div className="flex justify-between mb-4 border-b border-gray-50 pb-4">
+                    <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Reference</span>
+                    <span className="font-mono font-bold text-gray-900">{details?.reference}</span>
                 </div>
-                <div className="flex justify-between mb-2">
-                    <span className="text-gray-500">Amount:</span>
-                    <span className="font-medium">
+                <div className="flex justify-between mb-4 border-b border-gray-50 pb-4">
+                    <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Amount Paid</span>
+                    <span className="font-black text-gray-900">
                         {(details?.amount / 100).toLocaleString("en-NG", { style: "currency", currency: "NGN" })}
                     </span>
                 </div>
                 <div className="flex justify-between">
-                    <span className="text-gray-500">Service:</span>
-                    <span className="font-medium">{details?.metadata?.service || "N/A"}</span>
+                    <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Service</span>
+                    <span className="font-bold text-gray-900">{details?.metadata?.service || "N/A"}</span>
                 </div>
             </div>
 
-            <div className="flex gap-4">
-                <Button onClick={() => router.replace("/")}>
+            <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
+                {!isStudentService && (
+                    <Button onClick={() => router.replace("/admin")} className="flex-1 bg-black text-white h-14 rounded-2xl font-bold">
+                        Go to Dashboard
+                    </Button>
+                )}
+                <Button variant="outline" onClick={() => router.replace("/")} className="flex-1 border-gray-200 h-14 rounded-2xl font-bold text-gray-500">
                     Return Home
-                </Button>
-                <Button variant="outline" onClick={() => router.replace("/")}>
-                    Go to Dashboard
                 </Button>
             </div>
         </div>

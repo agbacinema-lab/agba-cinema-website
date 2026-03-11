@@ -5,6 +5,7 @@ import "./globals.css"
 import Header from "@/components/common/layout/Header"
 import Footer from "@/components/common/layout/Footer"
 import WhatsAppButton from "@/components/common/WhatsAppButton"
+import { AuthProvider } from "@/context/AuthContext"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -85,12 +86,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </noscript>
       </head>
       <body className={inter.className}>
-        <Header />
-        <div className="relative min-h-screen">
-          {children}
-        </div>
-        <Footer />
-        <WhatsAppButton />
+        <AuthProvider>
+          <Header />
+          <div className="relative min-h-screen">
+            {children}
+          </div>
+          <Footer />
+          <WhatsAppButton />
+        </AuthProvider>
       </body>
     </html>
   )
