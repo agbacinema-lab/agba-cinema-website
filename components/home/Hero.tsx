@@ -21,20 +21,20 @@ export default function Hero() {
       <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-            Cinematic Stories
+            Learn Video Editing and
             <br />
-          <span className="text-yellow-400">Beautifully Told</span>
+            <span className="text-yellow-400">Work With Real Brands</span>
           </h1>
 
           <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-gray-200">
-            Professional video production, training, and consultancy that bring your vision to life. From corporate videos to weddings, we craft visual stories that captivate, inspire, and equip you for success.
+            Structured mentorship and internship placement for creatives in Nigeria.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button size="lg" asChild className="text-lg px-8 py-4">
-              <Link href="/portfolio">
+              <Link href="/academy">
                 <Play className="mr-2 h-5 w-5" />
-                View Our Work
+                Apply for Mentorship
               </Link>
             </Button>
 
@@ -44,8 +44,8 @@ export default function Hero() {
               asChild
               className="text-lg px-8 py-4 bg-transparent border-white text-white hover:bg-white hover:text-black"
             >
-              <Link href="/contact">
-                Get Started
+              <Link href="/services">
+                Hire Our Editors
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
