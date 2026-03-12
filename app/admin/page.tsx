@@ -10,7 +10,8 @@ import NotificationBar from "@/components/admin/NotificationBar"
 import StudentReadiness from "@/components/admin/StudentReadiness"
 import AssignmentManager from "@/components/admin/AssignmentManager"
 import StudentLMS from "@/components/admin/StudentLMS"
-import { LogOut, LayoutDashboard, Users, Briefcase, Star, Settings, GraduationCap, BookOpen } from "lucide-react"
+import BlogManager from "@/components/admin/BlogManager"
+import { LogOut, LayoutDashboard, Users, Briefcase, Star, Settings, GraduationCap, BookOpen, FileText } from "lucide-react"
 import { motion } from "framer-motion"
 
 export default function AdminDashboardPage() {
@@ -74,6 +75,12 @@ export default function AdminDashboardPage() {
                 icon={<GraduationCap className="h-5 w-5" />} 
                 label="Internship Ready" 
                 onClick={() => setActiveTab('readiness')} 
+              />
+              <NavItem 
+                active={activeTab === 'blog'} 
+                icon={<FileText className="h-5 w-5" />} 
+                label="Blog Posts" 
+                onClick={() => setActiveTab('blog')} 
               />
             </>
           )}
@@ -167,6 +174,12 @@ export default function AdminDashboardPage() {
           {activeTab === 'readiness' && isAdmin && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
               <StudentReadiness />
+            </motion.div>
+          )}
+
+          {activeTab === 'blog' && isAdmin && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+              <BlogManager />
             </motion.div>
           )}
 
