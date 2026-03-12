@@ -98,6 +98,90 @@ export interface InternshipRequest {
 
 export type Subject = 'Video Editing' | 'Motion Design' | 'Script Writing' | 'Storytelling' | 'Business of Creativity';
 
+// Curriculum and Learning Materials
+export type CourseType = 'gopro' | 'mentorship';
+export type CourseSpecialization = 'video-editing-laptop' | 'video-editing-mobile' | 'after-effects' | 'motion-design' | 'script-writing';
+
+export interface Specialization {
+  id: string;
+  programType: CourseType;
+  label: string;
+  value: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  createdAt: any;
+}
+
+export interface Curriculum {
+  id: string;
+  title: string;
+  description: string;
+  programType: CourseType;
+  specialization: CourseSpecialization;
+  icon?: string;
+  color?: string;
+  moduleCount?: number;
+  createdAt: any;
+  updatedAt: any;
+  createdBy: string;
+}
+export interface LearningMaterial {
+  id: string;
+  moduleId: string;
+  title: string;
+  description: string;
+  type: 'pdf' | 'video' | 'document' | 'link';
+  fileUrl?: string;
+  fileName?: string;
+  fileSize?: number;
+  videoUrl?: string;
+  externalLink?: string;
+  uploadedBy: string;
+  uploadedAt: any;
+  readOnly: boolean;
+}
+
+export interface ModuleContent {
+  id: string;
+  number: string;
+  title: string;
+  description: string;
+  topics: string[];
+  materials: LearningMaterial[];
+  hasAssignment: boolean;
+  order: number;
+}
+
+export interface CurriculumModule {
+  id: string;
+  courseId: string;
+  courseType: CourseType;
+  specialization: CourseSpecialization;
+  moduleNumber: number;
+  title: string;
+  description: string;
+  topics: string[];
+  learningMaterials: LearningMaterial[];
+  assignmentId?: string;
+  isBonusModule: boolean;
+  order: number;
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface CourseProgress {
+  id: string;
+  studentId: string;
+  courseId: string;
+  specialization: CourseSpecialization;
+  completedModules: string[];
+  currentModuleId?: string;
+  enrolledAt: any;
+  lastAccessedAt: any;
+  status: 'enrolled' | 'completed' | 'paused';
+}
+
 export interface ClassSession {
   id: string;
   title: string;
@@ -145,4 +229,36 @@ export interface InternshipTerms {
   fee: number;
   currency: string;
   description: string;
+}
+
+// Assignment Management
+export interface Assignment {
+  id: string;
+  title: string;
+  description: string;
+  instructions: string;
+  programType: CourseType;
+  specialization: CourseSpecialization;
+  curriculumId?: string;
+  moduleId?: string;
+  dueDate: any;
+  maxGrade: number;
+  rubric?: string;
+  attachmentUrl?: string;
+  createdBy: string;
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface AssignmentSubmission {
+  id: string;
+  assignmentId: string;
+  studentId: string;
+  studentName: string;
+  submissionUrl: string;
+  notes?: string;
+  submitedAt: any;
+  grade?: number;
+  feedback?: string;
+  status: 'submitted' | 'graded' | 'revision_needed';
 }

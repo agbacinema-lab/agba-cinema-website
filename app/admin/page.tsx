@@ -8,10 +8,12 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import UserManagement from "@/components/admin/UserManagement"
 import NotificationBar from "@/components/admin/NotificationBar"
 import StudentReadiness from "@/components/admin/StudentReadiness"
-import AssignmentManager from "@/components/admin/AssignmentManager"
+import AssignmentManagementPanel from "@/components/admin/AssignmentManagementPanel"
 import StudentLMS from "@/components/admin/StudentLMS"
 import BlogManager from "@/components/admin/BlogManager"
-import { LogOut, LayoutDashboard, Users, Briefcase, Star, Settings, GraduationCap, BookOpen, FileText } from "lucide-react"
+import CurriculumAdminPanel from "@/components/admin/CurriculumAdminPanel"
+import SpecializationManager from "@/components/admin/SpecializationManager"
+import { LogOut, LayoutDashboard, Users, Briefcase, Star, Settings, GraduationCap, BookOpen, FileText, BookMarked } from "lucide-react"
 import { motion } from "framer-motion"
 
 export default function AdminDashboardPage() {
@@ -75,6 +77,18 @@ export default function AdminDashboardPage() {
                 icon={<GraduationCap className="h-5 w-5" />} 
                 label="Internship Ready" 
                 onClick={() => setActiveTab('readiness')} 
+              />
+              <NavItem 
+                active={activeTab === 'curriculum'} 
+                icon={<BookMarked className="h-5 w-5" />} 
+                label="Curriculum" 
+                onClick={() => setActiveTab('curriculum')} 
+              />
+              <NavItem 
+                active={activeTab === 'specializations'} 
+                icon={<GraduationCap className="h-5 w-5" />} 
+                label="Specializations" 
+                onClick={() => setActiveTab('specializations')} 
               />
               <NavItem 
                 active={activeTab === 'blog'} 
@@ -177,6 +191,18 @@ export default function AdminDashboardPage() {
             </motion.div>
           )}
 
+          {activeTab === 'curriculum' && isAdmin && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+              <CurriculumAdminPanel />
+            </motion.div>
+          )}
+
+          {activeTab === 'specializations' && isAdmin && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+              <SpecializationManager />
+            </motion.div>
+          )}
+
           {activeTab === 'blog' && isAdmin && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
               <BlogManager />
@@ -185,7 +211,7 @@ export default function AdminDashboardPage() {
 
           {activeTab === 'assignments' && (isAdmin || profile?.role === 'tutor') && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <AssignmentManager />
+              <AssignmentManagementPanel />
             </motion.div>
           )}
 
