@@ -13,11 +13,19 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
-const googleProvider = new GoogleAuthProvider();
+// Initialize Firebase only in browser
+let app;
+let auth;
+let db;
+let storage;
+let googleProvider;
+
+if (typeof window !== 'undefined') {
+  app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  storage = getStorage(app);
+  googleProvider = new GoogleAuthProvider();
+}
 
 export { app, auth, db, storage, googleProvider };
