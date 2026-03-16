@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import PortfolioItemCard from "./PortfolioItemCard";
-import { portfolioService, PortfolioItem as FirebasePortfolioItem } from "@/lib/services";
+import { portfolioService } from "@/lib/services";
+import { PortfolioItem as FirebasePortfolioItem } from "@/lib/types";
+import portfolioStaticData from "@/data/portfolio.json";
 
 export default function PortfolioGrid({ selectedCategory = "All" }: { selectedCategory?: string }) {
   const [items, setItems] = useState<any[]>([]);
@@ -10,7 +12,11 @@ export default function PortfolioGrid({ selectedCategory = "All" }: { selectedCa
 
   useEffect(() => {
     portfolioService.getAllItems().then(data => {
-      setItems(data);
+      if (data.length === 0) {
+        setItems(portfolioStaticData);
+      } else {
+        setItems(data);
+      }
       setLoading(false);
     });
   }, []);

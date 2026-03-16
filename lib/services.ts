@@ -49,6 +49,54 @@ export const portfolioService = {
     const itemsCol = collection(db, "portfolio");
     const itemsSnapshot = await getDocs(query(itemsCol, orderBy("year", "desc")));
     return itemsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PortfolioItem));
+  },
+  createItem: async (data: any): Promise<void> => {
+    const itemsCol = collection(db, "portfolio");
+    await addDoc(itemsCol, { ...data, createdAt: serverTimestamp() });
+  },
+  updateItem: async (id: string, data: any): Promise<void> => {
+    await updateDoc(doc(db, "portfolio", id), { ...data, updatedAt: serverTimestamp() });
+  },
+  deleteItem: async (id: string): Promise<void> => {
+    await deleteDoc(doc(db, "portfolio", id));
+  }
+};
+
+// EVENT SERVICE
+export const eventService = {
+  getAllEvents: async (): Promise<any[]> => {
+    const col = collection(db, "events");
+    const snapshot = await getDocs(col);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  },
+  createEvent: async (data: any): Promise<void> => {
+    const col = collection(db, "events");
+    await addDoc(col, { ...data, createdAt: serverTimestamp() });
+  },
+  updateEvent: async (id: string, data: any): Promise<void> => {
+    await updateDoc(doc(db, "events", id), { ...data, updatedAt: serverTimestamp() });
+  },
+  deleteEvent: async (id: string): Promise<void> => {
+    await deleteDoc(doc(db, "events", id));
+  }
+};
+
+// ACADEMY SERVICE
+export const academyService = {
+  getAllServices: async (): Promise<any[]> => {
+    const col = collection(db, "academy_services");
+    const snapshot = await getDocs(col);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  },
+  createService: async (data: any): Promise<void> => {
+    const col = collection(db, "academy_services");
+    await addDoc(col, { ...data, createdAt: serverTimestamp() });
+  },
+  updateService: async (id: string, data: any): Promise<void> => {
+    await updateDoc(doc(db, "academy_services", id), { ...data, updatedAt: serverTimestamp() });
+  },
+  deleteService: async (id: string): Promise<void> => {
+    await deleteDoc(doc(db, "academy_services", id));
   }
 };
 

@@ -35,6 +35,8 @@ export interface UserProfile {
   role: UserRole;
   hasPaidAccess?: boolean; // For Brands
   createdAt: any;
+  programType?: any;
+  specialization?: any;
 }
 
 export interface AdminPermissions {

@@ -13,7 +13,10 @@ import StudentLMS from "@/components/admin/StudentLMS"
 import BlogManager from "@/components/admin/BlogManager"
 import CurriculumAdminPanel from "@/components/admin/CurriculumAdminPanel"
 import SpecializationManager from "@/components/admin/SpecializationManager"
-import { LogOut, LayoutDashboard, Users, Briefcase, Star, Settings, GraduationCap, BookOpen, FileText, BookMarked } from "lucide-react"
+import PortfolioManager from "@/components/admin/PortfolioManager"
+import EventManager from "@/components/admin/EventManager"
+import AcademyManager from "@/components/admin/AcademyManager"
+import { LogOut, LayoutDashboard, Users, Briefcase, Star, Settings, GraduationCap, BookOpen, FileText, BookMarked, MonitorPlay, Calendar, Image as ImageIcon } from "lucide-react"
 import { motion } from "framer-motion"
 
 export default function AdminDashboardPage() {
@@ -58,91 +61,109 @@ export default function AdminDashboardPage() {
         </div>
 
         <nav className="space-y-2 flex-grow">
-          <NavItem 
-            active={activeTab === 'overview'} 
-            icon={<LayoutDashboard className="h-5 w-5" />} 
-            label="Overview" 
-            onClick={() => setActiveTab('overview')} 
+          <NavItem
+            active={activeTab === 'overview'}
+            icon={<LayoutDashboard className="h-5 w-5" />}
+            label="Overview"
+            onClick={() => setActiveTab('overview')}
           />
           {isAdmin && (
             <>
-              <NavItem 
-                active={activeTab === 'users'} 
-                icon={<Users className="h-5 w-5" />} 
-                label="User Management" 
-                onClick={() => setActiveTab('users')} 
+              <NavItem
+                active={activeTab === 'users'}
+                icon={<Users className="h-5 w-5" />}
+                label="User Management"
+                onClick={() => setActiveTab('users')}
               />
-              <NavItem 
-                active={activeTab === 'readiness'} 
-                icon={<GraduationCap className="h-5 w-5" />} 
-                label="Internship Ready" 
-                onClick={() => setActiveTab('readiness')} 
+              <NavItem
+                active={activeTab === 'readiness'}
+                icon={<GraduationCap className="h-5 w-5" />}
+                label="Internship Ready"
+                onClick={() => setActiveTab('readiness')}
               />
-              <NavItem 
-                active={activeTab === 'curriculum'} 
-                icon={<BookMarked className="h-5 w-5" />} 
-                label="Curriculum" 
-                onClick={() => setActiveTab('curriculum')} 
+              <NavItem
+                active={activeTab === 'curriculum'}
+                icon={<BookMarked className="h-5 w-5" />}
+                label="Curriculum"
+                onClick={() => setActiveTab('curriculum')}
               />
-              <NavItem 
-                active={activeTab === 'specializations'} 
-                icon={<GraduationCap className="h-5 w-5" />} 
-                label="Specializations" 
-                onClick={() => setActiveTab('specializations')} 
+              <NavItem
+                active={activeTab === 'specializations'}
+                icon={<GraduationCap className="h-5 w-5" />}
+                label="Specializations"
+                onClick={() => setActiveTab('specializations')}
               />
-              <NavItem 
-                active={activeTab === 'blog'} 
-                icon={<FileText className="h-5 w-5" />} 
-                label="Blog Posts" 
-                onClick={() => setActiveTab('blog')} 
+              <NavItem
+                active={activeTab === 'blog'}
+                icon={<FileText className="h-5 w-5" />}
+                label="Blog Posts"
+                onClick={() => setActiveTab('blog')}
+              />
+              <NavItem
+                active={activeTab === 'events'}
+                icon={<Calendar className="h-5 w-5" />}
+                label="Events"
+                onClick={() => setActiveTab('events')}
+              />
+              <NavItem
+                active={activeTab === 'academy'}
+                icon={<MonitorPlay className="h-5 w-5" />}
+                label="Academy Services"
+                onClick={() => setActiveTab('academy')}
+              />
+              <NavItem
+                active={activeTab === 'portfolioAdmin'}
+                icon={<ImageIcon className="h-5 w-5" />}
+                label="Portfolio Management"
+                onClick={() => setActiveTab('portfolioAdmin')}
               />
             </>
           )}
-          
+
           {/* Shared / Tutor / Admin */}
           {(isAdmin || profile?.role === 'tutor') && (
-            <NavItem 
-              active={activeTab === 'assignments'} 
-              icon={<BookOpen className="h-5 w-5" />} 
-              label="Manage Assignments" 
-              onClick={() => setActiveTab('assignments')} 
+            <NavItem
+              active={activeTab === 'assignments'}
+              icon={<BookOpen className="h-5 w-5" />}
+              label="Manage Assignments"
+              onClick={() => setActiveTab('assignments')}
             />
           )}
 
           {isStudent && (
             <>
-              <NavItem 
-                active={activeTab === 'lms'} 
-                icon={<BookOpen className="h-5 w-5" />} 
-                label="Academy LMS" 
-                onClick={() => setActiveTab('lms')} 
+              <NavItem
+                active={activeTab === 'lms'}
+                icon={<BookOpen className="h-5 w-5" />}
+                label="Academy LMS"
+                onClick={() => setActiveTab('lms')}
               />
-              <NavItem 
-                active={activeTab === 'portfolio'} 
-                icon={<Star className="h-5 w-5" />} 
-                label="My Portfolio" 
-                onClick={() => setActiveTab('portfolio')} 
+              <NavItem
+                active={activeTab === 'portfolio'}
+                icon={<Star className="h-5 w-5" />}
+                label="My Portfolio"
+                onClick={() => setActiveTab('portfolio')}
               />
             </>
           )}
           {isBrand && (
-            <NavItem 
-              active={activeTab === 'requests'} 
-              icon={<Briefcase className="h-5 w-5" />} 
-              label="Talent Requests" 
-              onClick={() => setActiveTab('requests')} 
+            <NavItem
+              active={activeTab === 'requests'}
+              icon={<Briefcase className="h-5 w-5" />}
+              label="Talent Requests"
+              onClick={() => setActiveTab('requests')}
             />
           )}
-          <NavItem 
-            active={activeTab === 'settings'} 
-            icon={<Settings className="h-5 w-5" />} 
-            label="Settings" 
-            onClick={() => setActiveTab('settings')} 
+          <NavItem
+            active={activeTab === 'settings'}
+            icon={<Settings className="h-5 w-5" />}
+            label="Settings"
+            onClick={() => setActiveTab('settings')}
           />
         </nav>
 
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           onClick={() => authService.logout()}
           className="mt-20 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl justify-start p-4 h-auto font-bold"
         >
@@ -209,6 +230,24 @@ export default function AdminDashboardPage() {
             </motion.div>
           )}
 
+          {activeTab === 'events' && isAdmin && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+              <EventManager />
+            </motion.div>
+          )}
+
+          {activeTab === 'academy' && isAdmin && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+              <AcademyManager />
+            </motion.div>
+          )}
+
+          {activeTab === 'portfolioAdmin' && isAdmin && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+              <PortfolioManager />
+            </motion.div>
+          )}
+
           {activeTab === 'assignments' && (isAdmin || profile?.role === 'tutor') && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
               <AssignmentManagementPanel />
@@ -222,18 +261,18 @@ export default function AdminDashboardPage() {
           )}
 
           {activeTab === 'portfolio' && isStudent && (
-             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-               <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-12">
-                 <h3 className="text-2xl font-black mb-6">Portfolio Submissions</h3>
-                 <p className="text-gray-500 mb-10">Add your work links to be visible to brands.</p>
-                 <div className="grid gap-6">
-                   <PortfolioInput label="YouTube Channel" placeholder="https://youtube.com/@yourchannel" />
-                   <PortfolioInput label="Behance Portfolio" placeholder="https://behance.net/username" />
-                   <PortfolioInput label="Google Drive / Dropbox" placeholder="https://drive.google.com/..." />
-                 </div>
-                 <Button className="mt-10 bg-yellow-400 text-black font-black h-14 px-10 rounded-2xl">Update Portfolio</Button>
-               </Card>
-             </motion.div>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+              <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-12">
+                <h3 className="text-2xl font-black mb-6">Portfolio Submissions</h3>
+                <p className="text-gray-500 mb-10">Add your work links to be visible to brands.</p>
+                <div className="grid gap-6">
+                  <PortfolioInput label="YouTube Channel" placeholder="https://youtube.com/@yourchannel" />
+                  <PortfolioInput label="Behance Portfolio" placeholder="https://behance.net/username" />
+                  <PortfolioInput label="Google Drive / Dropbox" placeholder="https://drive.google.com/..." />
+                </div>
+                <Button className="mt-10 bg-yellow-400 text-black font-black h-14 px-10 rounded-2xl">Update Portfolio</Button>
+              </Card>
+            </motion.div>
           )}
         </div>
       </main>
@@ -243,7 +282,7 @@ export default function AdminDashboardPage() {
 
 function NavItem({ active, icon, label, onClick }: any) {
   return (
-    <button 
+    <button
       onClick={onClick}
       className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all font-bold ${active ? 'bg-yellow-400 text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
     >
@@ -270,8 +309,8 @@ function PortfolioInput({ label, placeholder }: any) {
   return (
     <div className="space-y-2">
       <label className="text-xs font-black uppercase tracking-widest text-gray-400">{label}</label>
-      <input 
-        className="w-full h-14 px-6 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition-all" 
+      <input
+        className="w-full h-14 px-6 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-400 focus:outline-none transition-all"
         placeholder={placeholder}
       />
     </div>
