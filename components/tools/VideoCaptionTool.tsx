@@ -154,22 +154,21 @@ export default function VideoCaptionTool() {
     const resX = isPortrait ? 540 : 960
     const resY = isPortrait ? 960 : 540
     const centerX = resX / 2
-    const bottomY = resY - 100 
+    
+    // Safety Margins: Vertical 200+ for social safe zones
+    const bottomY = resY - 220 
 
-    const scaledSize = Math.max(fontSize * (resX / 1280), 24)
+    const scaledSize = Math.max(fontSize * (resX / 1000), 34)
 
-    // Elite Style Definitions
-    let styleLine = `Style: Default,Inter,${scaledSize},&H00${bgrFF},&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,2,1.5,2,20,20,70,1`
+    // Elite Style Definitions - Using unique font handle
+    let styleLine = `Style: Default,Inter-Agba,${scaledSize},&H00${bgrFF},&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,3,2,2,20,20,200,1`
     
     if (captionStyle === "social" || captionStyle === "pop") {
-      // Bold, All-Caps, Highlighted Box (The "Hormozi" Look)
-      styleLine = `Style: Default,Inter,${scaledSize + 12},&H00${bgrFF},&H000000FF,&H00000000,&H99000000,-1,0,0,0,100,100,0,0,3,0,0,2,30,30,80,1`
+      styleLine = `Style: Default,Inter-Agba,${scaledSize + 16},&H00${bgrFF},&H000000FF,&H00000000,&H99000000,-1,0,0,0,100,100,0,0,3,0,0,2,30,30,240,1`
     } else if (captionStyle === "cinematic" || captionStyle === "slide") {
-      // Elegant, Sans-Serif, Thin Outline
-      styleLine = `Style: Default,Inter,${scaledSize - 6},&H00FFFFFF,&H000000FF,&H00000000,&HAA000000,0,0,0,0,110,100,1,0,1,1,0,2,40,40,40,1`
+      styleLine = `Style: Default,Inter-Agba,${scaledSize - 2},&H00FFFFFF,&H000000FF,&H00000000,&HAA000000,0,0,0,0,110,100,1,0,1,2,0,2,40,40,160,1`
     } else if (captionStyle === "glow") {
-      // Neon/Glow aesthetic
-      styleLine = `Style: Default,Inter,${scaledSize},&H00FFFFFF,&H000000FF,&H00${bgrFF},&H44${bgrFF},0,0,0,0,100,100,0,0,1,3,2,2,20,20,60,1`
+      styleLine = `Style: Default,Inter-Agba,${scaledSize},&H00FFFFFF,&H000000FF,&H00${bgrFF},&H44${bgrFF},0,0,0,0,100,100,0,0,1,4,2,2,20,20,200,1`
     }
 
     const header = `[Script Info]
@@ -373,8 +372,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         const fontRes = await fetch("https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/inter/static/Inter-Bold.ttf")
         if (fontRes.ok) {
           const fontData = new Uint8Array(await fontRes.arrayBuffer())
-          await ffmpeg.writeFile(fontName, fontData)
-          console.log("Font Root Injected:", fontName)
+          await ffmpeg.writeFile("Inter-Agba.ttf", fontData)
+          console.log("Elite Font Injected: Inter-Agba.ttf")
         }
       } catch (e) { }
 
@@ -396,12 +395,14 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         audioFilter = `highpass=f=100,afftdn=nr=${nr.toFixed(1)}:nf=-35,volume=1.6`
       }
 
-      // 960p target scale
-      const scaleFilter = isPortrait ? "scale=540:960" : "scale=960:540"
-      // Flat pathing for fonts and subtitles
-      const vfChain = `${scaleFilter},subtitles=${subName}:fontsdir=.`
+      // Memory-safe scaling (960p) with Aspect Ratio Padding (Ensures text stays on video)
+      const targetW = isPortrait ? 540 : 960
+      const targetH = isPortrait ? 960 : 540
+      
+      const scaleFilter = `scale=${targetW}:${targetH}:force_original_aspect_ratio=decrease,pad=${targetW}:${targetH}:(ow-iw)/2:(oh-ih)/2:black`
+      const vfChain = `${scaleFilter},subtitles=f=${subName}:fontsdir=.`
 
-      console.log(`Render Start: ${vfChain}`)
+      console.log("Starting FFmpeg Render with Config:", { targetW, targetH, vfChain })
       
       try {
         await ffmpeg.exec([
@@ -409,7 +410,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
           "-vf", vfChain,
           "-c:v", "libx264",
           "-preset", "ultrafast",
-          "-crf", "25", // Slightly higher for rock-solid stability
+          "-crf", "25",
           "-c:a", "aac",
           "-b:a", "128k",
           "-af", audioFilter,
@@ -481,7 +482,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
   }
 
   return (
-    <div className="space-y-12">
+    <div className="isolate space-y-12">
       {!isIsolated && (
         <Alert className="bg-orange-50 border-orange-200 rounded-3xl">
           <AlertTitle className="text-orange-800 font-black uppercase tracking-widest text-xs">Performance Warning</AlertTitle>

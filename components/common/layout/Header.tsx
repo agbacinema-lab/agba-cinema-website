@@ -22,8 +22,8 @@ export default function Header() {
   ]
 
   return (
-    <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100">
-      <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <header className="bg-white/80 backdrop-blur-md sticky top-0 z-[9999] border-b border-gray-100 pointer-events-auto">
+      <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-[9999]">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <Link href="/" className="flex items-center group">
