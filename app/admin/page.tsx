@@ -17,7 +17,9 @@ import AcademyManager from "@/components/admin/AcademyManager"
 import BrandManagementPanel from "@/components/admin/BrandManagementPanel"
 import AnnouncementManager from "@/components/admin/AnnouncementManager"
 import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard"
-import { LogOut, LayoutDashboard, Users, Briefcase, Star, Settings, GraduationCap, BookOpen, FileText, BookMarked, MonitorPlay, Calendar, Image as ImageIcon, Layers, Bell, BarChart3 } from "lucide-react"
+import AdminProfile from "@/components/admin/AdminProfile"
+import AdminSettings from "@/components/admin/AdminSettings"
+import { LogOut, LayoutDashboard, Users, Briefcase, Star, Settings, GraduationCap, BookOpen, FileText, BookMarked, MonitorPlay, Calendar, Image as ImageIcon, Layers, Bell, BarChart3, UserCircle, Shield } from "lucide-react"
 import { motion } from "framer-motion"
 
 export default function AdminDashboardPage() {
@@ -37,7 +39,7 @@ export default function AdminDashboardPage() {
   const isStaff = ['super_admin', 'director', 'hod', 'admin', 'tutor', 'staff'].includes(profile?.role || '');
 
   const hasAccess = (tab: string) => {
-    if (tab === 'overview' || tab === 'settings' || tab === 'lms' || tab === 'portfolio' || tab === 'requests') return true;
+    if (tab === 'overview' || tab === 'settings' || tab === 'profile' || tab === 'lms' || tab === 'portfolio' || tab === 'requests') return true;
     if (['super_admin', 'director'].includes(profile?.role || '')) return true;
     
     const permissions: Record<string, string[]> = {
@@ -131,6 +133,12 @@ export default function AdminDashboardPage() {
                 icon={<BookOpen className="h-5 w-5" />}
                 label="Manage Assignments"
                 onClick={() => setActiveTab('assignments')}
+              />
+              <NavItem
+                active={activeTab === 'profile'}
+                icon={<UserCircle className="h-5 w-5" />}
+                label="Personnel Identity"
+                onClick={() => setActiveTab('profile')}
               />
             </>
           )}
@@ -255,6 +263,18 @@ export default function AdminDashboardPage() {
           {activeTab === 'assignments' && isStaff && hasAccess('assignments') && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
               <AssignmentManagementPanel />
+            </motion.div>
+          )}
+
+          {activeTab === 'profile' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+              <AdminProfile />
+            </motion.div>
+          )}
+
+          {activeTab === 'settings' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+              <AdminSettings />
             </motion.div>
           )}
         </div>

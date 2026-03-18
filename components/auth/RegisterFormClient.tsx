@@ -71,12 +71,13 @@ export default function RegisterFormClient({
   useEffect(() => {
     if (!success) return
     if (countdown <= 0) {
-      router.push("/student/dashboard")
+      const target = role === "student" ? "/student/dashboard" : role === "brand" ? "/brand/dashboard" : "/admin"
+      router.push(target)
       return
     }
     const t = setTimeout(() => setCountdown(c => c - 1), 1000)
     return () => clearTimeout(t)
-  }, [success, countdown])
+  }, [success, countdown, role, router])
 
   useEffect(() => {
     if (isStudent && step === 2) loadSpecializations()

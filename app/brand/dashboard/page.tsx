@@ -23,10 +23,12 @@ import {
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
+import { authService } from "@/lib/auth-service"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { toast } from "sonner"
 import PaymentForm from "@/components/services/PaymentForm"
+import BrandSettings from "@/components/brand/BrandSettings"
 
 export default function BrandDashboard() {
   const { user, profile, loading } = useAuth()
@@ -36,6 +38,7 @@ export default function BrandDashboard() {
   const [requests, setRequests] = useState<InternshipRequest[]>([])
   const [activeInterns, setActiveInterns] = useState<InternshipRequest[]>([])
   const [fetching, setFetching] = useState(true)
+  const [isRecruiting, setIsRecruiting] = useState<string | null>(null)
 
   useEffect(() => {
     if (profile?.uid) {
@@ -65,6 +68,27 @@ export default function BrandDashboard() {
     }
   }
 
+  const handleRecruit = async (student: StudentProfile) => {
+    if (!profile?.uid || !brandData) return
+    setIsRecruiting(student.studentId || student.userId)
+    try {
+      await brandService.requestInternship({
+        brandId: profile.uid,
+        brandName: brandData.companyName,
+        studentId: student.userId, // This is the student's personal UID
+        studentName: student.fullName,
+        duration: "Flexible (Pending Negotiation)",
+      })
+      toast.success(`Recruitment protocol initiated for ${student.fullName}. Admin will contact you shortly.`)
+      loadData()
+    } catch (error) {
+      console.error(error)
+      toast.error("Failed to initiate recruitment.")
+    } finally {
+      setIsRecruiting(null)
+    }
+  }
+
   if (loading || fetching) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -76,50 +100,58 @@ export default function BrandDashboard() {
   return (
     <div className="min-h-screen bg-[#FDFCF6] flex flex-col md:flex-row shadow-2xl overflow-hidden pt-20">
       {/* Sidebar */}
-      <aside className="w-full md:w-80 bg-black text-white p-8 flex flex-col border-r border-white/5">
+      <aside className="w-full md:w-80 bg-black text-white p-8 flex flex-col border-r border-white/5 pt-24 shrink-0">
         <div className="mb-12">
-          <div className="text-sm font-black uppercase tracking-widest text-yellow-400 mb-2">Partner Portal</div>
-          <h1 className="text-2xl font-black">{brandData?.companyName || "Your Brand"}</h1>
+          <div className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400 mb-2">Partner Portal</div>
+          <h1 className="text-2xl font-black italic uppercase tracking-tighter">{brandData?.companyName || "Your Brand"}</h1>
         </div>
 
         <nav className="space-y-2 flex-grow">
-          <NavItem active={activeTab === "overview"} icon={<LayoutDashboard className="h-5 w-5" />} label="Overview" onClick={() => setActiveTab("overview")} />
+          <NavItem active={activeTab === "overview"} icon={<LayoutDashboard className="h-5 w-5" />} label="Command Overview" onClick={() => setActiveTab("overview")} />
           <NavItem active={activeTab === "roster"} icon={<Users className="h-5 w-5" />} label="Scout Talent" onClick={() => setActiveTab("roster")} />
           <NavItem active={activeTab === "requests"} icon={<ClipboardList className="h-5 w-5" />} label="Hire Requests" onClick={() => setActiveTab("requests")} />
           <NavItem active={activeTab === "interns"} icon={<Clock className="h-5 w-5" />} label="Active Interns" onClick={() => setActiveTab("interns")} />
-          <NavItem active={activeTab === "meetings"} icon={<Calendar className="h-5 w-5" />} label="Book Meeting" onClick={() => setActiveTab("meetings")} />
-          <NavItem active={activeTab === "settings"} icon={<Settings className="h-5 w-5" />} label="Settings" onClick={() => setActiveTab("settings")} />
+          <NavItem active={activeTab === "meetings"} icon={<Calendar className="h-5 w-5" />} label="Book Strategy" onClick={() => setActiveTab("meetings")} />
+          <NavItem active={activeTab === "settings"} icon={<Settings className="h-5 w-5" />} label="Configuration" onClick={() => setActiveTab("settings")} />
         </nav>
 
-        <Button variant="ghost" className="mt-10 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl justify-start p-4 h-auto font-bold">
+        <Button 
+          variant="ghost" 
+          onClick={() => authService.logout()}
+          className="mt-10 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl justify-start p-4 h-auto font-bold"
+        >
           <LogOut className="h-5 w-5 mr-3" /> Log Out
         </Button>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-grow p-8 md:p-16 overflow-y-auto">
-        <header className="flex justify-between items-center mb-12">
+      <main className="flex-grow p-8 md:p-16 overflow-y-auto pt-24 pb-32">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16">
           <div>
-            <h2 className="text-4xl font-black text-gray-900 mb-2">The Operational Hub</h2>
-            <p className="text-gray-500 font-medium italic">Welcome back, {brandData?.contactPerson.split(' ')[0] || "Partner"}.</p>
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-2 italic uppercase tracking-tighter">The Operational Hub</h2>
+            <p className="text-gray-500 font-medium italic">Welcome back, {brandData?.contactPerson?.split(' ')[0] || "Partner"}.</p>
           </div>
-          <div className="hidden md:flex items-center gap-4 bg-white p-3 rounded-2xl shadow-sm border border-gray-100">
-             <div className="w-10 h-10 bg-yellow-400 rounded-xl flex items-center justify-center font-black text-black">
-                {brandData?.companyName[0] || "B"}
+          <div className="flex items-center gap-4 bg-white p-4 rounded-3xl shadow-premium border border-gray-100">
+             <div className="w-14 h-14 bg-yellow-400 rounded-2xl flex items-center justify-center font-black text-2xl text-black">
+                {brandData?.companyName?.[0] || "B"}
              </div>
              <div>
                 <p className="text-xs font-black uppercase tracking-tighter text-gray-900">{brandData?.companyName}</p>
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{brandData?.hasPaidAccess ? "LOCKED-IN" : "PROBATION"}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                   <div className={`w-1.5 h-1.5 rounded-full ${brandData?.hasPaidAccess ? 'bg-green-500' : 'bg-yellow-500'} animate-pulse`} />
+                   <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest">{brandData?.hasPaidAccess ? "LOCKED-IN ACCREDITED" : "PROBATION ACCOUNT"}</p>
+                </div>
              </div>
           </div>
         </header>
 
         <AnimatePresence mode="wait">
-          {activeTab === "overview" && <OverviewTab brandData={brandData} stats={{ interns: activeInterns.length, requests: requests.length }} />}
-          {activeTab === "roster" && <RosterTab talents={talents} hasPaidAccess={brandData?.hasPaidAccess || false} onRefresh={loadData} />}
+          {activeTab === "overview" && <OverviewTab brandData={brandData} stats={{ interns: activeInterns.length, requests: requests.length }} onUpdateBrief={() => setActiveTab("settings")} />}
+          {activeTab === "roster" && <RosterTab talents={talents} hasPaidAccess={brandData?.hasPaidAccess || false} onRefresh={loadData} onRecruit={handleRecruit} isRecruiting={isRecruiting} />}
           {activeTab === "requests" && <RequestsTab requests={requests} />}
           {activeTab === "interns" && <InternsTab interns={activeInterns} onRefresh={loadData} />}
           {activeTab === "meetings" && <MeetingTab brandName={brandData?.companyName || ""} brandId={profile?.uid || ""} />}
+          {activeTab === "settings" && <BrandSettings brandData={brandData} onRefresh={loadData} />}
         </AnimatePresence>
       </main>
     </div>
@@ -128,31 +160,32 @@ export default function BrandDashboard() {
 
 function NavItem({ active, icon, label, onClick }: any) {
   return (
-    <button onClick={onClick} className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all font-bold ${active ? 'bg-yellow-400 text-black shadow-lg shadow-yellow-400/20' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
-      {icon} {label}
+    <button onClick={onClick} className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all font-black text-[11px] uppercase tracking-tighter ${active ? 'bg-yellow-400 text-black shadow-xl shadow-yellow-400/20' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
+      <div className={`${active ? 'text-black' : 'text-gray-500'} transition-colors`}>{icon}</div>
+      {label}
     </button>
   )
 }
 
-function OverviewTab({ brandData, stats }: any) {
+function OverviewTab({ brandData, stats, onUpdateBrief }: any) {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <StatCard label="Active Interns" value={stats.interns} subtext="Deployed now" color="bg-green-50 text-green-600" />
-        <StatCard label="Pending Requests" value={stats.requests} subtext="Awaiting admin" color="bg-blue-50 text-blue-600" />
-        <StatCard label="Account Status" value={brandData?.hasPaidAccess ? "Unlock All" : "Restricted"} subtext="Access Level" color="bg-yellow-50 text-yellow-600" />
+        <StatCard label="Active Interns" value={stats.interns} subtext="Personnel deployed" color="bg-green-50 text-green-600" />
+        <StatCard label="Pending Requests" value={stats.requests} subtext="Recruitment pipeline" color="bg-blue-50 text-blue-600" />
+        <StatCard label="Account Authority" value={brandData?.hasPaidAccess ? "Accredited" : "Probation"} subtext="System Access" color="bg-yellow-50 text-yellow-600" />
       </div>
 
-      <div className="bg-white p-12 rounded-[2.5rem] shadow-premium space-y-8">
-         <div className="flex justify-between items-start">
+      <div className="bg-white p-10 md:p-14 rounded-[3.5rem] shadow-premium space-y-10 border border-gray-100">
+         <div className="flex flex-col md:flex-row justify-between items-start gap-6">
             <div>
-               <h3 className="text-2xl font-black italic uppercase tracking-tight">Active Requirements</h3>
-               <p className="text-sm font-medium text-gray-400 mt-1">What are you looking for currently?</p>
+               <h3 className="text-3xl font-black italic uppercase tracking-tighter">Active Requirements Brief</h3>
+               <p className="text-sm font-medium text-gray-400 mt-1">Our HODs use this brief to match specialists to your needs.</p>
             </div>
-            <Button variant="outline" className="rounded-xl font-bold text-xs uppercase tracking-widest">Update Brief</Button>
+            <Button onClick={onUpdateBrief} variant="outline" className="rounded-2xl h-14 px-8 font-black text-[10px] uppercase tracking-widest border-2 hover:bg-black hover:text-white transition-all">Update Dispatch Brief</Button>
          </div>
-         <div className="bg-gray-50 p-8 rounded-3xl border border-dashed border-gray-200">
-            <p className="text-gray-500 font-medium italic">
+         <div className="bg-gray-50 p-10 rounded-[2.5rem] border border-dashed border-gray-200">
+            <p className="text-gray-500 font-medium italic text-lg leading-relaxed">
               {brandData?.requirements || "No specific requirements submitted yet. Update your brief to help us find the perfect match."}
             </p>
          </div>
@@ -161,7 +194,7 @@ function OverviewTab({ brandData, stats }: any) {
   )
 }
 
-function RosterTab({ talents, hasPaidAccess, onRefresh }: any) {
+function RosterTab({ talents, hasPaidAccess, onRefresh, onRecruit, isRecruiting }: any) {
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-10">
       <div className="flex justify-between items-end">
@@ -178,37 +211,49 @@ function RosterTab({ talents, hasPaidAccess, onRefresh }: any) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {talents.map(t => (
-          <Card key={t.studentId} className="group p-8 rounded-[2rem] border-none shadow-sm hover:shadow-premium hover:border-black/10 transition-all duration-500 flex flex-col h-full bg-white">
-            <div className="flex justify-between items-start mb-6">
-                <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-yellow-400 transition-colors">🎬</div>
-                <div className="flex gap-2">
-                  {t.skills.slice(0, 2).map(s => (
-                    <span key={s} className="bg-gray-100 text-gray-500 px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest">{s}</span>
-                  ))}
-                </div>
-            </div>
-            <h4 className="text-2xl font-black italic uppercase tracking-tighter mb-2">
-              {hasPaidAccess ? t.fullName : `SC_AGENT_${t.studentId.slice(-4)}`}
-            </h4>
-            <p className="text-xs text-gray-400 font-medium italic line-clamp-2 mb-8">
-              {hasPaidAccess ? t.bio : "Classified creative profile. Unlock full access to view complete portfolio and contact details."}
-            </p>
-            
-            <div className="mt-auto space-y-4">
-               {hasPaidAccess ? (
-                 <Button className="w-full bg-black text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] h-12 hover:bg-yellow-400 hover:text-black transition-all">
-                   Initiate Recruitment <ArrowRight className="h-3.5 w-3.5 ml-2" />
-                 </Button>
-               ) : (
-                 <div className="space-y-4">
-                    <p className="text-[10px] font-black uppercase text-center text-gray-400">Unlock Full Talent Profile</p>
-                    <PaymentForm service="Full Talent Board Access" amount={50000} category="service" />
-                 </div>
-               )}
-            </div>
-          </Card>
-        ))}
+        {(talents || []).length === 0 ? (
+          <div className="col-span-full bg-white p-20 rounded-[2.5rem] border border-dashed border-gray-200 text-center">
+             <Search className="h-12 w-12 text-gray-200 mx-auto mb-4" />
+             <p className="text-sm font-black uppercase tracking-widest text-gray-400">Searching for available specialists...</p>
+          </div>
+        ) : (
+          (talents || []).map((t: StudentProfile) => (
+            <Card key={t.studentId || t.userId} className="group p-8 rounded-[2rem] border-none shadow-sm hover:shadow-premium hover:border-black/10 transition-all duration-500 flex flex-col h-full bg-white">
+              <div className="flex justify-between items-start mb-6">
+                  <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-yellow-400 transition-colors">🎬</div>
+                  <div className="flex gap-2">
+                    {(t.skills || []).slice(0, 2).map((skill: string) => (
+                      <span key={skill} className="bg-gray-100 text-gray-500 px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest">{skill}</span>
+                    ))}
+                  </div>
+              </div>
+              <h4 className="text-2xl font-black italic uppercase tracking-tighter mb-2">
+                {hasPaidAccess ? (t.fullName || "NAME_REDACTED") : `SC_AGENT_${(t.studentId || t.userId || "").slice(-4)}`}
+              </h4>
+              <p className="text-xs text-gray-400 font-medium italic line-clamp-2 mb-8">
+                {hasPaidAccess ? (t.bio || "No biography provided.") : "Classified creative profile. Unlock full access to view complete portfolio and contact details."}
+              </p>
+              
+              <div className="mt-auto space-y-4">
+                 {hasPaidAccess ? (
+                   <Button 
+                      onClick={() => onRecruit(t)}
+                      disabled={isRecruiting === (t.studentId || t.userId)}
+                      className="w-full bg-black text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] h-12 hover:bg-yellow-400 hover:text-black transition-all"
+                   >
+                     {isRecruiting === (t.studentId || t.userId) ? "Initiating Protocol..." : "Initiate Recruitment"} 
+                     <ArrowRight className="h-3.5 w-3.5 ml-2" />
+                   </Button>
+                 ) : (
+                   <div className="space-y-4">
+                      <p className="text-[10px] font-black uppercase text-center text-gray-400">Unlock Full Talent Profile</p>
+                      <PaymentForm service="Full Talent Board Access" amount={50000} category="service" />
+                   </div>
+                 )}
+              </div>
+            </Card>
+          ))
+        )}
       </div>
     </motion.div>
   )
@@ -219,25 +264,25 @@ function RequestsTab({ requests }: any) {
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
       <h3 className="text-3xl font-black italic uppercase tracking-tighter">Hire Requests</h3>
       <div className="space-y-4">
-         {requests.length === 0 ? (
+         {(requests || []).length === 0 ? (
            <div className="bg-white p-20 rounded-[2.5rem] border border-dashed border-gray-200 text-center">
               <ClipboardList className="h-12 w-12 text-gray-200 mx-auto mb-4" />
               <p className="text-sm font-black uppercase tracking-widest text-gray-400">No active hire requests</p>
            </div>
          ) : (
-           requests.map(r => (
+           (requests || []).map((r: InternshipRequest) => (
              <div key={r.requestId} className="bg-white p-6 rounded-3xl border border-gray-100 flex items-center justify-between group hover:border-black transition-all">
                 <div className="flex items-center gap-6">
                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${r.status === 'approved' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
                       <CheckCircle2 className="h-6 w-6" />
                    </div>
                    <div>
-                      <p className="font-black italic uppercase tracking-tight text-lg">{r.studentName || `Agent ${r.studentId.slice(-4)}`}</p>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Requested on {new Date(r.requestedAt?.toMillis()).toLocaleDateString()}</p>
+                      <p className="font-black italic uppercase tracking-tight text-lg">{r.studentName || `Agent ${(r.studentId || "").slice(-4)}`}</p>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Requested on {r.requestedAt ? new Date(r.requestedAt.toMillis()).toLocaleDateString() : "Pending"}</p>
                    </div>
                 </div>
                 <div className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] ${r.status === 'approved' ? 'bg-green-500 text-white' : 'bg-yellow-400 text-black animate-pulse'}`}>
-                   {r.status}
+                   {r.status || "Pending"}
                 </div>
              </div>
            ))
@@ -271,21 +316,21 @@ function InternsTab({ interns, onRefresh }: any) {
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
       <h3 className="text-3xl font-black italic uppercase tracking-tighter">Active Internships</h3>
       <div className="grid grid-cols-1 gap-6">
-         {interns.length === 0 ? (
+         {(interns || []).length === 0 ? (
            <div className="bg-white p-20 rounded-[2.5rem] border border-dashed border-gray-200 text-center">
               <Clock className="h-12 w-12 text-gray-200 mx-auto mb-4" />
               <p className="text-sm font-black uppercase tracking-widest text-gray-400">No interns currently deployed</p>
            </div>
          ) : (
-           interns.map(i => (
+           (interns || []).map((i: InternshipRequest) => (
              <Card key={i.requestId} className="p-8 rounded-[2rem] border-none shadow-sm bg-white hover:shadow-premium transition-all">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
                    <div className="flex items-center gap-6">
-                      <div className="w-16 h-16 bg-yellow-400 rounded-2xl flex items-center justify-center font-black text-2xl">
+                      <div className="w-16 h-16 bg-yellow-400 rounded-2xl flex items-center justify-center font-black text-2xl text-black">
                          {i.studentName?.[0] || "S"}
                       </div>
                       <div>
-                         <h4 className="text-2xl font-black italic uppercase tracking-tighter">{i.studentName}</h4>
+                         <h4 className="text-2xl font-black italic uppercase tracking-tighter">{i.studentName || "Classified Intern"}</h4>
                          <div className="flex items-center gap-3 mt-1">
                             <Clock className="h-3.5 w-3.5 text-gray-400" />
                             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Deployment Duration: {i.duration || "Variable"}</span>

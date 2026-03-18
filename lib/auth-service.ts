@@ -111,6 +111,18 @@ export const authService = {
           portfolioLinks: { youtube: "", drive: "", behance: "", website: "" },
           createdAt: serverTimestamp()
         });
+      } else if (role === 'brand') {
+        await setDoc(doc(db, "brands", user.uid), {
+          brandId: user.uid,
+          companyName: name || "New Company",
+          contactPerson: name || "Contact Name",
+          email: email,
+          website: "",
+          industry: "",
+          verified: false,
+          hasPaidAccess: false,
+          createdAt: serverTimestamp()
+        });
       }
       
       return user;
