@@ -10,6 +10,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Download, MessageSquare, CheckCircle, Clock } from "lucide-react"
 import { assignmentService } from "@/lib/services"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 
 interface TutorSubmissionGraderProps {
   assignmentId: string
@@ -43,7 +44,7 @@ export default function TutorSubmissionGrader({ assignmentId }: TutorSubmissionG
 
   const handleSubmitGrade = async () => {
     if (!gradingId || !gradingData.grade) {
-      alert("Please enter a grade")
+      toast.error("Please enter a grade")
       return
     }
 
@@ -56,12 +57,12 @@ export default function TutorSubmissionGrader({ assignmentId }: TutorSubmissionG
         gradingData.feedback
       )
 
-      alert("Submission graded successfully!")
+      toast.success("Submission graded successfully!")
       setGradingId(null)
       setGradingData({ grade: "", feedback: "" })
       loadAssignmentAndSubmissions()
     } catch (error) {
-      alert("Error grading submission: " + (error as any).message)
+      toast.error("Error grading submission: " + (error as any).message)
     }
   }
 

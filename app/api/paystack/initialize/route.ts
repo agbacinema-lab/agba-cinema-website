@@ -12,11 +12,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "Paystack secret not configured" }, { status: 500 })
     }
 
+    const origin = request.headers.get("origin") || "http://localhost:3000"
     const body = {
       email,
       amount: Math.round(Number(amount) * 100), // kobo
-      metadata: { service, fullName, phone },
-      callback_url: process.env.PAYSTACK_CALLBACK_URL || `${request.headers.get("origin") || "http://localhost:3000"}/payment/success`,
+      metadata: { service, fullName, phone, type: "academy_enrollment" },
+      callback_url: process.env.PAYSTACK_CALLBACK_URL || `${origin}/register?role=student`,
     }
 
     const res = await fetch("https://api.paystack.co/transaction/initialize", {

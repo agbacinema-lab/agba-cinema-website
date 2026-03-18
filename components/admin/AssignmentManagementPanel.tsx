@@ -5,325 +5,335 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { ClipboardList, ChevronDown, ChevronUp, CheckCircle, RefreshCw, Clock, User } from "lucide-react"
-import { assignmentService } from "@/lib/services"
+import { 
+  ClipboardList, 
+  ChevronDown, 
+  ChevronUp, 
+  CheckCircle, 
+  RefreshCw, 
+  User, 
+  Eye, 
+  X,
+  Award,
+  ArrowLeft,
+  AlertCircle,
+  ShieldCheck
+} from "lucide-react"
+import { assignmentService, studentService } from "@/lib/services"
+import { useAuth } from "@/context/AuthContext"
 import { motion, AnimatePresence } from "framer-motion"
+import { toast } from "sonner"
 
+// ─── INTERNAL VIEWER ──────────────────────────────────────────────────────────
+function InternalViewer({ url, onClose }: { url: string; onClose: () => void }) {
+  let embedUrl = url;
+  if (url.includes("drive.google.com")) {
+    const matches = url.match(/\/d\/(.+?)\/|\/d\/(.+?)$|id=(.+?)&|id=(.+?)$/)
+    const fileId = matches ? (matches[1] || matches[2] || matches[3] || matches[4]) : null
+    if (fileId) embedUrl = `https://drive.google.com/file/d/${fileId}/preview`
+  } else if (url.includes("youtube.com/watch?v=")) {
+    embedUrl = url.replace("watch?v=", "embed/")
+  } else if (url.includes("youtu.be/")) {
+    embedUrl = url.replace("youtu.be/", "youtube.com/embed/")
+  }
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/95 backdrop-blur-2xl z-[9999] flex flex-col"
+    >
+      <div className="w-full px-8 h-24 flex justify-between items-center border-b border-white/10">
+        <div className="flex items-center gap-6">
+          <button onClick={onClose} className="flex items-center gap-3 bg-white text-black px-8 h-14 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-yellow-400 transition-all shadow-2xl">
+            <ArrowLeft className="h-4 w-4" /> Exit Review
+          </button>
+          <div>
+            <h3 className="text-white font-black italic uppercase tracking-widest text-[11px]">Tutor Evaluation Workspace</h3>
+            <p className="text-gray-500 text-[9px] font-black uppercase tracking-[0.4em]">Protocol: A1-SECURE-VIEW</p>
+          </div>
+        </div>
+        <button onClick={onClose} className="group p-4 bg-red-600/10 hover:bg-red-600 rounded-2xl text-red-500 hover:text-white transition-all">
+          <X className="h-6 w-6 group-hover:rotate-90 transition-transform" />
+        </button>
+      </div>
+      <div className="flex-1 p-8">
+        <div className="w-full h-full bg-white rounded-[3rem] overflow-hidden shadow-2xl">
+          <iframe src={embedUrl} className="w-full h-full border-0" allow="autoplay; encrypted-media" allowFullScreen
+            sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-popups-to-escape-sandbox" />
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+// ─── Grading Logic ────────────────────────────────────────────────────────────
+const getGradeCategory = (score: number) => {
+  if (score >= 75) return { label: "A1 (Pass)", status: "graded", color: "text-green-600" }
+  if (score >= 70) return { label: "B2 (Correction)", status: "correction_needed", color: "text-indigo-600" }
+  return { label: "Redo Required", status: "revision_needed", color: "text-red-600" }
+}
+
+// ─── Main Panel ───────────────────────────────────────────────────────────────
 export default function AssignmentManagementPanel() {
+  const { profile, isSuperAdmin } = useAuth()
   const [assignments, setAssignments] = useState<any[]>([])
+  const [myStudentIds, setMyStudentIds] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const [expandedAssignment, setExpandedAssignment] = useState<string | null>(null)
   const [submissions, setSubmissions] = useState<Record<string, any[]>>({})
   const [loadingSubmissions, setLoadingSubmissions] = useState<Record<string, boolean>>({})
   const [gradingId, setGradingId] = useState<string | null>(null)
   const [gradeData, setGradeData] = useState<{ grade: string; feedback: string }>({ grade: "", feedback: "" })
+  const [viewingUrl, setViewingUrl] = useState<string | null>(null)
 
   useEffect(() => {
-    loadAssignments()
-  }, [])
+    if (profile?.uid) loadData()
+  }, [profile?.uid])
 
-  const loadAssignments = async () => {
+  const loadData = async () => {
+    setLoading(true)
     try {
-      setLoading(true)
-      const data = await assignmentService.getAllAssignments()
-      setAssignments(data)
+      const [assignmentData, myStudents] = await Promise.all([
+        assignmentService.getAllAssignments(),
+        isSuperAdmin ? Promise.resolve([]) : studentService.getStudentsByTutor(profile?.uid || "")
+      ])
+      setAssignments(assignmentData)
+      // Super admins see EVERYTHING; tutors only see their assigned students
+      if (!isSuperAdmin) {
+        setMyStudentIds(new Set(myStudents.map((s: any) => s.uid)))
+      }
     } catch (error) {
-      console.error("Error loading assignments:", error)
+      console.error("Error loading panel:", error)
     } finally {
       setLoading(false)
     }
   }
 
   const toggleAssignment = async (assignmentId: string) => {
-    if (expandedAssignment === assignmentId) {
-      setExpandedAssignment(null)
-      return
-    }
+    if (expandedAssignment === assignmentId) { setExpandedAssignment(null); return }
     setExpandedAssignment(assignmentId)
-
-    if (!submissions[assignmentId]) {
-      setLoadingSubmissions(prev => ({ ...prev, [assignmentId]: true }))
-      try {
-        const data = await assignmentService.getSubmissions(assignmentId)
-        setSubmissions(prev => ({ ...prev, [assignmentId]: data }))
-      } catch (error) {
-        console.error("Error loading submissions:", error)
-      } finally {
-        setLoadingSubmissions(prev => ({ ...prev, [assignmentId]: false }))
-      }
-    }
+    if (!submissions[assignmentId]) loadSubs(assignmentId)
   }
 
-  const refreshSubmissions = async (assignmentId: string) => {
+  const loadSubs = async (assignmentId: string) => {
     setLoadingSubmissions(prev => ({ ...prev, [assignmentId]: true }))
     try {
       const data = await assignmentService.getSubmissions(assignmentId)
-      setSubmissions(prev => ({ ...prev, [assignmentId]: data }))
+      // ── KEY FILTER: If tutor (not super admin), only show their assigned students' work
+      const filtered = isSuperAdmin
+        ? data
+        : data.filter((sub: any) => myStudentIds.has(sub.studentId))
+      setSubmissions(prev => ({ ...prev, [assignmentId]: filtered }))
     } catch (error) {
-      console.error(error)
+      console.error("Error loading submissions:", error)
     } finally {
       setLoadingSubmissions(prev => ({ ...prev, [assignmentId]: false }))
     }
   }
 
   const handleGrade = async (assignmentId: string, submissionId: string) => {
-    if (!gradeData.grade || !gradeData.feedback) {
-      alert("Please enter a grade and feedback before submitting")
-      return
-    }
+    const score = Number(gradeData.grade)
+    if (!gradeData.grade || !gradeData.feedback) { toast.error("Score and feedback are required."); return }
+    const { status, label } = getGradeCategory(score)
     try {
-      await assignmentService.gradeSubmission(assignmentId, submissionId, Number(gradeData.grade), gradeData.feedback)
-      alert("Graded successfully!")
+      await assignmentService.gradeSubmission(assignmentId, submissionId, score, gradeData.feedback, status as any)
+      toast.success(`Project finalized as ${label}!`)
       setGradingId(null)
       setGradeData({ grade: "", feedback: "" })
-      refreshSubmissions(assignmentId)
+      loadSubs(assignmentId)
     } catch (error) {
-      alert("Failed to grade: " + (error as any).message)
+      toast.error("Failed to grade: " + (error as any).message)
     }
   }
 
   const statusColor = (status: string) => {
     if (status === "graded") return "bg-green-100 text-green-700"
-    if (status === "submitted") return "bg-yellow-100 text-yellow-800"
-    return "bg-gray-100 text-gray-600"
+    if (status === "correction_needed") return "bg-indigo-100 text-indigo-700"
+    if (status === "revision_needed" || status === "redo") return "bg-red-100 text-red-700"
+    return "bg-yellow-100 text-yellow-800"
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-yellow-400" />
-      </div>
-    )
-  }
+  if (loading) return (
+    <div className="flex items-center justify-center h-[70vh]">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-yellow-400" />
+    </div>
+  )
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h2 className="text-3xl font-black mb-1">Assignment Grading</h2>
-        <p className="text-gray-500 font-medium">Review and grade student submissions</p>
+    <div className="space-y-8 pb-32">
+      <div className="flex justify-between items-end">
+        <div className="space-y-4">
+          <h2 className="text-4xl font-black italic uppercase tracking-tighter">Academic Evaluation</h2>
+          <p className="text-gray-500 font-medium">A1 Excellence Protocol — 75%+ Required</p>
+          {!isSuperAdmin && (
+            <div className="flex items-center gap-3 bg-indigo-50 border border-indigo-100 px-6 py-3 rounded-2xl w-fit">
+              <ShieldCheck className="h-4 w-4 text-indigo-600" />
+              <p className="text-[10px] font-black uppercase tracking-widest text-indigo-700">
+                Scope: Your Assigned Students Only ({myStudentIds.size} enrolled)
+              </p>
+            </div>
+          )}
+        </div>
+        <Button variant="ghost" onClick={loadData} className="rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest bg-gray-50 hover:bg-black hover:text-white transition-all h-12 px-6">
+          <RefreshCw className="h-4 w-4" /> Refresh
+        </Button>
       </div>
 
-      {/* Info banner */}
-      <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex items-start gap-3">
-        <ClipboardList className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-        <p className="text-sm text-blue-700 font-medium">
-          Assignments are created inside the <strong>Course Builder → Module</strong>. 
-          This panel is exclusively for reviewing and grading what students have submitted.
-        </p>
-      </div>
-
-      {/* Assignments list */}
       {assignments.length === 0 ? (
-        <Card className="border-none shadow-sm rounded-[2rem] bg-white p-12 text-center">
-          <ClipboardList className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-          <p className="text-gray-500 font-medium mb-2">No assignments created yet</p>
-          <p className="text-sm text-gray-400">Go to Course Builder → Module to create assignments for students</p>
+        <Card className="border-none shadow-sm rounded-[3rem] bg-white p-20 text-center">
+          <ClipboardList className="h-16 w-16 mx-auto mb-4 text-gray-200" />
+          <p className="text-gray-400 font-black uppercase tracking-widest text-xs">No assignments found.</p>
         </Card>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {assignments.map((assignment) => {
             const isOpen = expandedAssignment === assignment.id
             const subs = submissions[assignment.id] || []
-            const pending = subs.filter(s => s.status === "submitted").length
-            const graded = subs.filter(s => s.status === "graded").length
+            const pendingCount = subs.filter(s => s.status === "submitted").length
 
             return (
-              <motion.div key={assignment.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-                <Card className="border-none shadow-md rounded-[2rem] overflow-hidden">
-                  {/* Assignment header row - click to expand */}
-                  <CardHeader
-                    className="cursor-pointer p-6 bg-gradient-to-r from-gray-50 to-white hover:from-yellow-50 transition-colors"
-                    onClick={() => toggleAssignment(assignment.id)}
-                  >
-                    <div className="flex justify-between items-start gap-4">
-                      <div className="flex-grow">
-                        <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          <Badge className={assignment.programType === 'gopro' ? "bg-yellow-400 text-black border-0" : "bg-blue-500 text-white border-0"}>
+              <motion.div key={assignment.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <Card className={`border-none shadow-xl rounded-[3rem] overflow-hidden transition-all duration-500 bg-white ${isOpen ? 'ring-[16px] ring-gray-50' : 'hover:shadow-2xl'}`}>
+                  <CardHeader className="cursor-pointer p-10 lg:p-14 hover:bg-gray-50/50 transition-colors" onClick={() => toggleAssignment(assignment.id)}>
+                    <div className="flex justify-between items-start gap-10">
+                      <div className="flex-1 space-y-6">
+                        <div className="flex items-center gap-4">
+                          <span className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${assignment.programType === 'gopro' ? 'bg-yellow-400 text-black' : 'bg-black text-white'}`}>
                             {assignment.programType === 'gopro' ? 'Go Pro' : 'Mentorship'}
-                          </Badge>
-                          {assignment.moduleTitle && (
-                            <Badge variant="outline" className="font-mono text-xs">
-                              {assignment.moduleTitle}
-                            </Badge>
-                          )}
-                          {assignment.dueDate && (
-                            <Badge variant="secondary" className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              Due: {new Date(assignment.dueDate).toLocaleDateString()}
-                            </Badge>
+                          </span>
+                          {pendingCount > 0 && (
+                            <span className="bg-orange-500 text-white px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-[0.2em] animate-pulse">
+                              {pendingCount} PENDING
+                            </span>
                           )}
                         </div>
-                        <h3 className="text-lg font-black text-gray-900 mb-1">{assignment.title}</h3>
-                        <p className="text-sm text-gray-500 line-clamp-1">{assignment.description}</p>
+                        <h3 className="text-4xl font-black uppercase italic tracking-tighter leading-none">{assignment.title}</h3>
+                        <p className="text-gray-400 text-sm font-medium italic line-clamp-1">{assignment.description}</p>
                       </div>
-
-                      <div className="flex items-center gap-3 flex-shrink-0">
-                        {submissions[assignment.id] && (
-                          <div className="text-right">
-                            <p className="text-xs text-orange-600 font-bold">{pending} pending</p>
-                            <p className="text-xs text-green-600 font-bold">{graded} graded</p>
-                          </div>
-                        )}
-                        {isOpen ? <ChevronUp className="h-5 w-5 text-gray-400" /> : <ChevronDown className="h-5 w-5 text-gray-400" />}
+                      <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center transition-all ${isOpen ? 'bg-black text-white' : 'bg-gray-100 text-gray-400'}`}>
+                        {isOpen ? <ChevronUp className="h-8 w-8" /> : <ChevronDown className="h-8 w-8" />}
                       </div>
                     </div>
                   </CardHeader>
 
-                  {/* Submissions inside */}
                   <AnimatePresence>
                     {isOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                      >
-                        <CardContent className="p-6 border-t border-gray-100">
-                          <div className="flex justify-between items-center mb-4">
-                            <h4 className="font-black text-gray-700">Student Submissions</h4>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => refreshSubmissions(assignment.id)}
-                              className="rounded-lg flex items-center gap-1"
-                            >
-                              <RefreshCw className="h-3 w-3" />
-                              Refresh
-                            </Button>
-                          </div>
-
+                      <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
+                        <CardContent className="px-10 lg:px-14 pb-14 pt-0 border-t border-gray-50">
                           {loadingSubmissions[assignment.id] ? (
-                            <div className="flex items-center justify-center py-8">
-                              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-yellow-400" />
-                            </div>
+                            <div className="py-24 flex justify-center"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-yellow-400" /></div>
                           ) : subs.length === 0 ? (
-                            <div className="text-center py-8 bg-gray-50 rounded-xl">
-                              <User className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-                              <p className="text-gray-500 text-sm font-medium">No submissions yet</p>
-                              <p className="text-gray-400 text-xs mt-1">Students haven't submitted this assignment</p>
+                            <div className="py-24 text-center space-y-4">
+                              <User className="h-12 w-12 mx-auto text-gray-200" />
+                              <p className="text-gray-300 font-black uppercase tracking-widest text-[10px]">
+                                {!isSuperAdmin && myStudentIds.size === 0
+                                  ? "No students are currently assigned to you."
+                                  : "No submissions yet for your assigned students."
+                                }
+                              </p>
                             </div>
                           ) : (
-                            <div className="space-y-3">
+                            <div className="space-y-6 pt-10">
                               {subs.map((submission) => (
-                                <div key={submission.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
-                                  <div className="flex justify-between items-start gap-4">
-                                    <div className="flex-grow">
-                                      <div className="flex items-center gap-2 mb-2">
-                                        <User className="h-4 w-4 text-gray-400" />
-                                        <span className="font-bold text-gray-800 text-sm">{submission.studentId}</span>
-                                        <span className={`text-xs px-2 py-0.5 rounded-full font-bold capitalize ${statusColor(submission.status)}`}>
-                                          {submission.status}
+                                <div key={submission.id} className="bg-gray-50 border border-gray-100 rounded-[3rem] p-10 group hover:bg-white hover:shadow-2xl transition-all duration-500">
+                                  <div className="flex flex-col lg:flex-row justify-between items-start gap-14">
+                                    <div className="flex-grow space-y-8">
+                                      <div className="flex justify-between items-center">
+                                        <div className="flex items-center gap-5">
+                                          <div className="w-16 h-16 bg-black rounded-[1.5rem] flex items-center justify-center text-white shadow-xl">
+                                            <User className="h-8 w-8" />
+                                          </div>
+                                          <div>
+                                            <p className="text-xl font-black uppercase tracking-tight">{submission.studentName || 'Academy Student'}</p>
+                                            <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">SID: {submission.studentId?.slice(-10).toUpperCase()}</p>
+                                          </div>
+                                        </div>
+                                        <span className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${statusColor(submission.status)}`}>
+                                          {submission.status?.replace('_', ' ')}
                                         </span>
                                       </div>
-                                      {submission.submittedAt && (
-                                        <p className="text-xs text-gray-400 mb-2">
-                                          Submitted: {new Date(submission.submittedAt?.toDate?.() || submission.submittedAt).toLocaleString()}
-                                        </p>
-                                      )}
-                                      {submission.fileUrl && (
-                                        <a
-                                          href={submission.fileUrl}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="inline-block text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-lg font-bold hover:bg-blue-100 transition-colors mb-2"
+
+                                      <div className="flex flex-wrap gap-4">
+                                        <button
+                                          onClick={() => setViewingUrl(submission.submissionUrl)}
+                                          className="flex items-center gap-3 bg-black text-white px-10 h-16 rounded-[1.5rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all hover:bg-indigo-600 hover:scale-105 active:scale-95 shadow-2xl"
                                         >
-                                          📄 View Submitted File
-                                        </a>
-                                      )}
-                                      {submission.submissionText && (
-                                        <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-xl mb-2">
-                                          {submission.submissionText}
-                                        </p>
-                                      )}
-                                      {submission.status === "graded" && (
-                                        <div className="flex items-center gap-3 mt-2 bg-green-50 p-3 rounded-xl">
-                                          <CheckCircle className="h-4 w-4 text-green-600" />
-                                          <div>
-                                            <p className="text-xs font-bold text-green-700">Grade: {submission.grade}/{assignment.maxGrade || 100}</p>
-                                            <p className="text-xs text-green-600">{submission.feedback}</p>
+                                          <Eye className="h-5 w-5" /> View Project
+                                        </button>
+                                        <div className="px-8 h-16 rounded-[1.5rem] border-2 border-dashed border-gray-200 flex items-center gap-3">
+                                          <AlertCircle className="h-5 w-5 text-gray-300" />
+                                          <p className="text-[10px] font-black uppercase text-gray-300 tracking-widest">External Nav Disabled</p>
+                                        </div>
+                                      </div>
+
+                                      {submission.status !== 'submitted' && (
+                                        <div className="p-8 bg-white rounded-[2rem] border border-gray-100 flex items-center justify-between shadow-sm">
+                                          <div className="flex items-center gap-5">
+                                            <Award className={`h-8 w-8 ${getGradeCategory(submission.grade).color}`} />
+                                            <div>
+                                              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Grade on Record</p>
+                                              <p className={`text-2xl font-black ${getGradeCategory(submission.grade).color}`}>
+                                                {submission.grade}% — {getGradeCategory(submission.grade).label}
+                                              </p>
+                                            </div>
                                           </div>
                                         </div>
                                       )}
                                     </div>
 
-                                    <div className="flex-shrink-0">
-                                      {submission.status !== "graded" && (
-                                        <Button
-                                          size="sm"
-                                          onClick={() => {
-                                            setGradingId(submission.id)
-                                            setGradeData({ grade: "", feedback: "" })
-                                          }}
-                                          className="bg-black text-white font-bold rounded-lg hover:bg-gray-800"
-                                        >
-                                          Grade
-                                        </Button>
-                                      )}
-                                      {submission.status === "graded" && (
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          onClick={() => {
-                                            setGradingId(submission.id)
-                                            setGradeData({ grade: String(submission.grade || ""), feedback: submission.feedback || "" })
-                                          }}
-                                          className="rounded-lg text-xs"
-                                        >
-                                          Re-grade
-                                        </Button>
+                                    <div className="w-full lg:w-[450px] lg:pl-12 lg:border-l border-gray-100">
+                                      {gradingId === submission.id ? (
+                                        <div className="space-y-8">
+                                          <div className="space-y-3">
+                                            <label className="text-[11px] font-black uppercase tracking-widest text-gray-400 ml-4">Score (%)</label>
+                                            <Input
+                                              type="number"
+                                              value={gradeData.grade}
+                                              onChange={(e) => setGradeData(prev => ({ ...prev, grade: e.target.value }))}
+                                              className="h-16 rounded-[1.5rem] border-gray-200 bg-white shadow-inner font-black text-xl text-indigo-600 px-8"
+                                              placeholder="0-100"
+                                            />
+                                          </div>
+                                          <div className="space-y-3">
+                                            <label className="text-[11px] font-black uppercase tracking-widest text-gray-400 ml-4">Evaluation Feedback</label>
+                                            <Textarea
+                                              value={gradeData.feedback}
+                                              onChange={(e) => setGradeData(prev => ({ ...prev, feedback: e.target.value }))}
+                                              placeholder="Constructive feedback for student..."
+                                              className="min-h-[200px] rounded-[2rem] border-gray-200 bg-white p-10 font-medium text-base leading-relaxed"
+                                            />
+                                          </div>
+                                          <div className="flex flex-col gap-4 pt-4">
+                                            <Button
+                                              onClick={() => handleGrade(assignment.id, submission.id)}
+                                              className="w-full bg-black text-white font-black h-20 rounded-[1.5rem] hover:bg-yellow-400 hover:text-black transition-all shadow-2xl uppercase tracking-widest text-xs"
+                                            >
+                                              Commit Evaluation
+                                            </Button>
+                                            <button onClick={() => setGradingId(null)} className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-300 hover:text-red-500 transition-colors py-2 text-center">
+                                              Cancel
+                                            </button>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div className="space-y-6">
+                                          <Button
+                                            onClick={() => {
+                                              setGradingId(submission.id)
+                                              setGradeData({ grade: String(submission.grade || ""), feedback: submission.feedback || "" })
+                                            }}
+                                            className="w-full bg-black text-white font-black h-20 rounded-[1.5rem] shadow-xl hover:bg-indigo-600 transition-all uppercase tracking-widest text-[11px]"
+                                          >
+                                            <Award className="h-5 w-5 mr-4 text-yellow-400" />
+                                            {submission.status === 'submitted' ? 'Grade This Project' : 'Modify Grade'}
+                                          </Button>
+                                          <div className="p-6 bg-gray-50 rounded-[1.5rem] text-center">
+                                            <p className="text-[9px] font-black uppercase tracking-[0.3em] text-gray-400">A1 = 75%+ | B2 = 70–74% | Redo = Below 70%</p>
+                                          </div>
+                                        </div>
                                       )}
                                     </div>
                                   </div>
-
-                                  {/* Inline grading form */}
-                                  {gradingId === submission.id && (
-                                    <motion.div
-                                      initial={{ opacity: 0, y: -6 }}
-                                      animate={{ opacity: 1, y: 0 }}
-                                      className="mt-4 bg-gray-50 p-4 rounded-xl space-y-3 border border-gray-200"
-                                    >
-                                      <h5 className="font-black text-sm text-gray-700">Grade this Submission</h5>
-                                      <div className="grid grid-cols-2 gap-3">
-                                        <div>
-                                          <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Score (out of {assignment.maxGrade || 100})</label>
-                                          <Input
-                                            type="number"
-                                            value={gradeData.grade}
-                                            onChange={(e) => setGradeData(prev => ({ ...prev, grade: e.target.value }))}
-                                            placeholder="e.g. 85"
-                                            className="h-10 rounded-lg mt-1"
-                                            max={assignment.maxGrade || 100}
-                                            min={0}
-                                          />
-                                        </div>
-                                      </div>
-                                      <div>
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Feedback for Student</label>
-                                        <Textarea
-                                          value={gradeData.feedback}
-                                          onChange={(e) => setGradeData(prev => ({ ...prev, feedback: e.target.value }))}
-                                          placeholder="Write constructive feedback for the student..."
-                                          className="min-h-20 rounded-lg mt-1 text-sm"
-                                        />
-                                      </div>
-                                      <div className="flex gap-2">
-                                        <Button
-                                          onClick={() => handleGrade(assignment.id, submission.id)}
-                                          className="flex-1 bg-green-500 text-white font-black h-10 rounded-lg hover:bg-green-600"
-                                        >
-                                          ✓ Submit Grade
-                                        </Button>
-                                        <Button
-                                          variant="outline"
-                                          onClick={() => setGradingId(null)}
-                                          className="flex-1 h-10 rounded-lg"
-                                        >
-                                          Cancel
-                                        </Button>
-                                      </div>
-                                    </motion.div>
-                                  )}
                                 </div>
                               ))}
                             </div>
@@ -338,6 +348,10 @@ export default function AssignmentManagementPanel() {
           })}
         </div>
       )}
+
+      <AnimatePresence>
+        {viewingUrl && <InternalViewer url={viewingUrl} onClose={() => setViewingUrl(null)} />}
+      </AnimatePresence>
     </div>
   )
 }

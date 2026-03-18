@@ -10,6 +10,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { GraduationCap, Search, CheckCircle, ExternalLink } from "lucide-react"
 import PasswordVerifyDialog from "./PasswordVerifyDialog"
+import { toast } from "sonner"
 
 export default function StudentReadiness() {
   const { profile: currentAdmin } = useAuth()
@@ -49,14 +50,14 @@ export default function StudentReadiness() {
         data: { userId: pendingStudent.userId, userName: pendingStudent.fullName }
       })
       // This is a bit redundant if we want instant, but simpler to reuse the flow.
-      alert("Status updated or pending approval.")
+      toast.success("Status updated or pending approval.")
     } else {
       await adminService.createApprovalRequest({
         type: 'internship_ready',
         requestBy: { uid: currentAdmin.uid, name: currentAdmin.name, email: currentAdmin.email },
         data: { userId: pendingStudent.userId, userName: pendingStudent.fullName }
       })
-      alert("Promotion request for internship sent to Super Admin.")
+      toast.success("Promotion request for internship sent to Super Admin.")
     }
   }
 

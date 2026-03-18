@@ -9,6 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Trash2, FileText, PlayCircle, Link as LinkIcon, Plus, X, Eye, ExternalLink } from "lucide-react"
 import { curriculumService } from "@/lib/services"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 
 interface CurriculumMaterialsProps {
   curriculumId: string
@@ -83,20 +84,20 @@ export default function CurriculumMaterials({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.title || !formData.description) {
-      alert("Please fill in title and description")
+      toast.error("Please fill in title and description")
       return
     }
 
     if (materialType === 'pdf' && !formData.driveUrl) {
-      alert("Please paste a Google Drive or OneDrive link")
+      toast.error("Please paste a Google Drive or OneDrive link")
       return
     }
     if (materialType === 'video' && !formData.videoUrl) {
-      alert("Please enter a video URL")
+      toast.error("Please enter a video URL")
       return
     }
     if (materialType === 'link' && !formData.externalLink) {
-      alert("Please enter a link")
+      toast.error("Please enter a link")
       return
     }
 
@@ -124,12 +125,13 @@ export default function CurriculumMaterials({
       }
 
       await curriculumService.addLearningMaterial(curriculumId, moduleId, material)
+      toast.success("Material added successfully!")
       resetForm()
       loadMaterials()
       onMaterialAdded()
     } catch (error) {
       console.error("Error saving material:", error)
-      alert("Failed to add material: " + (error as any).message)
+      toast.error("Failed to add material: " + (error as any).message)
     } finally {
       setLoading(false)
     }
@@ -139,10 +141,11 @@ export default function CurriculumMaterials({
     try {
       setLoading(true)
       await curriculumService.deleteMaterial(curriculumId, moduleId, materialId)
+      toast.success("Material deleted")
       loadMaterials()
       onMaterialAdded()
     } catch (error) {
-      alert("Failed to delete material")
+      toast.error("Failed to delete material")
     } finally {
       setLoading(false)
     }

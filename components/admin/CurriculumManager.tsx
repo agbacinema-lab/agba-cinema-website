@@ -9,6 +9,7 @@ import { BookOpen, Plus, Edit2, Trash2, FileUp, ClipboardList, CheckCircle } fro
 import { curriculumService, assignmentService } from "@/lib/services"
 import CurriculumMaterials from "./CurriculumMaterials"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 
 interface CurriculumManagerProps {
   curriculumId: string
@@ -51,7 +52,7 @@ export default function CurriculumManager({
   const handleCreateModule = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.title) {
-        alert("Please enter a title")
+        toast.error("Please enter a title")
         return
     }
 
@@ -66,11 +67,12 @@ export default function CurriculumManager({
         classType: formData.classType
       }
       await curriculumService.createModule(curriculumId, moduleData)
+      toast.success("Module created successfully!")
       resetForm()
       loadModules()
     } catch (error) {
       console.error(error)
-      alert("Error creating module")
+      toast.error("Error creating module")
     } finally {
       setLoading(false)
     }
@@ -91,7 +93,7 @@ export default function CurriculumManager({
   const handleCreateAssignment = async (moduleId: string, moduleTitle: string) => {
     const data = assignmentData[moduleId]
     if (!data?.title || !data?.description) {
-      alert("Please fill in the assignment title and description")
+      toast.error("Please fill in the assignment title and description")
       return
     }
     try {
@@ -106,11 +108,11 @@ export default function CurriculumManager({
         isOpen: true
       })
       await curriculumService.updateModule(curriculumId, moduleId, { hasAssignment: true })
-      alert("Assignment created! Students can now see it in their dashboard.")
+      toast.success("Assignment created! Students can now see it in their dashboard.")
       setAssignmentForms(prev => ({ ...prev, [moduleId]: false }))
       loadModules()
     } catch (error) {
-      alert("Failed to create assignment: " + (error as any).message)
+      toast.error("Failed to create assignment: " + (error as any).message)
     }
   }
 

@@ -9,6 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, Edit2, Trash2, X } from "lucide-react"
 import { eventService } from "@/lib/services"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 
 export default function EventManager() {
   const [items, setItems] = useState<any[]>([])
@@ -38,7 +39,7 @@ export default function EventManager() {
       setItems(allItems)
     } catch (error) {
       console.error("Error loading events:", error)
-      alert("Failed to load events")
+      toast.error("Failed to load events")
     } finally {
       setLoading(false)
     }
@@ -48,7 +49,7 @@ export default function EventManager() {
     e.preventDefault()
     
     if (!formData.title || !formData.date || !formData.location) {
-      alert("Please fill in required fields (Title, Date, Location)")
+      toast.error("Please fill in required fields (Title, Date, Location)")
       return
     }
 
@@ -67,17 +68,17 @@ export default function EventManager() {
 
       if (editingId) {
         await eventService.updateEvent(editingId, itemData)
-        alert("Event updated successfully!")
+        toast.success("Event updated successfully!")
       } else {
         await eventService.createEvent(itemData)
-        alert("Event created successfully!")
+        toast.success("Event created successfully!")
       }
 
       resetForm()
       loadItems()
     } catch (error) {
       console.error("Error saving item:", error)
-      alert("Failed to save event: " + (error as any).message)
+      toast.error("Failed to save event: " + (error as any).message)
     }
   }
 
@@ -100,11 +101,11 @@ export default function EventManager() {
   const handleDelete = async (itemId: string) => {
     try {
       await eventService.deleteEvent(itemId)
-      alert("Event deleted successfully!")
+      toast.success("Event deleted successfully!")
       loadItems()
     } catch (error) {
       console.error("Error deleting event:", error)
-      alert("Failed to delete event")
+      toast.error("Failed to delete event")
     }
   }
 

@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
+import { toast } from "sonner"
 
 type Props = {
   amount: number
@@ -24,11 +25,11 @@ export default function PaymentButtons({ amount, email, service }: Props) {
       if (res.ok && data.authorization_url) {
         window.location.href = data.authorization_url
       } else {
-        alert(data.message || "Failed to initialize Paystack payment")
+        toast.error(data.message || "Failed to initialize Paystack payment")
       }
     } catch (err) {
       console.error(err)
-      alert("Error initializing Paystack payment")
+      toast.error("Error initializing Paystack payment")
     } finally {
       setPaystackLoading(false)
     }

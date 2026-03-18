@@ -23,7 +23,7 @@ export interface UserProfile {
 
 export const authService = {
   // Google Sign In for all roles
-  async signInWithGoogle(role: UserRole = 'student') {
+  async signInWithGoogle(role: UserRole = 'student', programType?: string, specialization?: string) {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
@@ -38,7 +38,9 @@ export const authService = {
           name: user.displayName || "New User",
           email: user.email!,
           role: role,
-          createdAt: serverTimestamp()
+          createdAt: serverTimestamp(),
+          ...(role === 'student' && programType ? { programType } : {}),
+          ...(role === 'student' && specialization ? { specialization } : {}),
         };
         await setDoc(userRef, profile);
         
@@ -61,7 +63,8 @@ export const authService = {
             fullName: user.displayName || "New Student",
             bio: "",
             skills: [],
-            programType: "gopro",
+            programType: programType || "gopro",
+            specialization: specialization || "",
             portfolioLinks: { youtube: "", drive: "", behance: "", website: "" },
             createdAt: serverTimestamp()
           });
@@ -75,7 +78,7 @@ export const authService = {
   },
 
   // Student/Admin Sign Up with Email
-  async signUpWithEmail(email: string, pass: string, name: string, role: UserRole = 'student') {
+  async signUpWithEmail(email: string, pass: string, name: string, role: UserRole = 'student', programType?: string, specialization?: string) {
     try {
       const result = await createUserWithEmailAndPassword(auth, email, pass);
       const user = result.user;
@@ -86,7 +89,9 @@ export const authService = {
         name: name,
         email: email,
         role: role,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
+        ...(role === 'student' && programType ? { programType } : {}),
+        ...(role === 'student' && specialization ? { specialization } : {}),
       };
       await setDoc(userRef, profile);
 
@@ -100,7 +105,8 @@ export const authService = {
           fullName: name,
           bio: "",
           skills: [],
-          programType: "gopro",
+          programType: programType || "gopro",
+          specialization: specialization || "",
           portfolioLinks: {
             youtube: "",
             drive: "",

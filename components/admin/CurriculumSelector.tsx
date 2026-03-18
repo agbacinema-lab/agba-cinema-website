@@ -8,6 +8,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { BookOpen, Edit2, Trash2, ArrowRight, Zap, Users } from "lucide-react"
 import { curriculumService } from "@/lib/services"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 
 interface CurriculumSelectorProps {
   onSelectCurriculum: (curriculumId: string) => void
@@ -73,9 +74,10 @@ export default function CurriculumSelector({
   const handleDelete = async (curriculumId: string) => {
     try {
       await curriculumService.deleteCurriculum(curriculumId)
+      toast.success("Curriculum deleted")
       loadCurricula()
     } catch (error) {
-      alert("Failed to delete curriculum")
+      toast.error("Failed to delete curriculum")
     }
   }
 

@@ -9,6 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, Edit2, Trash2, X } from "lucide-react"
 import { academyService } from "@/lib/services"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 
 export default function AcademyManager() {
   const [items, setItems] = useState<any[]>([])
@@ -35,7 +36,7 @@ export default function AcademyManager() {
       setItems(allItems)
     } catch (error) {
       console.error("Error loading academy services:", error)
-      alert("Failed to load academy services")
+      toast.error("Failed to load academy services")
     } finally {
       setLoading(false)
     }
@@ -45,7 +46,7 @@ export default function AcademyManager() {
     e.preventDefault()
     
     if (!formData.title) {
-      alert("Please fill in required fields (Title)")
+      toast.error("Please fill in required fields (Title)")
       return
     }
 
@@ -61,17 +62,17 @@ export default function AcademyManager() {
 
       if (editingId) {
         await academyService.updateService(editingId, itemData)
-        alert("Academy service updated successfully!")
+        toast.success("Academy service updated successfully!")
       } else {
         await academyService.createService(itemData)
-        alert("Academy service created successfully!")
+        toast.success("Academy service created successfully!")
       }
 
       resetForm()
       loadItems()
     } catch (error) {
       console.error("Error saving item:", error)
-      alert("Failed to save academy service: " + (error as any).message)
+      toast.error("Failed to save academy service: " + (error as any).message)
     }
   }
 
@@ -91,11 +92,11 @@ export default function AcademyManager() {
   const handleDelete = async (itemId: string) => {
     try {
       await academyService.deleteService(itemId)
-      alert("Academy service deleted successfully!")
+      toast.success("Academy service deleted successfully!")
       loadItems()
     } catch (error) {
       console.error("Error deleting service:", error)
-      alert("Failed to delete academy service")
+      toast.error("Failed to delete academy service")
     }
   }
 

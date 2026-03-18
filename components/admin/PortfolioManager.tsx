@@ -9,6 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, Edit2, Trash2, X } from "lucide-react"
 import { portfolioService } from "@/lib/services"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 
 export default function PortfolioManager() {
   const [items, setItems] = useState<any[]>([])
@@ -38,7 +39,7 @@ export default function PortfolioManager() {
       setItems(allItems)
     } catch (error) {
       console.error("Error loading portfolio items:", error)
-      alert("Failed to load portfolio items")
+      toast.error("Failed to load portfolio items")
     } finally {
       setLoading(false)
     }
@@ -48,7 +49,7 @@ export default function PortfolioManager() {
     e.preventDefault()
     
     if (!formData.title || !formData.category || !formData.youtubeEmbedUrl) {
-      alert("Please fill in required fields (Title, Category, YouTube Embed URL)")
+      toast.error("Please fill in required fields (Title, Category, YouTube Embed URL)")
       return
     }
 
@@ -73,17 +74,17 @@ export default function PortfolioManager() {
 
       if (editingId) {
         await portfolioService.updateItem(editingId, itemData)
-        alert("Portfolio item updated successfully!")
+        toast.success("Portfolio item updated successfully!")
       } else {
         await portfolioService.createItem(itemData)
-        alert("Portfolio item created successfully!")
+        toast.success("Portfolio item created successfully!")
       }
 
       resetForm()
       loadItems()
     } catch (error) {
       console.error("Error saving item:", error)
-      alert("Failed to save portfolio item: " + (error as any).message)
+      toast.error("Failed to save portfolio item: " + (error as any).message)
     }
   }
 
@@ -106,11 +107,11 @@ export default function PortfolioManager() {
   const handleDelete = async (itemId: string) => {
     try {
       await portfolioService.deleteItem(itemId)
-      alert("Portfolio item deleted successfully!")
+      toast.success("Portfolio item deleted successfully!")
       loadItems()
     } catch (error) {
       console.error("Error deleting item:", error)
-      alert("Failed to delete portfolio item")
+      toast.error("Failed to delete portfolio item")
     }
   }
 

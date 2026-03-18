@@ -14,6 +14,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 type Props = {
     service: string
@@ -83,11 +84,11 @@ export default function PaymentForm({ service, amount, category = "service" }: P
             if (res.ok && data.authorization_url) {
                 window.location.href = data.authorization_url
             } else {
-                alert(data.message || "Failed to initialize payment")
+                toast.error(data.message || "Failed to initialize payment")
             }
         } catch (err) {
             console.error(err)
-            alert("Something went wrong. Please try again.")
+            toast.error("Something went wrong. Please try again.")
         } finally {
             setLoading(false)
         }

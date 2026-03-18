@@ -11,8 +11,19 @@ import { motion, AnimatePresence } from "framer-motion"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const pathname = usePathname()
+
+  // Hide global header on dashboard routes
+  if (pathname?.startsWith('/student') || pathname?.startsWith('/admin') || pathname?.startsWith('/brand')) {
+    return null
+  }
+
+  const getDashboardLink = () => {
+    if (profile?.role === 'student') return '/student/dashboard'
+    if (profile?.role === 'brand') return '/brand/dashboard'
+    return '/admin'
+  }
 
   const navigation = [
     { name: "Academy", href: "/academy" },
@@ -29,7 +40,7 @@ export default function Header() {
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-[9999]">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center group relative">
+          <a href="/" className="flex items-center group relative">
             <div className="absolute -inset-2 bg-yellow-400/0 group-hover:bg-yellow-400/5 rounded-xl transition-all duration-500" />
             <Image
               src="/agba  white.jpg"
@@ -39,14 +50,14 @@ export default function Header() {
               className="relative transition-transform duration-500 group-hover:scale-[1.02]"
               priority
             />
-          </Link>
+          </a>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
             {navigation.map((item) => {
               const isActive = pathname === item.href
               return (
-                <Link
+                <a
                   key={item.name}
                   href={item.href}
                   className="relative px-4 py-2 group"
@@ -65,7 +76,7 @@ export default function Header() {
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                     />
                   )}
-                </Link>
+                </a>
               )
             })}
 
@@ -73,19 +84,19 @@ export default function Header() {
 
             {user ? (
               <Button asChild className="bg-black hover:bg-yellow-400 hover:text-black text-white font-black uppercase italic tracking-tighter h-11 px-6 rounded-xl text-xs transition-all duration-500 shadow-premium">
-                <Link href="/admin" className="flex items-center gap-2">
+                <a href={getDashboardLink()} className="flex items-center gap-2">
                   <User className="h-4 w-4" />
                   Dashboard
-                </Link>
+                </a>
               </Button>
             ) : (
               <div className="flex items-center gap-6">
-                <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black transition-colors">Log In</Link>
+                <a href="/login" className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black transition-colors">Log In</a>
                 <Button asChild className="relative group overflow-hidden bg-black text-white hover:bg-black font-black uppercase italic tracking-tighter h-11 px-6 rounded-xl text-xs transition-all shadow-xl shadow-yellow-400/5 border border-white/10">
-                  <Link href="/register" className="flex items-center gap-2 relative z-10 transition-colors group-hover:text-yellow-400">
+                  <a href="/register" className="flex items-center gap-2 relative z-10 transition-colors group-hover:text-yellow-400">
                     <Zap className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
                     Join Academy
-                  </Link>
+                  </a>
                 </Button>
               </div>
             )}
@@ -113,27 +124,27 @@ export default function Header() {
             >
               <div className="py-8 space-y-4 px-2">
                 {navigation.map((item) => (
-                  <Link
+                  <a
                     key={item.name}
                     href={item.href}
                     className="block px-4 py-3 text-sm font-black uppercase italic tracking-widest text-gray-400 hover:text-yellow-600 transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
-                  </Link>
+                  </a>
                 ))}
                 <div className="pt-6 border-t border-gray-50 space-y-4 px-4">
                   {user ? (
                     <Button asChild className="w-full bg-black text-white font-black uppercase italic h-14 rounded-2xl">
-                      <Link href="/admin" onClick={() => setIsMenuOpen(false)}>My Dashboard</Link>
+                      <a href={getDashboardLink()} onClick={() => setIsMenuOpen(false)}>My Dashboard</a>
                     </Button>
                   ) : (
                     <>
                       <Button variant="outline" asChild className="w-full font-black uppercase italic h-14 rounded-2xl border-2 border-gray-100">
-                        <Link href="/login" onClick={() => setIsMenuOpen(false)}>Log In</Link>
+                        <a href="/login" onClick={() => setIsMenuOpen(false)}>Log In</a>
                       </Button>
                       <Button asChild className="w-full bg-yellow-400 text-black font-black uppercase italic h-14 rounded-2xl shadow-xl shadow-yellow-400/20">
-                        <Link href="/register" onClick={() => setIsMenuOpen(false)}>Join Academy</Link>
+                        <a href="/register" onClick={() => setIsMenuOpen(false)}>Join Academy</a>
                       </Button>
                     </>
                   )}

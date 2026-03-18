@@ -165,7 +165,7 @@ export default function AcademyPage() {
                                                 
                                                 <div className="flex flex-col gap-4 justify-end">
                                                     <Button asChild className="group h-20 bg-black text-white hover:bg-yellow-400 hover:text-black font-black uppercase italic tracking-tighter text-xl rounded-3xl transition-all duration-500 shadow-premium">
-                                                        <a href={service.href || '#'} className="flex items-center justify-center gap-2">
+                                                        <a href={`/register?role=student&program=${service.programType || 'gopro'}`} className="flex items-center justify-center gap-2">
                                                             Apply for Access
                                                             <ArrowRight className="h-5 w-5 group-hover:translate-x-2 transition-transform" />
                                                         </a>
@@ -221,7 +221,7 @@ export default function AcademyPage() {
 
                     <div className="flex flex-col sm:flex-row gap-6 justify-center pt-8">
                         <Button size="lg" className="h-20 px-12 bg-yellow-400 text-black hover:bg-black hover:text-white font-black uppercase italic tracking-tighter text-2xl rounded-[2rem] transition-all transform shadow-2xl hover:scale-105" asChild>
-                            <a href="/contact">Join Intake</a>
+                            <a href="/register?role=student">Join Intake</a>
                         </Button>
                         <Button size="lg" variant="outline" className="h-20 px-12 border-4 border-black text-black hover:bg-black hover:text-white font-black uppercase italic tracking-tighter text-2xl rounded-[2rem] transition-all" asChild>
                             <a href="/portfolio">Our Work</a>

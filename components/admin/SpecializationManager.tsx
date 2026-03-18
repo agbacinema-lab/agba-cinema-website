@@ -10,6 +10,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, Trash2, Edit2, X, Zap, Users } from "lucide-react"
 import { specializationService } from "@/lib/services"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 
 interface SpecializationManagerProps {
   programFilter?: 'gopro' | 'mentorship'
@@ -30,6 +31,7 @@ export default function SpecializationManager({
     value: "",
     description: "",
     color: "#FCD34D",
+    price: 0,
   })
 
   useEffect(() => {
@@ -52,7 +54,7 @@ export default function SpecializationManager({
     e.preventDefault()
 
     if (!formData.label || !formData.value) {
-      alert("Please fill in label and value")
+      toast.error("Please fill in label and value")
       return
     }
 
@@ -63,20 +65,21 @@ export default function SpecializationManager({
         description: formData.description,
         programType,
         color: formData.color,
+        price: Number(formData.price) || 0,
       }
 
       if (editingId) {
         await specializationService.updateSpecialization(editingId, data)
-        alert("Specialization updated!")
+        toast.success("Specialization updated!")
       } else {
         await specializationService.createSpecialization(data)
-        alert("Specialization created!")
+        toast.success("Specialization created!")
       }
 
       resetForm()
       loadSpecializations()
     } catch (error) {
-      alert("Error: " + (error as any).message)
+      toast.error("Error: " + (error as any).message)
     }
   }
 
@@ -84,8 +87,9 @@ export default function SpecializationManager({
     try {
       await specializationService.deleteSpecialization(id)
       loadSpecializations()
+      toast.success("Specialization deleted")
     } catch (error) {
-      alert("Error deleting specialization")
+      toast.error("Error deleting specialization")
     }
   }
 
@@ -97,12 +101,13 @@ export default function SpecializationManager({
       value: spec.value,
       description: spec.description || "",
       color: spec.color || "#FCD34D",
+      price: spec.price || 0,
     })
     setShowForm(true)
   }
 
   const resetForm = () => {
-    setFormData({ label: "", value: "", description: "", color: "#FCD34D" })
+    setFormData({ label: "", value: "", description: "", color: "#FCD34D", price: 0 })
     setEditingId(null)
     setShowForm(false)
     setProgramType('gopro')
@@ -213,6 +218,21 @@ export default function SpecializationManager({
                     className="h-12 rounded-xl border-gray-200"
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                  Price (₦) *
+                </label>
+                <Input
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                  placeholder="e.g. 150000"
+                  className="h-12 rounded-xl border-gray-200"
+                  required
+                />
+                <p className="text-[10px] text-gray-400 font-medium">This price is silent here. It dictates what the student must pay for this track during registration.</p>
               </div>
 
               <div className="space-y-2">

@@ -9,6 +9,7 @@ import { Plus, X, Zap, Users, Upload, Trash2, Lock } from "lucide-react"
 import { curriculumService } from "@/lib/services"
 import { getStorage } from "firebase/storage"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 
 interface CurriculumCreatorProps {
   onCurriculumCreated: () => void
@@ -51,7 +52,7 @@ export default function CurriculumCreator({
     e.preventDefault()
     
     if (!formData.title || !formData.specialization || !formData.description) {
-      alert("Please fill in all required fields")
+      toast.error("Please fill in all required fields")
       return
     }
 
@@ -66,12 +67,12 @@ export default function CurriculumCreator({
         color: formData.color,
         createdBy: "admin"
       })
-      alert("Curriculum created successfully!")
+      toast.success("Curriculum created successfully!")
       resetForm()
       onCurriculumCreated()
     } catch (error) {
       console.error("Error creating curriculum:", error)
-      alert("Failed to create curriculum")
+      toast.error("Failed to create curriculum")
     } finally {
       setLoading(false)
     }

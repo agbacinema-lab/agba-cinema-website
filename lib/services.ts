@@ -22,7 +22,9 @@ import {
   InternshipRequest, 
   UserProfile,
   AdminProfile,
-  ApprovalRequest
+  ApprovalRequest,
+  BrandMeeting,
+  PerformanceFeedback
 } from "./types";
 
 // BLOG SERVICE
@@ -196,6 +198,23 @@ export const studentService = {
       portfolioLinks: links
     });
   },
+  updateFullProfile: async (studentId: string, data: any): Promise<void> => {
+    // Using setDoc with merge: true ensures the doc is created if it doesn't exist
+    await setDoc(doc(db, "users", studentId), { ...data, updatedAt: serverTimestamp() }, { merge: true });
+  },
+
+  // Assign a tutor to a student (super admin only)
+  assignTutorToStudent: async (studentId: string, tutorId: string, tutorName: string): Promise<void> => {
+    await setDoc(doc(db, "users", studentId), { tutorId, tutorName, updatedAt: serverTimestamp() }, { merge: true });
+  },
+
+  // Get all students assigned to a given tutor
+  getStudentsByTutor: async (tutorId: string): Promise<any[]> => {
+    const usersCol = collection(db, "users");
+    const q = query(usersCol, where("tutorId", "==", tutorId), where("role", "==", "student"));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(d => ({ uid: d.id, ...d.data() }));
+  },
 
   getAllTalent: async (isPremiumOnly = false): Promise<StudentProfile[]> => {
     const studentsCol = collection(db, "students");
@@ -210,21 +229,65 @@ export const studentService = {
 
 // BRAND SERVICE
 export const brandService = {
-  requestInternship: async (brandId: string, studentId: string): Promise<string> => {
+  requestInternship: async (request: Omit<InternshipRequest, 'requestId' | 'status' | 'requestedAt'>): Promise<string> => {
     const requestsCol = collection(db, "internship_requests");
     const docRef = await addDoc(requestsCol, {
-      brandId,
-      studentId,
+      ...request,
       status: 'pending',
       requestedAt: serverTimestamp()
     });
-    // Cloud function would trigger email here
+    return docRef.id;
+  },
+
+  submitInternRequirements: async (brandId: string, requirements: string): Promise<void> => {
+    await updateDoc(doc(db, "brands", brandId), {
+      requirements,
+      updatedAt: serverTimestamp()
+    });
+  },
+
+  bookMeeting: async (meeting: Omit<BrandMeeting, 'meetingId' | 'status'>): Promise<string> => {
+    const meetingsCol = collection(db, "brand_meetings");
+    const docRef = await addDoc(meetingsCol, {
+      ...meeting,
+      status: 'pending'
+    });
     return docRef.id;
   },
 
   getBrandProfile: async (userId: string): Promise<BrandProfile | null> => {
     const snap = await getDoc(doc(db, "brands", userId));
     return snap.exists() ? snap.data() as BrandProfile : null;
+  },
+
+  getActiveInternships: async (brandId: string): Promise<InternshipRequest[]> => {
+    const q = query(
+      collection(db, "internship_requests"), 
+      where("brandId", "==", brandId), 
+      where("status", "==", "assigned")
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map(doc => ({ requestId: doc.id, ...doc.data() } as InternshipRequest));
+  },
+
+  getBrandRequests: async (brandId: string): Promise<InternshipRequest[]> => {
+    const q = query(
+      collection(db, "internship_requests"), 
+      where("brandId", "==", brandId)
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map(doc => ({ requestId: doc.id, ...doc.data() } as InternshipRequest));
+  },
+
+  submitFeedback: async (requestId: string, rating: number, comment: string): Promise<void> => {
+    const requestRef = doc(db, "internship_requests", requestId);
+    await updateDoc(requestRef, {
+      feedback: {
+        rating,
+        comment,
+        submittedAt: serverTimestamp()
+      }
+    });
   }
 };
 
@@ -583,13 +646,34 @@ export const assignmentService = {
   },
 
   // Grade submission
-  gradeSubmission: async (assignmentId: string, submissionId: string, grade: number, feedback: string): Promise<void> => {
+  gradeSubmission: async (assignmentId: string, submissionId: string, grade: number, feedback: string, status: 'graded' | 'revision_needed' = 'graded'): Promise<void> => {
     await updateDoc(doc(db, "assignments", assignmentId, "submissions", submissionId), {
       grade,
       feedback,
-      status: "graded",
+      status,
       gradedAt: serverTimestamp()
     });
+  },
+  // Get all A1 (Excellent) submissions for a student across ALL assignments
+  getA1SubmissionsByStudent: async (studentId: string): Promise<any[]> => {
+    const assignmentsCol = collection(db, "assignments");
+    const snapshot = await getDocs(assignmentsCol);
+    const results: any[] = [];
+    
+    for (const d of snapshot.docs) {
+      const subCol = collection(db, "assignments", d.id, "submissions");
+      // Only query by studentId to avoid composite index requirements
+      const q = query(subCol, where("studentId", "==", studentId));
+      const s = await getDocs(q);
+      s.docs.forEach(sd => {
+        const data = sd.data();
+        // Filter by grade in JS
+        if (data.grade >= 75) {
+          results.push({ id: sd.id, assignmentDocId: d.id, assignmentTitle: d.data().title, ...data });
+        }
+      });
+    }
+    return results;
   }
 };
 
@@ -605,9 +689,16 @@ export const specializationService = {
   // Get specializations by program type
   getSpecializationsByProgram: async (programType: string): Promise<any[]> => {
     const specsCol = collection(db, "specializations");
-    const q = query(specsCol, where("programType", "==", programType), orderBy("createdAt", "asc"));
+    // Only use where() — no orderBy() — to avoid composite index requirement
+    const q = query(specsCol, where("programType", "==", programType));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // Sort by createdAt in JS
+    return docs.sort((a: any, b: any) => {
+      const timeA = a.createdAt?.toMillis?.() ?? 0;
+      const timeB = b.createdAt?.toMillis?.() ?? 0;
+      return timeA - timeB;
+    });
   },
 
   // Create specialization

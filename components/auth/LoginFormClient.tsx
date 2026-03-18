@@ -5,22 +5,34 @@ import { authService } from "@/lib/auth-service"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Mail, ShieldCheck, ArrowRight } from "lucide-react"
+import { Mail, ShieldCheck, ArrowRight, Eye, EyeOff } from "lucide-react"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 
 export default function LoginFormClient() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     try {
-      await authService.login(email, password)
-      window.location.href = '/admin'
+      const result = await authService.login(email, password)
+      const profile = await authService.getUserProfile(result.user.uid)
+      
+      toast.success("Welcome back!")
+
+      if (profile?.role === 'student') {
+        window.location.href = '/student/dashboard'
+      } else if (profile?.role === 'brand') {
+        window.location.href = '/brand'
+      } else {
+        window.location.href = '/admin'
+      }
     } catch (error) {
-      alert("Login failed: " + (error as any).message)
+      toast.error("Login failed: " + (error as any).message)
       setLoading(false)
     }
   }
@@ -28,10 +40,20 @@ export default function LoginFormClient() {
   const handleGoogleLogin = async () => {
     setLoading(true)
     try {
-      await authService.signInWithGoogle('student')
-      window.location.href = '/admin'
+      const user = await authService.signInWithGoogle('student')
+      const profile = await authService.getUserProfile(user.uid)
+      
+      toast.success("Login successful!")
+
+      if (profile?.role === 'student') {
+        window.location.href = '/student/dashboard'
+      } else if (profile?.role === 'brand') {
+        window.location.href = '/brand'
+      } else {
+        window.location.href = '/admin'
+      }
     } catch (error) {
-      alert("Login failed: " + (error as any).message)
+      toast.error("Login failed: " + (error as any).message)
       setLoading(false)
     }
   }
@@ -96,14 +118,19 @@ export default function LoginFormClient() {
                   <label className="text-xs font-black uppercase tracking-widest text-gray-400">
                     Password
                   </label>
-                  <Input
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white"
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white pr-10"
+                      required
+                    />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
                 </div>
 
                 <Button

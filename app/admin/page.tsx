@@ -9,19 +9,28 @@ import UserManagement from "@/components/admin/UserManagement"
 import NotificationBar from "@/components/admin/NotificationBar"
 import StudentReadiness from "@/components/admin/StudentReadiness"
 import AssignmentManagementPanel from "@/components/admin/AssignmentManagementPanel"
-import StudentLMS from "@/components/admin/StudentLMS"
 import BlogManager from "@/components/admin/BlogManager"
 import CurriculumAdminPanel from "@/components/admin/CurriculumAdminPanel"
-import PortfolioManager from "@/components/admin/PortfolioManager"
+import ContentHub from "@/components/admin/ContentHub"
 import EventManager from "@/components/admin/EventManager"
 import AcademyManager from "@/components/admin/AcademyManager"
-import ContentHub from "@/components/admin/ContentHub"
+import BrandManagementPanel from "@/components/admin/BrandManagementPanel"
 import { LogOut, LayoutDashboard, Users, Briefcase, Star, Settings, GraduationCap, BookOpen, FileText, BookMarked, MonitorPlay, Calendar, Image as ImageIcon, Layers } from "lucide-react"
 import { motion } from "framer-motion"
 
 export default function AdminDashboardPage() {
   const { user, profile, loading, isAdmin, isSuperAdmin, isStudent, isBrand } = useAuth()
   const [activeTab, setActiveTab] = useState('overview')
+
+  useEffect(() => {
+    if (!loading && profile) {
+      if (profile.role === 'student') {
+        window.location.href = '/student/dashboard'
+      } else if (profile.role === 'brand') {
+        window.location.href = '/brand/dashboard'
+      }
+    }
+  }, [loading, profile])
 
   const isStaff = ['super_admin', 'director', 'hod', 'admin', 'tutor', 'staff'].includes(profile?.role || '');
 
@@ -124,22 +133,14 @@ export default function AdminDashboardPage() {
             </>
           )}
 
-          {(isStudent || isStaff) && (
-            <>
-              <NavItem
-                active={activeTab === 'lms'}
-                icon={<BookOpen className="h-5 w-5" />}
-                label="Student View: LMS"
-                onClick={() => setActiveTab('lms')}
-              />
-              <NavItem
-                active={activeTab === 'portfolio'}
-                icon={<Star className="h-5 w-5" />}
-                label="Student View: Portfolio"
-                onClick={() => setActiveTab('portfolio')}
-              />
-            </>
-          )}
+
+          <NavItem
+            active={activeTab === 'brands'}
+            disabled={!hasAccess('manageBrands')}
+            icon={<Briefcase className="h-5 w-5" />}
+            label="Brands & Partners"
+            onClick={() => setActiveTab('brands')}
+          />
           {isBrand && (
             <NavItem
               active={activeTab === 'requests'}
@@ -201,6 +202,12 @@ export default function AdminDashboardPage() {
             </motion.div>
           )}
 
+          {activeTab === 'brands' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+              <BrandManagementPanel />
+            </motion.div>
+          )}
+
           {activeTab === 'readiness' && isStaff && hasAccess('readiness') && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
               <StudentReadiness />
@@ -222,27 +229,6 @@ export default function AdminDashboardPage() {
           {activeTab === 'assignments' && isStaff && hasAccess('assignments') && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
               <AssignmentManagementPanel />
-            </motion.div>
-          )}
-
-          {activeTab === 'lms' && (isStudent || isStaff) && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <StudentLMS />
-            </motion.div>
-          )}
-
-          {activeTab === 'portfolio' && (isStudent || isStaff) && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-12">
-                <h3 className="text-2xl font-black mb-6">Portfolio Submissions</h3>
-                <p className="text-gray-500 mb-10">Add your work links to be visible to brands.</p>
-                <div className="grid gap-6">
-                  <PortfolioInput label="YouTube Channel" placeholder="https://youtube.com/@yourchannel" />
-                  <PortfolioInput label="Behance Portfolio" placeholder="https://behance.net/username" />
-                  <PortfolioInput label="Google Drive / Dropbox" placeholder="https://drive.google.com/..." />
-                </div>
-                <Button className="mt-10 bg-yellow-400 text-black font-black h-14 px-10 rounded-2xl">Update Portfolio</Button>
-              </Card>
             </motion.div>
           )}
         </div>

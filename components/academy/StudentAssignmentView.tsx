@@ -8,6 +8,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Upload, Download, CheckCircle, Clock, AlertCircle, Star } from "lucide-react"
 import { assignmentService } from "@/lib/services"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 
 interface StudentAssignmentViewProps {
   curriculumId?: string
@@ -93,10 +94,10 @@ export default function StudentAssignmentView({
         submissionUrl: fileUrl,
       })
 
-      alert('Assignment submitted successfully!')
+      toast.success('Assignment submitted successfully!')
       loadAssignments()
     } catch (error) {
-      alert('Error submitting assignment: ' + (error as any).message)
+      toast.error('Error submitting assignment: ' + (error as any).message)
     } finally {
       setUploadingId(null)
     }

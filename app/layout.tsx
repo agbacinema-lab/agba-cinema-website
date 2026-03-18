@@ -6,13 +6,14 @@ import Header from "@/components/common/layout/Header"
 import Footer from "@/components/common/layout/Footer"
 import WhatsAppButton from "@/components/common/WhatsAppButton"
 import { AuthProvider } from "@/context/AuthContext"
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "ÀGBÀ CINEMA - Video Production Company & Video Editing Training Nigeria",
   description:
-    "Nigeria's #1 video editing mentorship. Learn Premiere Pro & After Effects, work on real brand projects, and get internship placement in Lagos. Go Pro Program now enrolling.",
+    "Africa's #1 video editing mentorship. Learn Premiere Pro & After Effects, work on real brand projects, and get internship placement in Lagos. Go Pro Program now enrolling.",
   keywords: [
     "Video editing training Nigeria",
     "Learn video editing Lagos",
@@ -27,18 +28,34 @@ export const metadata: Metadata = {
   ],
   generator: "v0.dev",
   metadataBase: new URL("https://agba-cinema-website.vercel.app/"),
+  alternates: {
+    canonical: "/",
+  },
+  icons: {
+    icon: "/agba  white.png",
+    apple: "/agba  white.png",
+  },
   openGraph: {
     title: "ÀGBÀ CINEMA — Become a Professional Video Editor in 8 Weeks",
     description:
-      "Structured mentorship + real brand projects + internship placement. Nigeria's most trusted video editing training.",
+      "Structured mentorship + real brand projects + internship placement. Africa's most trusted Creative training hub.",
     url: "https://agba-cinema-website.vercel.app/",
     siteName: "ÀGBÀ CINEMA",
+    images: [
+      {
+        url: "/agba cinema black.jpg",
+        width: 1200,
+        height: 630,
+        alt: "ÀGBÀ CINEMA",
+      },
+    ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "ÀGBÀ CINEMA — Video Editing Training Nigeria",
     description: "Go from beginner to professional video editor in 8 weeks. Real projects. Real brands. Internship placement.",
+    images: ["/agba cinema black.jpg"],
   },
 }
 
@@ -93,6 +110,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
           <Footer />
           <WhatsAppButton />
+          <Toaster />
         </AuthProvider>
       </body>
     </html>

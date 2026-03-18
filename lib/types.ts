@@ -37,6 +37,18 @@ export interface UserProfile {
   createdAt: any;
   programType?: any;
   specialization?: any;
+  phone?: string;
+  bio?: string;
+  avatarId?: string;
+  tutorId?: string;
+  tutorName?: string;
+  updatedAt?: any;
+  enrolledSpecializations?: Array<{
+    id: string;
+    title: string;
+    value: string;
+    programType: string;
+  }>;
 }
 
 export interface AdminPermissions {
@@ -88,14 +100,47 @@ export interface BrandProfile {
   website: string;
   industry: string;
   verified: boolean;
+  hasPaidAccess: boolean;
+  requirements?: string;
+  preferredSkills?: string[];
+  internshipDuration?: string;
 }
 
 export interface InternshipRequest {
   requestId: string;
   brandId: string;
   studentId: string;
+  studentName?: string;
+  brandName?: string;
   requestedAt: any;
   status: 'pending' | 'approved' | 'declined' | 'assigned';
+  requirements?: string;
+  duration?: string;
+  feedback?: {
+    rating: number;
+    comment: string;
+    submittedAt: any;
+  };
+}
+
+export interface BrandMeeting {
+  meetingId: string;
+  brandId: string;
+  brandName: string;
+  topic: string;
+  scheduledAt: any;
+  status: 'pending' | 'confirmed' | 'cancelled';
+  link?: string;
+}
+
+export interface PerformanceFeedback {
+  feedbackId: string;
+  requestId: string;
+  brandId: string;
+  studentId: string;
+  rating: number; // 1-5
+  comment: string;
+  createdAt: any;
 }
 
 export type Subject = 'Video Editing' | 'Motion Design' | 'Script Writing' | 'Storytelling' | 'Business of Creativity';

@@ -11,6 +11,7 @@ import { blogService, BlogPost } from "@/lib/services"
 import { db } from "@/lib/firebase"
 import { doc, deleteDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore"
 import { motion } from "framer-motion"
+import { toast } from "sonner"
 
 export default function BlogManager() {
   const [posts, setPosts] = useState<BlogPost[]>([])
@@ -39,7 +40,7 @@ export default function BlogManager() {
       setPosts(allPosts)
     } catch (error) {
       console.error("Error loading posts:", error)
-      alert("Failed to load blog posts")
+      toast.error("Failed to load blog posts")
     } finally {
       setLoading(false)
     }
@@ -49,7 +50,7 @@ export default function BlogManager() {
     e.preventDefault()
     
     if (!formData.title || !formData.excerpt || !formData.content || !formData.category) {
-      alert("Please fill in all required fields")
+      toast.error("Please fill in all required fields")
       return
     }
 
@@ -77,19 +78,19 @@ export default function BlogManager() {
         // Update existing post
         const postRef = doc(db, "posts", editingId)
         await updateDoc(postRef, postData)
-        alert("Blog post updated successfully!")
+        toast.success("Blog post updated successfully!")
       } else {
         // Create new post with auto-generated ID
         const newPostRef = doc(db, "posts", slug)
         await setDoc(newPostRef, postData)
-        alert("Blog post created successfully!")
+        toast.success("Blog post created successfully!")
       }
 
       resetForm()
       loadPosts()
     } catch (error) {
       console.error("Error saving post:", error)
-      alert("Failed to save blog post: " + (error as any).message)
+      toast.error("Failed to save blog post: " + (error as any).message)
     }
   }
 
@@ -112,11 +113,11 @@ export default function BlogManager() {
     try {
       const postRef = doc(db, "posts", postId)
       await deleteDoc(postRef)
-      alert("Blog post deleted successfully!")
+      toast.success("Blog post deleted successfully!")
       loadPosts()
     } catch (error) {
       console.error("Error deleting post:", error)
-      alert("Failed to delete blog post")
+      toast.error("Failed to delete blog post")
     }
   }
 
