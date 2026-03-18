@@ -95,7 +95,7 @@ const serviceDetails = {
     deliverables: ["Video Editing", "After Effect", "Creative direction", "Intenship placement"],
     category: "gopro",
   },
-  "cinema-conference-2024": {
+  "cinema-conference-2026": {
     title: "Creativity and Legal Crises 2026",
     description: "Join industry leaders for a day of networking, workshops, and screenings.",
     price: "#15,000",

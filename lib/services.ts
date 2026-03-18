@@ -335,9 +335,14 @@ export const curriculumService = {
   // Get curricula by program type
   getCurriculaByProgram: async (programType: string): Promise<any[]> => {
     const curriculaCol = collection(db, "curricula");
-    const q = query(curriculaCol, where("programType", "==", programType), orderBy("createdAt", "desc"));
+    const q = query(curriculaCol, where("programType", "==", programType));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+    return docs.sort((a, b) => {
+      const timeA = a.createdAt?.toMillis?.() || 0;
+      const timeB = b.createdAt?.toMillis?.() || 0;
+      return timeB - timeA;
+    });
   },
 
   // Get a single curriculum
@@ -379,6 +384,41 @@ export const curriculumService = {
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   },
 
+  // Create a new module inside a curriculum
+  createModule: async (curriculumId: string, moduleData: any): Promise<string> => {
+    const modulesCol = collection(db, "curricula", curriculumId, "modules");
+    // Assign order based on current count
+    const snapshot = await getDocs(modulesCol);
+    const order = snapshot.size + 1;
+    
+    // Update parent moduleCount
+    const curriculumRef = doc(db, "curricula", curriculumId);
+    await updateDoc(curriculumRef, { moduleCount: order });
+
+    const docRef = await addDoc(modulesCol, {
+      ...moduleData,
+      order,
+      moduleNumber: order,
+      createdAt: serverTimestamp()
+    });
+    return docRef.id;
+  },
+
+  // Update a module
+  updateModule: async (curriculumId: string, moduleId: string, data: any): Promise<void> => {
+    const moduleRef = doc(db, "curricula", curriculumId, "modules", moduleId);
+    await updateDoc(moduleRef, {
+      ...data,
+      updatedAt: serverTimestamp()
+    });
+  },
+
+  // Delete a module
+  deleteModule: async (curriculumId: string, moduleId: string): Promise<void> => {
+    await deleteDoc(doc(db, "curricula", curriculumId, "modules", moduleId));
+    // Optional: decrement moduleCount but for simplicity we ignore it
+  },
+
   // Get curriculum modules for a specific specialization (legacy support)
   getModulesBySpecialization: async (specialization: string): Promise<any[]> => {
     const modulesCol = collection(db, "curriculumModules");
@@ -392,15 +432,15 @@ export const curriculumService = {
   },
 
   // Get a single module with all materials
-  getModuleById: async (moduleId: string): Promise<any | null> => {
-    const moduleDoc = await getDoc(doc(db, "curriculumModules", moduleId));
+  getModuleById: async (curriculumId: string, moduleId: string): Promise<any | null> => {
+    const moduleDoc = await getDoc(doc(db, "curricula", curriculumId, "modules", moduleId));
     if (!moduleDoc.exists()) return null;
     return { id: moduleDoc.id, ...moduleDoc.data() };
   },
 
   // Add learning material to a module
-  addLearningMaterial: async (moduleId: string, material: any): Promise<string> => {
-    const materialsCol = collection(db, "curriculumModules", moduleId, "materials");
+  addLearningMaterial: async (curriculumId: string, moduleId: string, material: any): Promise<string> => {
+    const materialsCol = collection(db, "curricula", curriculumId, "modules", moduleId, "materials");
     const docRef = await addDoc(materialsCol, {
       ...material,
       uploadedAt: serverTimestamp()
@@ -409,15 +449,15 @@ export const curriculumService = {
   },
 
   // Get all materials for a module
-  getMaterialsByModule: async (moduleId: string): Promise<any[]> => {
-    const materialsCol = collection(db, "curriculumModules", moduleId, "materials");
+  getMaterialsByModule: async (curriculumId: string, moduleId: string): Promise<any[]> => {
+    const materialsCol = collection(db, "curricula", curriculumId, "modules", moduleId, "materials");
     const snapshot = await getDocs(query(materialsCol, orderBy("uploadedAt", "desc")));
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   },
 
   // Delete learning material
-  deleteMaterial: async (moduleId: string, materialId: string): Promise<void> => {
-    await deleteDoc(doc(db, "curriculumModules", moduleId, "materials", materialId));
+  deleteMaterial: async (curriculumId: string, moduleId: string, materialId: string): Promise<void> => {
+    await deleteDoc(doc(db, "curricula", curriculumId, "modules", moduleId, "materials", materialId));
   },
 
   // Get student progress

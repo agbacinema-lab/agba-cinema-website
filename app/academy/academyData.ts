@@ -19,7 +19,7 @@ export const academyDetails = [
     },
     {
         icon: MonitorPlay,
-        title: "Premire Pro Training",
+        title: "Premiere Pro Training",
         description: "Professional Premiere Pro training for video editing, storytelling, and content creation.",
         features: ["Video editing", "Storytelling", "Color correction", "Audio syncing"],
         price: "From #70,000",
@@ -36,26 +36,26 @@ export const academyDetails = [
 
     {
         icon: Palette,
-        title: "Gopro Video Editing",
-        description: "Gopro provide the best training for intending creative for free.",
-        features: ["intenship oppturnity", "Storytelling", "Color correction", "Audio syncing"],
+        title: "GoPro Video Editing",
+        description: "GoPro provide the best training for intending creative for free.",
+        features: ["Internship opportunity", "Storytelling", "Color correction", "Audio syncing"],
         price: "Free with refundable commitment fee of #20,000",
         href: "/booking/Gopro-Video-Editing",
     },
 
     {
         icon: Palette,
-        title: "Gopro After Effect",
-        description: "Gopro provide the best training for intending creative for free.",
+        title: "GoPro After Effects",
+        description: "GoPro provide the best training for intending creative for free.",
         features: ["Concept development", "Storyboarding", "Creative direction", "Project planning"],
         price: "Free with refundable commitment fee of #20,000",
         href: "/booking/Gopro-Aftereffect",
     },
     {
         icon: Palette,
-        title: "Go Pro Video Editing - After Effect",
-        description: "Gopro provide the best training for intending creative for free.",
-        features: ["Video Editing", "After Effect", "Creative direction", "Intenship placement"],
+        title: "GoPro Video Editing - After Effects",
+        description: "GoPro provide the best training for intending creative for free.",
+        features: ["Video Editing", "After Effects", "Creative direction", "Internship placement"],
         price: "Free with refundable commitment fee of #30,000",
         href: "/booking/GoPro-Video-Editing-After-Effect",
     },

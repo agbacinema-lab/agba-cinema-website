@@ -2,59 +2,66 @@
 
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Video, Users, BarChart3, Clapperboard, Palette, GraduationCap, ArrowRight } from "lucide-react"
+import { Video, Users, BarChart3, Clapperboard, Palette, GraduationCap, ArrowRight, Zap } from "lucide-react"
 import { motion } from "framer-motion"
 
 const creativesServices = [
   {
+    id: "01",
     icon: GraduationCap,
     title: "Video Editing Mentorship",
-    description: "1-on-1 coaching in Premiere Pro & After Effects. Go from beginner to job-ready in weeks.",
+    description: "Architectural coaching in Premiere Pro & After Effects. Master the narrative engine.",
     href: "/academy",
-    cta: "Apply Now",
+    cta: "Initiate Training",
   },
   {
+    id: "02",
     icon: Palette,
-    title: "Motion Design Training",
-    description: "Master motion graphics and visual effects used by Nigeria's top content creators and brands.",
+    title: "Motion Design Mastery",
+    description: "Visual effects and high-end motion graphics for the next generation of creators.",
     href: "/academy",
-    cta: "Apply Now",
+    cta: "Start Mastery",
   },
   {
+    id: "03",
     icon: Clapperboard,
-    title: "Go Pro Program",
-    description: "Our flagship internship pathway — learn editing, work on real brand projects, get placed.",
+    title: "Project GO PRO",
+    description: "The elite internship pathway. Direct deployment to brand projects and placement.",
     href: "/academy",
-    cta: "Apply for Cohort",
+    cta: "View Blueprint",
     featured: true,
   },
 ]
 
 const brandsServices = [
   {
+    id: "04",
     icon: Video,
-    title: "Corporate Videos",
-    description: "Professional corporate video production for brands, training materials, and marketing campaigns.",
+    title: "Corporate Narratives",
+    description: "Professional production for global brands. We turn communication into cinema.",
     href: "/services",
-    cta: "Get a Quote",
+    cta: "Request Quote",
   },
   {
+    id: "05",
     icon: Users,
-    title: "Live Event Production",
-    description: "Full-service live streaming and event coverage for conferences, product launches, and summits.",
+    title: "Live Command",
+    description: "Multicam coverage and high-fidelity live streaming for world-class summits.",
     href: "/services",
-    cta: "Book Coverage",
+    cta: "Book Unit",
   },
   {
+    id: "06",
     icon: BarChart3,
-    title: "Content Strategy",
-    description: "Data-driven content planning that drives audience growth and achieves your brand goals.",
+    title: "Visual Intelligence",
+    description: "Strategic content planning designed to capture attention and drive growth.",
     href: "/services",
-    cta: "Start Strategy",
+    cta: "Start Brief",
   },
 ]
 
-function ServiceCard({
+function UnitCard({
+  id,
   icon: Icon,
   title,
   description,
@@ -63,6 +70,7 @@ function ServiceCard({
   featured,
   index,
 }: {
+  id: string
   icon: React.ElementType
   title: string
   description: string
@@ -73,97 +81,100 @@ function ServiceCard({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
+      initial={{ opacity: 0, scale: 0.95 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.6, delay: index * 0.1 }}
       viewport={{ once: true }}
-      className={`relative rounded-2xl p-6 flex flex-col gap-4 border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl
+      className={`relative group rounded-[2.5rem] p-10 flex flex-col gap-6 border transition-all duration-700
         ${featured
-          ? "bg-gradient-to-br from-gray-900 to-black text-white border-yellow-400/40 shadow-yellow-400/10 shadow-lg"
-          : "bg-white text-gray-900 border-gray-200 hover:border-gray-300"
+          ? "bg-black text-white border-yellow-400/30 shadow-[0_0_50px_rgba(250,204,21,0.1)]"
+          : "bg-white text-black border-gray-100 hover:border-black shadow-sm"
         }`}
     >
-      {featured && (
-        <span className="absolute -top-3 left-6 bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full">
-          ★ Most Popular
+      <div className="flex justify-between items-start">
+        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-transform group-hover:rotate-12 duration-500 ${featured ? "bg-yellow-400/10 text-yellow-400" : "bg-gray-50 text-black border border-gray-100"}`}>
+          <Icon className="h-7 w-7" />
+        </div>
+        <span className={`text-4xl font-black italic tracking-tighter opacity-10 group-hover:opacity-30 transition-opacity ${featured ? "text-yellow-400" : "text-black"}`}>
+          {id}
         </span>
-      )}
-      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${featured ? "bg-yellow-400/20" : "bg-gray-100"}`}>
-        <Icon className={`h-6 w-6 ${featured ? "text-yellow-400" : "text-gray-700"}`} />
       </div>
-      <div className="flex-1">
-        <h3 className={`text-lg font-bold mb-2 ${featured ? "text-white" : "text-gray-900"}`}>{title}</h3>
-        <p className={`text-sm leading-relaxed ${featured ? "text-gray-300" : "text-gray-500"}`}>{description}</p>
+
+      <div className="space-y-3">
+        <h3 className="text-2xl font-black italic uppercase tracking-tighter leading-none group-hover:text-yellow-600 transition-colors">
+          {title}
+        </h3>
+        <p className={`text-sm font-medium leading-relaxed italic ${featured ? "text-gray-400" : "text-gray-500"}`}>
+          {description}
+        </p>
       </div>
-      <Button
-        variant={featured ? "default" : "outline"}
-        asChild
-        className={`w-full mt-2 font-semibold ${
-          featured
-            ? "bg-yellow-400 hover:bg-yellow-300 text-black border-0"
-            : ""
-        }`}
-      >
-        <a href={href}>
-          {cta}
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </a>
-      </Button>
+
+      <div className="pt-6 mt-auto">
+        <Link href={href}>
+          <button className={`w-full h-14 flex items-center justify-between px-6 rounded-2xl font-black uppercase italic tracking-widest text-[10px] transition-all
+            ${featured 
+              ? "bg-yellow-400 text-black hover:bg-white" 
+              : "bg-black text-white hover:bg-yellow-400 hover:text-black shadow-xl shadow-black/5"
+            }`}>
+            {cta}
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        </Link>
+      </div>
     </motion.div>
   )
 }
 
 export default function ServicesOverview() {
   return (
-    <section className="py-24 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">What We Offer</h2>
-          <p className="text-xl text-gray-500 max-w-2xl mx-auto">
-            Whether you're a creative looking to level up or a brand that needs results — we have a path for you.
-          </p>
-        </motion.div>
+    <section className="py-40 bg-[#fafafa]">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 mb-32 items-end">
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="lg:col-span-8 space-y-6"
+          >
+             <h4 className="text-yellow-500 font-black uppercase tracking-[0.5em] text-[10px]">Strategic Deployment</h4>
+             <h2 className="text-5xl md:text-8xl font-black text-black italic uppercase tracking-tighter leading-[0.85]">
+               Operational <br /> <span className="text-gray-200">Units & Path</span>ways.
+             </h2>
+          </motion.div>
+          <motion.div 
+             initial={{ opacity: 0, x: 30 }}
+             whileInView={{ opacity: 1, x: 0 }}
+             viewport={{ once: true }}
+             className="lg:col-span-4"
+          >
+             <p className="text-xl text-gray-500 italic font-medium leading-relaxed">
+               Whether you are an architect of motion or a brand seeking narrative dominance, we have a unit ready for engagement.
+             </p>
+          </motion.div>
+        </div>
 
         {/* For Creatives */}
-        <div className="mb-16">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="flex items-center gap-3 mb-8"
-          >
-            <div className="h-0.5 w-8 bg-yellow-400" />
-            <span className="text-yellow-600 font-bold text-sm uppercase tracking-widest">For Creatives</span>
-          </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="mb-24">
+          <div className="flex items-center gap-6 mb-12">
+            <div className="h-px flex-1 bg-gray-100" />
+            <span className="text-gray-400 font-black text-[10px] uppercase tracking-[0.4em] italic">0.1 Creative Support</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {creativesServices.map((service, index) => (
-              <ServiceCard key={service.title} {...service} index={index} />
+              <UnitCard key={service.title} {...service} index={index} />
             ))}
           </div>
         </div>
 
         {/* For Brands */}
         <div>
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="flex items-center gap-3 mb-8"
-          >
-            <div className="h-0.5 w-8 bg-gray-900" />
-            <span className="text-gray-700 font-bold text-sm uppercase tracking-widest">For Brands</span>
-          </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="flex items-center gap-6 mb-12">
+            <div className="h-px flex-1 bg-gray-100" />
+            <span className="text-gray-400 font-black text-[10px] uppercase tracking-[0.4em] italic">0.2 Brand Intelligence</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {brandsServices.map((service, index) => (
-              <ServiceCard key={service.title} {...service} index={index} />
+              <UnitCard key={service.title} {...service} index={index + 3} />
             ))}
           </div>
         </div>

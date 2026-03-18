@@ -6,12 +6,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Mail, Phone, MapPin, Clock } from "lucide-react"
+import { Mail, Phone, MapPin, Clock, Send, Zap, ShieldCheck } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import emailjs from "@emailjs/browser" // ✅ Import EmailJS
-
+import emailjs from "@emailjs/browser"
 import PageHero from "@/components/common/layout/PageHero"
+import { motion } from "framer-motion"
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -20,28 +19,25 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsSubmitting(true)
-
     const form = e.currentTarget
 
     try {
       await emailjs.sendForm(
-        "service_a1sqad8", // ✅ Your Service ID
-        "template_87aom8b", // ✅ Your Template ID
+        "service_a1sqad8",
+        "template_87aom8b",
         form,
-        "JH5HK81ALIHAE-ELW" // ✅ Your Public Key
+        "JH5HK81ALIHAE-ELW"
       )
-
       toast({
-        title: "Message Sent!",
-        description: "We'll get back to you within 24 hours.",
+        title: "Transmission Received",
+        description: "Our unit will respond within the next 24 operational hours.",
       })
-
       form.reset()
     } catch (error) {
       console.error("EmailJS Error:", error)
       toast({
-        title: "Error Sending Message",
-        description: "Please try again later.",
+        title: "Transmission Failed",
+        description: "Please check your network and attempt the protocol again.",
         variant: "destructive",
       })
     } finally {
@@ -50,127 +46,166 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white overflow-hidden">
       <PageHero 
-        title="Get In Touch"
-        subtitle="Ready to bring your vision to life? Let's discuss your project and create something amazing together."
+        title="OPERATIONAL HUB"
+        subtitle="Deployment begins with dialogue. Connect with Nigeria's elite cinematic unit."
+        backgroundImage="/creative and legal crises.jpg"
       />
 
-      {/* Contact Content */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Contact Information */}
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-8">Let's Start a Conversation</h2>
-
-              <div className="space-y-6 mb-8">
-                <div className="flex items-center space-x-4">
-                  <div className="bg-primary/10 p-3 rounded-full">
-                    <Mail className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Email</h3>
-                    <p className="text-gray-600">agbacinema@gmail.com</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-4">
-                  <div className="bg-primary/10 p-3 rounded-full">
-                    <Phone className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Phone</h3>
-                    <p className="text-gray-600">+234 90652360464</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-4">
-                  <div className="bg-primary/10 p-3 rounded-full">
-                    <MapPin className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Location</h3>
-                    <p className="text-gray-600">Lagos, Nigeria</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-4">
-                  <div className="bg-primary/10 p-3 rounded-full">
-                    <Clock className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">Business Hours</h3>
-                    <p className="text-gray-600">Mon - Fri: 9AM - 6PM</p>
-                    <p className="text-gray-600">Sat: 10AM - 4PM</p>
-                  </div>
-                </div>
+      <section className="py-32 relative">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-gray-50/50 -skew-x-12 translate-x-32 pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-24">
+            
+            {/* Intel Side */}
+            <motion.div 
+               initial={{ opacity: 0, x: -30 }}
+               whileInView={{ opacity: 1, x: 0 }}
+               viewport={{ once: true }}
+               className="lg:col-span-5 space-y-12"
+            >
+              <div className="space-y-6">
+                 <h4 className="text-yellow-500 font-black uppercase tracking-[0.5em] text-[10px]">Information Hub</h4>
+                 <h2 className="text-5xl md:text-7xl font-black text-black italic uppercase tracking-tighter leading-none">
+                    Base of <br /> <span className="text-gray-200">Operations.</span>
+                 </h2>
+                 <p className="text-xl text-gray-500 font-medium italic leading-relaxed">
+                    Our units are strategically deployed across the globe, with our central command based in the heart of Lagos.
+                 </p>
               </div>
 
-              <div className="bg-primary/5 p-6 rounded-lg">
-                <h3 className="font-semibold text-gray-900 mb-3">Quick Response Guarantee</h3>
-                <p className="text-gray-600">
-                  We understand that timing is crucial for your projects. That's why we guarantee a response to all
-                  inquiries within 24 hours, often much sooner.
-                </p>
+              <div className="space-y-8">
+                {[
+                  { icon: Mail, label: "Secure Email", value: "agbacinema@gmail.com" },
+                  { icon: Phone, label: "Comm Line", value: "+234 90652360464" },
+                  { icon: MapPin, label: "HQ Coordinates", value: "Lagos, Nigeria" },
+                  { icon: Clock, label: "Ops Hours", value: "Mon - Fri: 09:00 - 18:00" },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-6 group">
+                    <div className="w-12 h-12 rounded-2xl bg-black text-yellow-400 flex items-center justify-center group-hover:bg-yellow-400 group-hover:text-black transition-all duration-500 shadow-xl">
+                       <item.icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                       <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">{item.label}</p>
+                       <p className="text-xl font-black text-black italic tracking-tight">{item.value}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
 
-            {/* Contact Form */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Send Us a Message</CardTitle>
-                <CardDescription>
-                  Fill out the form below and we'll get back to you as soon as possible.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="firstName">First Name *</Label>
-                      <Input id="firstName" name="firstName" required placeholder="Your first name" />
-                    </div>
-                    <div>
-                      <Label htmlFor="lastName">Last Name *</Label>
-                      <Input id="lastName" name="lastName" required placeholder="Your last name" />
-                    </div>
-                  </div>
+              <div className="p-10 bg-black rounded-[2.5rem] border border-white/10 shadow-2xl space-y-4">
+                 <div className="flex items-center gap-3 text-yellow-400">
+                    <ShieldCheck className="h-6 w-6" />
+                    <span className="font-black uppercase tracking-widest text-xs italic">Response Guarantee</span>
+                 </div>
+                 <p className="text-gray-400 font-medium italic text-sm leading-relaxed">
+                    All incoming signals are processed by our senior architects. Expect a definitive response within 24 hours.
+                 </p>
+              </div>
+            </motion.div>
 
-                  <div>
-                    <Label htmlFor="email">Email *</Label>
-                    <Input id="email" name="email" type="email" required placeholder="your@email.com" />
-                  </div>
+            {/* Protocol Form */}
+            <motion.div 
+               initial={{ opacity: 0, y: 30 }}
+               whileInView={{ opacity: 1, y: 0 }}
+               viewport={{ once: true }}
+               className="lg:col-span-7 bg-white rounded-[3rem] border border-gray-100 p-10 md:p-16 shadow-premium hover:border-black transition-all duration-700"
+            >
+              <div className="mb-12">
+                 <h3 className="text-4xl font-black text-black italic uppercase tracking-tighter mb-4">Initiate Protocol</h3>
+                 <p className="text-gray-400 font-medium italic uppercase tracking-widest text-[10px]">Fill the brief below to establish contact</p>
+              </div>
 
-                  <div>
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" name="phone" type="tel" placeholder="+234 (0) 123 456 7890" />
-                  </div>
+              <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Codename / First Name</Label>
+                  <Input 
+                    id="firstName" 
+                    name="firstName" 
+                    required 
+                    placeholder="ENTER NAME" 
+                    className="h-16 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-yellow-400 px-6 font-bold text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Surname</Label>
+                  <Input 
+                    id="lastName" 
+                    name="lastName" 
+                    required 
+                    placeholder="ENTER SURNAME" 
+                    className="h-16 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-yellow-400 px-6 font-bold text-sm"
+                  />
+                </div>
+                <div className="md:col-span-2 space-y-2">
+                  <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Secure Channel (Email)</Label>
+                  <Input 
+                    id="email" 
+                    name="email" 
+                    type="email" 
+                    required 
+                    placeholder="VITAL@EMAIL.COM" 
+                    className="h-16 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-yellow-400 px-6 font-bold text-sm"
+                  />
+                </div>
+                <div className="md:col-span-2 space-y-2">
+                  <Label htmlFor="subject" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Inquiry Objective</Label>
+                  <Input 
+                    id="subject" 
+                    name="subject" 
+                    required 
+                    placeholder="E.G. DIRECTORIAL INQUIRY" 
+                    className="h-16 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-yellow-400 px-6 font-bold text-sm"
+                  />
+                </div>
+                <div className="md:col-span-2 space-y-2">
+                  <Label htmlFor="message" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Project Brief / Message</Label>
+                  <Textarea
+                    id="message"
+                    name="message"
+                    required
+                    placeholder="DESCRIBE THE VISION AND MISSION..."
+                    rows={6}
+                    className="rounded-[2rem] bg-gray-50 border-none focus:ring-2 focus:ring-yellow-400 p-8 font-bold text-sm"
+                  />
+                </div>
 
-                  <div>
-                    <Label htmlFor="subject">Subject *</Label>
-                    <Input id="subject" name="subject" required placeholder="What's this about?" />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="message">Message *</Label>
-                    <Textarea
-                      id="message"
-                      name="message"
-                      required
-                      placeholder="Tell us about your project or inquiry..."
-                      rows={5}
-                    />
-                  </div>
-
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
-                    {isSubmitting ? "Sending Message..." : "Send Message"}
+                <div className="md:col-span-2 pt-6">
+                  <Button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="w-full h-20 bg-black text-white hover:bg-yellow-400 hover:text-black font-black uppercase italic tracking-tighter text-xl rounded-3xl transition-all shadow-2xl flex items-center justify-center gap-4 group"
+                  >
+                    {isSubmitting ? (
+                       <div className="w-6 h-6 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        Launch Transmission
+                        <Send className="h-6 w-6 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+                      </>
+                    )}
                   </Button>
-                </form>
-              </CardContent>
-            </Card>
+                </div>
+              </form>
+            </motion.div>
+
           </div>
         </div>
+      </section>
+
+      {/* Global Mission Bar */}
+      <section className="py-24 bg-black overflow-hidden relative">
+         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+            <div className="flex whitespace-nowrap animate-marquee">
+               {[...Array(10)].map((_, i) => (
+                 <span key={i} className="text-[8vw] font-black text-white italic uppercase tracking-tighter mx-8">
+                    AGBA CINEMA UNITS // GLOBAL DEPLOYMENT // 
+                 </span>
+               ))}
+            </div>
+         </div>
       </section>
     </div>
   )

@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import PortfolioItemCard from "./PortfolioItemCard";
 import { portfolioService } from "@/lib/services";
-import { PortfolioItem as FirebasePortfolioItem } from "@/lib/types";
 import portfolioStaticData from "@/data/portfolio.json";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function PortfolioGrid({ selectedCategory = "All" }: { selectedCategory?: string }) {
   const [items, setItems] = useState<any[]>([]);
@@ -25,21 +25,38 @@ export default function PortfolioGrid({ selectedCategory = "All" }: { selectedCa
     selectedCategory === "All" || item.category === selectedCategory
   );
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
   if (loading) {
     return (
-      <div className="flex justify-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
+      <div className="flex justify-center py-40">
+        <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {filteredItems.map((item, idx) => (
-        item ? (
-          <PortfolioItemCard key={item.id || idx} item={item} />
-        ) : null
-      ))}
-    </div>
+    <motion.div 
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+    >
+      <AnimatePresence mode="popLayout">
+        {filteredItems.map((item, idx) => (
+          item ? (
+            <PortfolioItemCard key={item.id || idx} item={item} />
+          ) : null
+        ))}
+      </AnimatePresence>
+    </motion.div>
   );
 }

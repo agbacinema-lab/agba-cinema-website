@@ -12,7 +12,7 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: '/tools/video-caption',
         headers: [
           {
             key: 'Cross-Origin-Embedder-Policy',

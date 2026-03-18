@@ -43,7 +43,7 @@ export default function FounderStory() {
               {/* Name tag */}
               <div className="absolute bottom-6 left-6 right-6">
                 <p className="text-white font-bold text-xl">Ololade Abel</p>
-                <p className="text-yellow-400 text-sm font-semibold">Creative Director, ÀGBÀ CINEMA</p>
+                <p className="text-yellow-400 text-sm font-semibold">CEO & Creative Director, ÀGBÀ CINEMA</p>
               </div>
             </div>
 
@@ -75,13 +75,13 @@ export default function FounderStory() {
 
             <div className="space-y-4 text-gray-600 text-lg leading-relaxed mb-8">
               <p>
-                <strong className="text-gray-900">Ololade Abel</strong> started ÀGBÀ CINEMA with one goal: to make world-class video training accessible to every creative in Nigeria — not just those who can afford to travel abroad for it.
+                <strong className="text-gray-900">Ololade Abel</strong> started ÀGBÀ CINEMA with one goal: to make world-class video training accessible to every creative in Africa not just those who can afford to travel abroad for it.
               </p>
               <p>
-                After seeing countless talented editors get overlooked because they lacked structured training and real portfolio work, he built the <strong className="text-gray-900">Go Pro Program</strong> — a pathway from beginner to brand-ready in weeks.
+                After seeing countless talented editors get overlooked because they lacked structured training and real portfolio work and abilty to tell good stories, he built the <strong className="text-gray-900">Go Pro Program</strong> — a pathway from beginner to making money in weeks.
               </p>
               <p>
-                Today, ÀGBÀ CINEMA has trained <strong className="text-gray-900">200+ creatives</strong>, produced content for <strong className="text-gray-900">50+ Nigerian brands</strong>, and built one of Lagos's most trusted video production studios.
+                Today, ÀGBÀ CINEMA has trained <strong className="text-gray-900">200+ creatives</strong>, produced content for <strong className="text-gray-900">50+ Nigerian brands</strong>, and built one of Nigeria's most trusted video production and training hubs.
               </p>
             </div>
 

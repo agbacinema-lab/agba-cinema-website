@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Calendar, Clock, Tag, ArrowLeft, Share2 } from "lucide-react"
+import { Calendar, Clock, Tag, ArrowLeft, Share2, Bookmark, Flame, Zap, Play } from "lucide-react"
 import { BlogPost } from "@/lib/services"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface BlogPostContentProps {
   initialPost: BlogPost | null
@@ -14,7 +15,6 @@ interface BlogPostContentProps {
 
 export function BlogPostContent({ initialPost, slug }: BlogPostContentProps) {
   const [post, setPost] = useState<BlogPost | null>(initialPost)
-  const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(!initialPost)
 
   useEffect(() => {
@@ -27,7 +27,7 @@ export function BlogPostContent({ initialPost, slug }: BlogPostContentProps) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
+        <div className="w-16 h-16 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -35,199 +35,176 @@ export function BlogPostContent({ initialPost, slug }: BlogPostContentProps) {
   if (!post) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-white text-2xl">Post not found</div>
+        <div className="text-white font-black italic uppercase tracking-tighter text-4xl">Signal Lost // 404</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="relative py-24 md:py-32 overflow-hidden bg-black text-white">
-        {/* Background glow */}
-        <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.05)_0%,transparent_70%)]" />
+    <div className="min-h-screen bg-white overflow-hidden">
+      {/* Cinematic Hero */}
+      <section className="relative min-h-[80vh] flex items-center justify-center bg-black overflow-hidden pt-20">
+        <div className="absolute inset-0 z-0 opacity-40">
+           <Image 
+             src={post.image || "/placeholder.svg"} 
+             alt={post.title}
+             fill
+             className="object-cover grayscale"
+           />
+           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+        </div>
 
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Button
-            variant="outline"
-            asChild
-            className="mb-8 bg-white/5 border-white/20 text-white hover:bg-white hover:text-black rounded-xl transition-all duration-300"
-          >
-            <a href="/blog">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Blog
-            </a>
-          </Button>
+        {/* Moving Grain Overlay */}
+        <div className="absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 
-          <div className="flex flex-wrap items-center gap-4 mb-8">
-            <span className="bg-yellow-400 text-black px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest flex items-center">
-              <Tag className="h-3 w-3 mr-2" />
-              {post.category}
-            </span>
-            <div className="flex items-center text-gray-400 text-sm font-medium">
-              <Calendar className="h-4 w-4 mr-2" />
-              {new Date(post.publishedAt).toLocaleDateString()}
-            </div>
-            <div className="flex items-center text-gray-400 text-sm font-medium">
-              <Clock className="h-4 w-4 mr-2" />
-              {post.readTime}
-            </div>
-          </div>
+        <div className="relative z-10 max-w-5xl mx-auto px-4 text-center space-y-8">
+           <motion.div
+             initial={{ opacity: 0, y: 20 }}
+             animate={{ opacity: 1, y: 0 }}
+             className="flex justify-center"
+           >
+              <Link href="/blog">
+                <button className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.4em] text-yellow-400 hover:bg-yellow-400 hover:text-black transition-all">
+                  <ArrowLeft className="h-3 w-3" /> Back to Intelligence
+                </button>
+              </Link>
+           </motion.div>
 
-          <h1 className="text-4xl md:text-6xl font-black mb-8 leading-tight tracking-tight">
-            {post.title}
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-300 mb-10 leading-relaxed font-medium">
-            {post.excerpt}
-          </p>
-
-          <div className="flex items-center justify-between pt-8 border-t border-white/10">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-black font-black text-xs">
-                {post.author.split(' ').map(n => n[0]).join('')}
+           <motion.div
+             initial={{ opacity: 0, scale: 0.95 }}
+             animate={{ opacity: 1, scale: 1 }}
+             transition={{ delay: 0.2 }}
+             className="space-y-4"
+           >
+              <div className="flex items-center justify-center gap-6 text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">
+                <span className="flex items-center gap-2"><Calendar className="h-3 w-3" /> {new Date(post.publishedAt).toLocaleDateString()}</span>
+                <span className="w-1 h-1 bg-gray-700 rounded-full" />
+                <span className="flex items-center gap-2"><Clock className="h-3 w-3" /> {post.readTime} Deployment</span>
               </div>
-              <span className="text-gray-300 font-bold uppercase tracking-widest text-xs">By {post.author}</span>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="bg-transparent border-white/20 text-white hover:bg-white hover:text-black rounded-xl"
-            >
-              <Share2 className="h-4 w-4 mr-2" />
-              Share
-            </Button>
-          </div>
+              <h1 className="text-5xl md:text-8xl font-black text-white italic uppercase tracking-tighter leading-[0.85]">
+                {post.title}
+              </h1>
+           </motion.div>
+
+           <motion.div
+             initial={{ opacity: 0 }}
+             animate={{ opacity: 1 }}
+             transition={{ delay: 0.4 }}
+             className="flex flex-wrap justify-center gap-4"
+           >
+              <span className="bg-yellow-400 text-black px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest italic group overflow-hidden relative">
+                <span className="relative z-10 flex items-center gap-2">
+                  <Flame className="h-3 w-3 fill-black" />
+                  {post.category}
+                </span>
+              </span>
+           </motion.div>
         </div>
       </section>
 
-      {/* Article Content */}
-      <article className="py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Featured Image */}
-          <div className="mb-12">
-            <Image
-              src={post.image || "/placeholder.svg"}
-              alt={post.title}
-              width={800}
-              height={500}
-              className="w-full h-96 object-cover rounded-lg shadow-lg"
-            />
-          </div>
-
-          {/* Article Body */}
-          <div className="prose prose-lg max-w-none mb-12">
-            {post.content.split("\n\n").map((paragraph, index) => {
-              if (paragraph.startsWith("## ")) {
-                return (
-                  <h2 key={index} className="text-2xl font-bold text-foreground mt-8 mb-4">
-                    {paragraph.replace("## ", "")}
-                  </h2>
-                )
-              }
-              return (
-                <p key={index} className="text-muted-foreground leading-relaxed mb-6">
-                  {paragraph}
-                </p>
-              )
-            })}
-          </div>
-
-          {/* Tags */}
-          <div className="mb-12">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Tags</h3>
-            <div className="flex flex-wrap gap-2">
-              {post.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm hover:bg-accent transition-colors"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Author Bio */}
-          <Card className="mb-12">
-            <CardContent className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-                  <span className="text-primary font-bold text-xl">ÀC</span>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground">{post.author}</h3>
-                  <p className="text-muted-foreground">
-                    The creative team at ÀGBÀ CINEMA brings years of experience in video production, cinematography, and
-                    storytelling to every project and blog post.
+      {/* Main Narrative Content */}
+      <article className="py-32 relative">
+         <div className="absolute top-0 left-0 w-full h-[600px] bg-gradient-to-b from-black to-white" />
+         
+         <div className="max-w-4xl mx-auto px-4 relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-white rounded-[3rem] p-10 md:p-20 shadow-premium border border-gray-100"
+            >
+               {/* Lead Paragraph */}
+               <div className="mb-16">
+                  <p className="text-2xl md:text-3xl font-black italic tracking-tight text-black leading-snug border-l-8 border-yellow-400 pl-8">
+                     {post.excerpt}
                   </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+               </div>
 
-          {/* Related Posts */}
-          {relatedPosts.length > 0 && (
-            <div>
-              <h3 className="text-2xl font-bold text-foreground mb-8">Related Articles</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {relatedPosts.map((relatedPost) => (
-                  <Card key={relatedPost.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                    <div className="relative">
-                      <Image
-                        src={relatedPost.image || "/placeholder.svg"}
-                        alt={relatedPost.title}
-                        width={400}
-                        height={250}
-                        className="w-full h-48 object-cover"
-                      />
-                      <div className="absolute top-4 left-4">
-                        <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">
-                          {relatedPost.category}
-                        </span>
-                      </div>
-                    </div>
-                    <CardContent className="p-6">
-                      <h4 className="text-lg font-semibold text-foreground mb-2 line-clamp-2">
-                        <a href={`/blog/${relatedPost.slug}`} className="hover:text-primary transition-colors">
-                          {relatedPost.title}
-                        </a>
-                      </h4>
-                      <p className="text-muted-foreground mb-4 line-clamp-2">{relatedPost.excerpt}</p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">{relatedPost.readTime}</span>
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={`/blog/${relatedPost.slug}`}>Read More</a>
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
+               {/* Detailed Narrative */}
+               <div className="prose prose-2xl prose-gray max-w-none">
+                  {post.content.split("\n\n").map((paragraph, index) => {
+                    if (paragraph.startsWith("## ")) {
+                      return (
+                        <h2 key={index} className="text-4xl font-black text-black italic uppercase tracking-tighter mt-16 mb-8 border-b border-gray-100 pb-4">
+                          {paragraph.replace("## ", "")}
+                        </h2>
+                      )
+                    }
+                    if (paragraph.startsWith("> ")) {
+                       return (
+                         <div key={index} className="bg-gray-50 p-10 rounded-[2rem] border-r-4 border-black mb-8">
+                            <p className="text-xl font-medium italic text-gray-700 m-0">
+                               {paragraph.replace("> ", "")}
+                            </p>
+                         </div>
+                       )
+                    }
+                    return (
+                      <p key={index} className="text-xl text-gray-600 leading-relaxed font-medium italic mb-8">
+                        {paragraph}
+                      </p>
+                    )
+                  })}
+               </div>
 
-          {/* CTA Section */}
-          <div className="mt-16 bg-primary text-primary-foreground rounded-lg p-8 text-center">
-            <h3 className="text-2xl font-bold mb-4">Ready to Start Your Video Project?</h3>
-            <p className="text-primary-foreground/90 mb-6">
-              Let's bring your vision to life with professional video production services.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="secondary" asChild>
-                <a href="/contact">Get Free Quote</a>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                asChild
-                className="bg-transparent border-white text-white hover:bg-white hover:text-primary"
-              >
-                <a href="/portfolio">View Our Work</a>
-              </Button>
-            </div>
-          </div>
-        </div>
+               {/* Classification Tags */}
+               <div className="mt-20 pt-10 border-t border-gray-50 flex flex-col md:flex-row justify-between items-center gap-8">
+                  <div className="flex flex-wrap gap-3">
+                    {post.tags.map((tag) => (
+                      <span key={tag} className="text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-50 px-4 py-2 rounded-lg border border-gray-100">
+                         #{tag}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-4">
+                     <button className="w-12 h-12 rounded-full border border-gray-100 flex items-center justify-center hover:bg-black hover:text-white transition-all shadow-sm">
+                        <Share2 className="h-4 w-4" />
+                     </button>
+                     <button className="w-12 h-12 rounded-full border border-gray-100 flex items-center justify-center hover:bg-yellow-400 hover:text-black transition-all shadow-sm">
+                        <Bookmark className="h-4 w-4" />
+                     </button>
+                  </div>
+               </div>
+            </motion.div>
+
+            {/* Author Unit */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="mt-12 bg-black rounded-[2.5rem] p-12 text-white flex flex-col md:flex-row items-center gap-10 border border-white/5 shadow-2xl"
+            >
+               <div className="w-24 h-24 bg-yellow-400 rounded-[2rem] flex items-center justify-center text-4xl group hover:rotate-12 transition-transform duration-500">
+                  🎬
+               </div>
+               <div className="flex-1 space-y-2 text-center md:text-left">
+                  <h4 className="text-yellow-400 font-black uppercase tracking-[0.4em] text-[10px]">Intelligence Source</h4>
+                  <h3 className="text-3xl font-black italic uppercase tracking-tighter">{post.author}</h3>
+                  <p className="text-gray-400 font-medium italic leading-relaxed">
+                     Architecting visual narratives at ÀGBÀ CINEMA. Transforming raw concepts into cinematic excellence through decades of visual engineering.
+                  </p>
+               </div>
+            </motion.div>
+         </div>
       </article>
+
+      {/* Global Deployment CTA */}
+      <section className="py-40 bg-yellow-400 relative overflow-hidden">
+         <div className="absolute top-0 right-0 w-96 h-96 bg-black opacity-[0.03] -translate-x-32 translate-y-20 rounded-full" />
+         <div className="max-w-4xl mx-auto px-4 text-center space-y-12 relative z-10">
+            <h2 className="text-5xl md:text-8xl font-black text-black italic uppercase tracking-tighter leading-none">
+               Architect Your <br /> Own Legacy.
+            </h2>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+               <button className="h-20 px-12 bg-black text-white font-black uppercase italic tracking-tighter text-xl rounded-3xl hover:scale-105 transition-all shadow-2xl flex items-center gap-4">
+                  Deploy Project <Play className="h-5 w-5 fill-current" />
+               </button>
+               <button className="h-20 px-12 bg-transparent border-4 border-black text-black font-black uppercase italic tracking-tighter text-xl rounded-3xl hover:bg-black hover:text-yellow-400 transition-all flex items-center gap-4">
+                  View Roster <Zap className="h-5 w-5 fill-current" />
+               </button>
+            </div>
+         </div>
+      </section>
     </div>
   )
 }

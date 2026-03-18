@@ -12,16 +12,10 @@ import { motion } from "framer-motion"
 interface CurriculumSelectorProps {
   onSelectCurriculum: (curriculumId: string) => void
   filter?: 'gopro' | 'mentorship' | 'all'
+  specializationFilter?: string
 }
 
-const SPECIALIZATION_LABELS: Record<string, string> = {
-  'video-editing-laptop': 'Video Editing - Laptop',
-  'video-editing-mobile': 'Video Editing - Mobile',
-  'after-effects': 'After Effects',
-  'motion-design': 'Motion Design',
-  'script-writing': 'Script Writing',
-  'storytelling': 'Storytelling',
-}
+// Specialization labels are fetched dynamically
 
 const PROGRAM_TYPE_LABELS: Record<string, string> = {
   gopro: 'Go Pro Program',
@@ -30,14 +24,29 @@ const PROGRAM_TYPE_LABELS: Record<string, string> = {
 
 export default function CurriculumSelector({
   onSelectCurriculum,
-  filter = 'all'
+  filter = 'all',
+  specializationFilter
 }: CurriculumSelectorProps) {
   const [curricula, setCurricula] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [specializationMap, setSpecializationMap] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    // Fetch specializations to map values to labels
+    import("@/lib/services").then(({ specializationService }) => {
+      specializationService.getAllSpecializations()
+        .then(data => {
+          const map: Record<string, string> = {}
+          data.forEach((s: any) => map[s.value] = s.label)
+          setSpecializationMap(map)
+        })
+        .catch(console.error)
+    })
+  }, [])
 
   useEffect(() => {
     loadCurricula()
-  }, [filter])
+  }, [filter, specializationFilter])
 
   const loadCurricula = async () => {
     try {
@@ -48,6 +57,11 @@ export default function CurriculumSelector({
       } else {
         data = await curriculumService.getCurriculaByProgram(filter)
       }
+
+      if (specializationFilter) {
+        data = data.filter((c: any) => c.specialization === specializationFilter)
+      }
+
       setCurricula(data)
     } catch (error) {
       console.error("Error loading curricula:", error)
@@ -77,7 +91,7 @@ export default function CurriculumSelector({
     return (
       <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-12 text-center">
         <BookOpen className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-        <p className="text-gray-500 font-medium">No curricula available</p>
+        <p className="text-gray-500 font-medium">No curriculum (weeks) available</p>
       </Card>
     )
   }
@@ -119,7 +133,7 @@ export default function CurriculumSelector({
                       </Badge>
                     )}
                     <Badge variant="outline" className="text-xs">
-                      {SPECIALIZATION_LABELS[curriculum.specialization] || curriculum.specialization}
+                      {specializationMap[curriculum.specialization] || curriculum.specialization}
                     </Badge>
                   </div>
                   <h3 className="text-lg font-black text-gray-900 leading-tight">
@@ -134,7 +148,7 @@ export default function CurriculumSelector({
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-white/60 rounded-lg p-3 text-center">
-                    <p className="text-xs text-gray-500 font-bold">Modules</p>
+                    <p className="text-xs text-gray-500 font-bold">Modules (Days)</p>
                     <p className="text-2xl font-black text-gray-900">
                       {curriculum.moduleCount || 0}
                     </p>
@@ -166,7 +180,7 @@ export default function CurriculumSelector({
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
-                      <AlertDialogTitle>Delete Curriculum</AlertDialogTitle>
+                      <AlertDialogTitle>Delete Curriculum (Week)</AlertDialogTitle>
                       <AlertDialogDescription>
                         Are you sure you want to delete "{curriculum.title}"? This action cannot be undone.
                       </AlertDialogDescription>

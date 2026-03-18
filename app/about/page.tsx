@@ -2,10 +2,11 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Camera, Users, Award, Heart } from "lucide-react";
+import { Camera, Users, Award, Heart, Zap, Play, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+import PageHero from "@/components/common/layout/PageHero";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -13,30 +14,30 @@ import "slick-carousel/slick/slick-theme.css";
 const Slider = dynamic(() => import("react-slick"), { ssr: false });
 
 const stats = [
-  { icon: Camera, label: "Projects Completed", value: "500+" },
-  { icon: Users, label: "Happy Clients", value: "200+" },
-  { icon: Award, label: "Awards Won", value: "5+" },
-  { icon: Heart, label: "Years Experience", value: "5+" },
+  { icon: Camera, label: "Narratives Built", value: "500+" },
+  { icon: Users, label: "Creative Partners", value: "200+" },
+  { icon: Award, label: "Cinema Honors", value: "5+" },
+  { icon: Heart, label: "Decade of Vision", value: "8+" },
 ];
 
 const team = [
   {
     name: "Agbele Ololade Abel",
-    role: "Founder & Creative Director",
+    role: "Architect & Creative Visionary",
     image: "/haybel picture.jpeg",
-    bio: "With close to a decade in the industry, Abel brings creative vision and technical expertise to every project.",
+    bio: "Close to a decade of redefining visual boundaries. Abel architects emotions through light and shadow.",
   },
   {
     name: "Oloniyo Testimony",
-    role: "Lead Writer and Storyteller",
+    role: "Narrative Strategist",
     image: "/testimony.jpg",
-    bio: "Testimony brings a rare blend of storytelling brilliance and editorial precision, leading every project with creativity, clarity, and purpose.",
+    bio: "The soul of the story. Testimony converts abstract concepts into cinematic precision.",
   },
   {
     name: "Oyelami Testimony",
-    role: "Head of Training & Mentorship",
+    role: "Director of Mastery",
     image: "/t money.jpg",
-    bio: "Testimony empowers creatives to transform their skills into impactful careers. With close to a decade of industry insight, they guide the next generation with clarity, creativity, and real-world expertise.",
+    bio: "Empowering the next generation. Testimony guides creatives from technicality to true artistry.",
   },
 ];
 
@@ -54,117 +55,166 @@ export default function AboutPage() {
     "/creative and legal crises.jpg",
   ];
 
-  const sliderSettings: import("react-slick").Settings = {
-    dots: true,
+  const sliderSettings: any = {
+    dots: false,
     infinite: true,
-    speed: 800,
-    fade: true,
+    speed: 1000,
     autoplay: true,
-    autoplaySpeed: 3000,
+    autoplaySpeed: 4000,
     slidesToShow: 1,
     slidesToScroll: 1,
-    arrows: true,
-    nextArrow: <div className="absolute top-1/2 right-2 z-20 cursor-pointer text-white bg-black/50 rounded-full p-2 transform -translate-y-1/2">&rarr;</div>,
-    prevArrow: <div className="absolute top-1/2 left-2 z-20 cursor-pointer text-white bg-black/50 rounded-full p-2 transform -translate-y-1/2">&larr;</div>,
-    responsive: [
-      { breakpoint: 1024, settings: { slidesToShow: 1, slidesToScroll: 1 } },
-      { breakpoint: 640, settings: { slidesToShow: 1, slidesToScroll: 1, arrows: false } },
-    ],
+    arrows: false,
+    fade: true,
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero / Gallery Section */}
-      <section className="relative py-24 overflow-hidden bg-black text-white">
-        {/* Background glow */}
-        <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(250,204,21,0.05)_0%,transparent_70%)]" />
-        
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div className="space-y-8">
-            <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-tight">
-              About <span className="text-yellow-400">ÀGBÀ CINEMA</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-300 leading-relaxed font-medium">
-              We are passionate storytellers dedicated to creating cinematic experiences that captivate, inspire, and leave lasting impressions.
-            </p>
-            <div className="pt-4">
-              <Button size="lg" asChild className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-10 py-7 rounded-2xl text-xl transition-all duration-300 hover:scale-[1.05] shadow-[0_0_20px_rgba(250,204,21,0.2)]">
-                <a href="/contact">Work With Us</a>
-              </Button>
-            </div>
-            {/* Decorative line */}
-            <div className="h-1.5 w-20 bg-yellow-400 rounded-full" />
-          </div>
+    <div className="min-h-screen bg-black overflow-hidden">
+      <PageHero 
+        title="OUR LEGACY"
+        subtitle="We don't just record the world. We architect its most profound narratives."
+        backgroundImage="/creative and legal crises.jpg"
+      />
 
-          <div className="relative w-full group">
-            <div className="absolute -inset-4 bg-yellow-400/10 blur-2xl rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <Slider {...sliderSettings}>
-              {images.map((src, index) => (
-                <div key={index} className="outline-none">
-                  <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
-                    <Image
-                      src={src}
-                      alt={`Gallery Image ${index + 1}`}
-                      width={800}
-                      height={500}
-                      className="object-cover w-full h-[500px]"
-                      unoptimized
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  </div>
-                </div>
-              ))}
-            </Slider>
-            <div className="absolute -top-4 -right-4 bg-yellow-400 text-black px-6 py-2 rounded-2xl text-sm font-black uppercase tracking-widest shadow-xl transform rotate-3">
-              Our Journey
+      {/* The Manifesto Section */}
+      <section className="py-32 relative">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#ffffff05_1px,transparent_1px)] [background-size:32px_32px] pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-24 items-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="space-y-10"
+          >
+            <div className="space-y-4">
+              <h4 className="text-yellow-400 font-black uppercase tracking-[0.6em] text-xs">The Manifesto</h4>
+              <h2 className="text-5xl md:text-8xl font-black text-white italic uppercase tracking-tighter leading-[0.85]">
+                Truth <br />
+                <span className="text-gray-700">In Every</span> <br />
+                Frame.
+              </h2>
             </div>
+            
+            <p className="text-xl text-gray-400 font-medium leading-relaxed italic max-w-lg">
+              ÀGBÀ CINEMA exists at the intersection of technical perfection and raw human emotion. We believe a lens is a tool for truth-telling, not just documentation.
+            </p>
+
+            <div className="flex items-center gap-6">
+               <div className="h-px w-20 bg-yellow-400" />
+               <button className="text-[10px] font-black uppercase tracking-[0.4em] text-white hover:text-yellow-400 transition-colors">
+                 Discover our process
+               </button>
+            </div>
+          </motion.div>
+
+          <div className="relative group">
+             <div className="absolute -inset-4 bg-yellow-400/5 blur-3xl rounded-full opacity-50" />
+             <div className="relative aspect-square md:aspect-video rounded-[3rem] overflow-hidden border border-white/5 shadow-2xl">
+               <Slider {...sliderSettings}>
+                 {images.map((src, index) => (
+                   <div key={index} className="outline-none h-full">
+                     <Image
+                       src={src}
+                       alt={`Gallery ${index}`}
+                       fill
+                       className="object-cover grayscale-[30%] hover:grayscale-0 transition-all duration-1000"
+                       unoptimized
+                     />
+                   </div>
+                 ))}
+               </Slider>
+               <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
+               
+               <div className="absolute bottom-10 left-10 right-10 flex justify-between items-end">
+                  <div className="bg-black/80 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/10">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-yellow-400 mb-1">Current Reel</p>
+                    <p className="text-white font-black italic uppercase tracking-tighter">Visual Excellence 2024</p>
+                  </div>
+                  <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                    <Play className="h-4 w-4 text-black fill-black ml-0.5" />
+                  </div>
+               </div>
+             </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-8">
-          {stats.map((stat) => (
-            <div key={stat.label} className="text-center">
-              <stat.icon className="h-12 w-12 text-primary mx-auto mb-4" />
-              <div className="text-3xl font-bold text-gray-900 mb-2">{stat.value}</div>
-              <div className="text-gray-600">{stat.label}</div>
+      {/* Heritage Stats Overlay */}
+      <section className="py-20 bg-[#080808] border-y border-white/5">
+        <div className="max-w-7xl mx-auto px-4 grid grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-0">
+          {stats.map((stat, i) => (
+            <div key={stat.label} className={`text-center space-y-4 ${i !== stats.length - 1 ? 'lg:border-r lg:border-white/5' : ''}`}>
+              <div className="text-5xl md:text-7xl font-black text-white italic tracking-tighter">
+                {stat.value}
+              </div>
+              <div className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-500">
+                {stat.label}
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Team Section */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Meet Our Team</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our talented team of creatives, technicians, and storytellers work together to bring your vision to life.
-            </p>
+      {/* The Architects (Team) Section */}
+      <section className="py-40 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
+          <div className="text-center mb-24 space-y-4">
+             <h4 className="text-yellow-400 font-black uppercase tracking-[0.6em] text-xs">The Minds Behind</h4>
+             <h2 className="text-5xl md:text-8xl font-black text-white italic uppercase tracking-tighter">The <span className="text-gray-800 underline decoration-yellow-400/30">Architects</span></h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {team.map((member) => (
-              <Card key={member.name} className="text-center">
-                <CardContent className="p-6">
-                  <Image
-                    src={member.image || "/placeholder.svg"}
-                    alt={member.name}
-                    width={200}
-                    height={200}
-                    className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
-                    unoptimized
-                  />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{member.name}</h3>
-                  <p className="text-primary font-medium mb-4">{member.role}</p>
-                  <p className="text-gray-600">{member.bio}</p>
-                </CardContent>
-              </Card>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-20">
+            {team.map((member, i) => (
+              <motion.div
+                key={member.name}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="group relative"
+              >
+                <div className="relative aspect-[3/4] rounded-[2.5rem] overflow-hidden border border-white/5 grayscale-[50%] group-hover:grayscale-0 transition-all duration-700 shadow-2xl">
+                   <Image
+                     src={member.image || "/placeholder.svg"}
+                     alt={member.name}
+                     fill
+                     className="object-cover group-hover:scale-110 transition-transform duration-1000"
+                     unoptimized
+                   />
+                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80 group-hover:opacity-40 transition-opacity" />
+                   
+                   <div className="absolute bottom-10 left-10 right-10 space-y-2">
+                      <p className="text-yellow-400 font-black uppercase tracking-[0.2em] text-[10px]">{member.role}</p>
+                      <h3 className="text-3xl font-black text-white italic uppercase tracking-tighter">{member.name}</h3>
+                   </div>
+                </div>
+
+                <div className="mt-8 px-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                   <p className="text-gray-400 font-medium italic translate-y-4 group-hover:translate-y-0 transition-transform">
+                     {member.bio}
+                   </p>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
+      </section>
+
+      {/* Final Call */}
+      <section className="py-32 bg-yellow-400">
+         <div className="max-w-4xl mx-auto px-4 text-center space-y-10">
+            <h2 className="text-5xl md:text-8xl font-black text-black italic uppercase tracking-tighter leading-none">
+              Start Your <br /> Visual Legacy.
+            </h2>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+               <button className="h-16 px-12 bg-black text-white font-black uppercase italic tracking-tighter rounded-2xl hover:scale-105 transition-all text-lg shadow-2xl">
+                 Project Inquiry
+               </button>
+               <button className="h-16 px-12 bg-transparent border-2 border-black text-black font-black uppercase italic tracking-tighter rounded-2xl hover:bg-black hover:text-yellow-400 transition-all text-lg">
+                 Our Services
+               </button>
+            </div>
+         </div>
       </section>
     </div>
   );

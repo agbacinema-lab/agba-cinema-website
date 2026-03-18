@@ -79,7 +79,7 @@ export default function Community() {
                 className="bg-green-500 hover:bg-green-400 text-white font-bold px-8 py-6 rounded-xl text-lg transition-all duration-300 hover:scale-[1.02]"
               >
                 <a
-                  href="https://chat.whatsapp.com/your-group-link"
+                  href="https://whatsapp.com/channel/0029Vb5q75L4CrffFHSsd20Z"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -95,7 +95,7 @@ export default function Community() {
                 className="border-white/30 text-white bg-white/5 hover:bg-white/15 font-bold px-8 py-6 rounded-xl text-lg transition-all duration-300 hover:scale-[1.02]"
               >
                 <a
-                  href="https://t.me/your-telegram-link"
+                  href="https://t.me/agbacinema"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

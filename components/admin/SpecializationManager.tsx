@@ -11,7 +11,15 @@ import { Plus, Trash2, Edit2, X, Zap, Users } from "lucide-react"
 import { specializationService } from "@/lib/services"
 import { motion } from "framer-motion"
 
-export default function SpecializationManager() {
+interface SpecializationManagerProps {
+  programFilter?: 'gopro' | 'mentorship'
+  onManageSpecialization?: (spec: any) => void
+}
+
+export default function SpecializationManager({ 
+  programFilter, 
+  onManageSpecialization 
+}: SpecializationManagerProps = {}) {
   const [specializations, setSpecializations] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -108,8 +116,14 @@ export default function SpecializationManager() {
     )
   }
 
-  const goproSpecs = specializations.filter(s => s.programType === 'gopro')
-  const mentorshipSpecs = specializations.filter(s => s.programType === 'mentorship')
+  let goproSpecs = specializations.filter(s => s.programType === 'gopro')
+  let mentorshipSpecs = specializations.filter(s => s.programType === 'mentorship')
+
+  if (programFilter === 'gopro') {
+    mentorshipSpecs = []
+  } else if (programFilter === 'mentorship') {
+    goproSpecs = []
+  }
 
   return (
     <div className="space-y-8">
@@ -268,6 +282,15 @@ export default function SpecializationManager() {
                       </div>
                     </div>
                     <div className="flex gap-2">
+                      {onManageSpecialization && (
+                        <Button
+                          onClick={() => onManageSpecialization(spec)}
+                          size="sm"
+                          className="bg-black text-white rounded-lg hover:bg-gray-800 font-bold"
+                        >
+                          Manage Schedule
+                        </Button>
+                      )}
                       <Button
                         onClick={() => handleEdit(spec)}
                         size="sm"
@@ -334,6 +357,15 @@ export default function SpecializationManager() {
                       </div>
                     </div>
                     <div className="flex gap-2">
+                      {onManageSpecialization && (
+                        <Button
+                          onClick={() => onManageSpecialization(spec)}
+                          size="sm"
+                          className="bg-black text-white rounded-lg hover:bg-gray-800 font-bold"
+                        >
+                          Manage Schedule
+                        </Button>
+                      )}
                       <Button
                         onClick={() => handleEdit(spec)}
                         size="sm"

@@ -12,16 +12,32 @@ import AssignmentManagementPanel from "@/components/admin/AssignmentManagementPa
 import StudentLMS from "@/components/admin/StudentLMS"
 import BlogManager from "@/components/admin/BlogManager"
 import CurriculumAdminPanel from "@/components/admin/CurriculumAdminPanel"
-import SpecializationManager from "@/components/admin/SpecializationManager"
 import PortfolioManager from "@/components/admin/PortfolioManager"
 import EventManager from "@/components/admin/EventManager"
 import AcademyManager from "@/components/admin/AcademyManager"
-import { LogOut, LayoutDashboard, Users, Briefcase, Star, Settings, GraduationCap, BookOpen, FileText, BookMarked, MonitorPlay, Calendar, Image as ImageIcon } from "lucide-react"
+import ContentHub from "@/components/admin/ContentHub"
+import { LogOut, LayoutDashboard, Users, Briefcase, Star, Settings, GraduationCap, BookOpen, FileText, BookMarked, MonitorPlay, Calendar, Image as ImageIcon, Layers } from "lucide-react"
 import { motion } from "framer-motion"
 
 export default function AdminDashboardPage() {
   const { user, profile, loading, isAdmin, isSuperAdmin, isStudent, isBrand } = useAuth()
   const [activeTab, setActiveTab] = useState('overview')
+
+  const isStaff = ['super_admin', 'director', 'hod', 'admin', 'tutor', 'staff'].includes(profile?.role || '');
+
+  const hasAccess = (tab: string) => {
+    if (tab === 'overview' || tab === 'settings' || tab === 'lms' || tab === 'portfolio' || tab === 'requests') return true;
+    if (['super_admin', 'director'].includes(profile?.role || '')) return true;
+    
+    const permissions: Record<string, string[]> = {
+      hod: ['readiness', 'courses', 'content', 'assignments'],
+      tutor: ['content', 'assignments'],
+      staff: ['readiness', 'content'],
+      admin: ['readiness', 'content', 'assignments']
+    };
+
+    return permissions[profile?.role || '']?.includes(tab) || false;
+  };
 
   if (loading) {
     return (
@@ -63,85 +79,63 @@ export default function AdminDashboardPage() {
         <nav className="space-y-2 flex-grow">
           <NavItem
             active={activeTab === 'overview'}
+            disabled={!hasAccess('overview')}
             icon={<LayoutDashboard className="h-5 w-5" />}
             label="Overview"
             onClick={() => setActiveTab('overview')}
           />
-          {isAdmin && (
+          {isStaff && (
             <>
               <NavItem
                 active={activeTab === 'users'}
+                disabled={!hasAccess('users')}
                 icon={<Users className="h-5 w-5" />}
                 label="User Management"
                 onClick={() => setActiveTab('users')}
               />
               <NavItem
                 active={activeTab === 'readiness'}
+                disabled={!hasAccess('readiness')}
                 icon={<GraduationCap className="h-5 w-5" />}
                 label="Internship Ready"
                 onClick={() => setActiveTab('readiness')}
               />
               <NavItem
-                active={activeTab === 'curriculum'}
+                active={activeTab === 'courses'}
+                disabled={!hasAccess('courses')}
                 icon={<BookMarked className="h-5 w-5" />}
-                label="Curriculum"
-                onClick={() => setActiveTab('curriculum')}
+                label="Course Builder"
+                onClick={() => setActiveTab('courses')}
               />
               <NavItem
-                active={activeTab === 'specializations'}
-                icon={<GraduationCap className="h-5 w-5" />}
-                label="Specializations"
-                onClick={() => setActiveTab('specializations')}
+                active={activeTab === 'content'}
+                disabled={!hasAccess('content')}
+                icon={<Layers className="h-5 w-5" />}
+                label="Content Hub"
+                onClick={() => setActiveTab('content')}
               />
               <NavItem
-                active={activeTab === 'blog'}
-                icon={<FileText className="h-5 w-5" />}
-                label="Blog Posts"
-                onClick={() => setActiveTab('blog')}
-              />
-              <NavItem
-                active={activeTab === 'events'}
-                icon={<Calendar className="h-5 w-5" />}
-                label="Events"
-                onClick={() => setActiveTab('events')}
-              />
-              <NavItem
-                active={activeTab === 'academy'}
-                icon={<MonitorPlay className="h-5 w-5" />}
-                label="Academy Services"
-                onClick={() => setActiveTab('academy')}
-              />
-              <NavItem
-                active={activeTab === 'portfolioAdmin'}
-                icon={<ImageIcon className="h-5 w-5" />}
-                label="Portfolio Management"
-                onClick={() => setActiveTab('portfolioAdmin')}
+                active={activeTab === 'assignments'}
+                disabled={!hasAccess('assignments')}
+                icon={<BookOpen className="h-5 w-5" />}
+                label="Manage Assignments"
+                onClick={() => setActiveTab('assignments')}
               />
             </>
           )}
 
-          {/* Shared / Tutor / Admin */}
-          {(isAdmin || profile?.role === 'tutor') && (
-            <NavItem
-              active={activeTab === 'assignments'}
-              icon={<BookOpen className="h-5 w-5" />}
-              label="Manage Assignments"
-              onClick={() => setActiveTab('assignments')}
-            />
-          )}
-
-          {isStudent && (
+          {(isStudent || isStaff) && (
             <>
               <NavItem
                 active={activeTab === 'lms'}
                 icon={<BookOpen className="h-5 w-5" />}
-                label="Academy LMS"
+                label="Student View: LMS"
                 onClick={() => setActiveTab('lms')}
               />
               <NavItem
                 active={activeTab === 'portfolio'}
                 icon={<Star className="h-5 w-5" />}
-                label="My Portfolio"
+                label="Student View: Portfolio"
                 onClick={() => setActiveTab('portfolio')}
               />
             </>
@@ -156,6 +150,7 @@ export default function AdminDashboardPage() {
           )}
           <NavItem
             active={activeTab === 'settings'}
+            disabled={!hasAccess('settings')}
             icon={<Settings className="h-5 w-5" />}
             label="Settings"
             onClick={() => setActiveTab('settings')}
@@ -200,67 +195,43 @@ export default function AdminDashboardPage() {
             </motion.div>
           )}
 
-          {activeTab === 'users' && isAdmin && (
+          {activeTab === 'users' && isStaff && hasAccess('users') && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
               <UserManagement />
             </motion.div>
           )}
 
-          {activeTab === 'readiness' && isAdmin && (
+          {activeTab === 'readiness' && isStaff && hasAccess('readiness') && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
               <StudentReadiness />
             </motion.div>
           )}
 
-          {activeTab === 'curriculum' && isAdmin && (
+          {activeTab === 'courses' && isStaff && hasAccess('courses') && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
               <CurriculumAdminPanel />
             </motion.div>
           )}
 
-          {activeTab === 'specializations' && isAdmin && (
+          {activeTab === 'content' && isStaff && hasAccess('content') && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <SpecializationManager />
+              <ContentHub />
             </motion.div>
           )}
 
-          {activeTab === 'blog' && isAdmin && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <BlogManager />
-            </motion.div>
-          )}
-
-          {activeTab === 'events' && isAdmin && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <EventManager />
-            </motion.div>
-          )}
-
-          {activeTab === 'academy' && isAdmin && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <AcademyManager />
-            </motion.div>
-          )}
-
-          {activeTab === 'portfolioAdmin' && isAdmin && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <PortfolioManager />
-            </motion.div>
-          )}
-
-          {activeTab === 'assignments' && (isAdmin || profile?.role === 'tutor') && (
+          {activeTab === 'assignments' && isStaff && hasAccess('assignments') && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
               <AssignmentManagementPanel />
             </motion.div>
           )}
 
-          {activeTab === 'lms' && isStudent && (
+          {activeTab === 'lms' && (isStudent || isStaff) && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
               <StudentLMS />
             </motion.div>
           )}
 
-          {activeTab === 'portfolio' && isStudent && (
+          {activeTab === 'portfolio' && (isStudent || isStaff) && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
               <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-12">
                 <h3 className="text-2xl font-black mb-6">Portfolio Submissions</h3>
@@ -280,11 +251,18 @@ export default function AdminDashboardPage() {
   )
 }
 
-function NavItem({ active, icon, label, onClick }: any) {
+function NavItem({ active, icon, label, onClick, disabled }: any) {
   return (
     <button
-      onClick={onClick}
-      className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all font-bold ${active ? 'bg-yellow-400 text-black' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+      className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all font-bold ${
+        disabled 
+          ? 'opacity-40 cursor-not-allowed text-gray-400' 
+          : active 
+            ? 'bg-yellow-400 text-black' 
+            : 'text-gray-400 hover:text-white hover:bg-white/5'
+      }`}
     >
       {icon}
       {label}

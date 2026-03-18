@@ -19,7 +19,7 @@ export const eventsDetails: Event[] = [
         description: "Join industry leaders for a day of networking, workshops, and screenings.",
         features: ["Keynote speakers", "Panel discussions", "Networking lunch", "Film screenings"],
         price: "#15,000",
-        href: "/booking/cinema-conference-2024",
+        href: "/booking/cinema-conference-2026",
         lumaUrl: "https://luma.com/flupt8pb",
         date: "April 26, 2026",
         location: "Lagos, Nigeria"

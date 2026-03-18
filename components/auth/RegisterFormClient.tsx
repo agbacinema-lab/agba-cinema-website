@@ -80,7 +80,6 @@ export default function RegisterFormClient({
           <CardContent className="p-0">
             {/* Role selection */}
             <div className="flex bg-gray-100 p-1 rounded-2xl mb-6">
-              {paymentRef && (
                 <button
                   type="button"
                   onClick={() => setRole("student")}
@@ -90,7 +89,6 @@ export default function RegisterFormClient({
                 >
                   Student
                 </button>
-              )}
               <button
                 type="button"
                 onClick={() => setRole("staff")}
@@ -111,29 +109,16 @@ export default function RegisterFormClient({
               </button>
             </div>
 
-            {/* Google register or payment required */}
-            {!paymentRef && role === "student" ? (
-              <div className="bg-yellow-50 border border-yellow-100 p-6 rounded-2xl mb-6 text-center">
-                <Lock className="h-8 w-8 text-yellow-600 mx-auto mb-3" />
-                <h4 className="font-bold text-gray-900 mb-1">Payment Required</h4>
-                <p className="text-xs text-gray-500">
-                  To create a student account, you must first pay for a class or program.
-                </p>
-                <Button asChild variant="link" className="text-yellow-600 font-bold text-xs mt-2 underline">
-                  <a href="/academy">View Programs →</a>
-                </Button>
-              </div>
-            ) : (
-              <Button
-                type="button"
-                onClick={handleGoogleRegister}
-                disabled={loading}
-                className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 h-14 rounded-2xl flex items-center justify-center gap-4 font-bold mb-6 shadow-sm"
-              >
-                <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
-                Continue with Google
-              </Button>
-            )}
+            {/* Google register or email form */}
+            <Button
+              type="button"
+              onClick={handleGoogleRegister}
+              disabled={loading}
+              className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 h-14 rounded-2xl flex items-center justify-center gap-4 font-bold mb-6 shadow-sm"
+            >
+              <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
+              Continue with Google
+            </Button>
 
             {/* Divider */}
             <div className="relative mb-6">
@@ -146,8 +131,7 @@ export default function RegisterFormClient({
             </div>
 
             {/* Email form */}
-            {(paymentRef || role !== "student") && (
-              <form onSubmit={handleRegister} className="space-y-4">
+            <form onSubmit={handleRegister} className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">Full Name</label>
                   <Input
@@ -188,7 +172,6 @@ export default function RegisterFormClient({
                   {loading ? "Creating..." : `Sign up as ${role}`}
                 </Button>
               </form>
-            )}
 
             <p className="text-xs text-gray-500 text-center mt-6">
               Already have an account?{" "}

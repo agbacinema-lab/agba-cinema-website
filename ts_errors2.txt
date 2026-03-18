@@ -1,5 +1,0 @@
-app/academy/assignments/page.tsx(22,30): error TS2339: Property 'programType' does not exist on type 'UserProfile'.
-app/academy/assignments/page.tsx(23,33): error TS2339: Property 'specialization' does not exist on type 'UserProfile'.
-app/admin/page.tsx(215,16): error TS2304: Cannot find name 'CurriculumAdminPanel'.
-app/admin/page.tsx(221,16): error TS2304: Cannot find name 'SpecializationManager'.
-components/portfolio/PortfolioGrid.tsx(5,28): error TS2459: Module '"@/lib/services"' declares 'PortfolioItem' locally, but it is not exported.

@@ -58,6 +58,10 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      boxShadow: {
+        premium: "0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 20px rgba(250, 204, 21, 0.05)",
+        'gold-glow': "0 0 40px -10px rgba(250, 204, 21, 0.3)",
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },

@@ -76,4 +76,8 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+
+  .glass-morphism {
+    @apply backdrop-blur-xl bg-white/10 border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
+  }
 }

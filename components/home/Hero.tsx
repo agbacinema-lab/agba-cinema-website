@@ -2,8 +2,8 @@
 
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Download, ArrowRight } from "lucide-react"
-import { motion } from "framer-motion"
+import { Download, ArrowRight, Zap, Play } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
 
 function GuideModal({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -23,55 +23,65 @@ function GuideModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/90 backdrop-blur-xl px-4">
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative"
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="bg-[#0a0a0a] border border-white/10 rounded-[2.5rem] shadow-2xl w-full max-w-md p-10 relative overflow-hidden"
       >
+        {/* Abstract Glow in Modal */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/10 blur-3xl rounded-full" />
+        
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl leading-none"
+          className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors h-10 w-10 flex items-center justify-center bg-white/5 rounded-full"
           aria-label="Close"
         >×</button>
 
         {done ? (
-          <div className="text-center py-6">
-            <div className="text-5xl mb-4">🎬</div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">Check Your Inbox!</h3>
-            <p className="text-gray-500">The ÀGBÀ CINEMA Program Guide is on its way to <strong>{email}</strong>.</p>
+          <div className="text-center py-10 space-y-6">
+            <div className="w-20 h-20 bg-yellow-400 rounded-full flex items-center justify-center mx-auto shadow-xl shadow-yellow-400/20">
+               <Zap className="h-10 w-10 text-black fill-black" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-3xl font-black text-white italic uppercase tracking-tighter">Transmission Sent</h3>
+              <p className="text-gray-400 font-medium">The ÀGBÀ CINEMA Blueprint is navigating to <strong>{email}</strong>.</p>
+            </div>
           </div>
         ) : (
-          <>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">Download the Program Guide</h3>
-            <p className="text-gray-500 text-sm mb-6">Get the full curriculum, pricing, and schedule — free.</p>
+          <div className="relative z-10">
+            <div className="space-y-2 mb-10 text-center">
+              <h4 className="text-yellow-400 font-black uppercase tracking-[0.4em] text-[10px]">Access Granted</h4>
+              <h3 className="text-3xl font-black text-white italic uppercase tracking-tighter">Download The <br />Program Guide</h3>
+            </div>
+            
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
                 required
                 type="text"
-                placeholder="Your full name"
+                placeholder="YOUR NAME"
                 value={name}
                 onChange={e => setName(e.target.value)}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-yellow-400 transition-colors font-bold uppercase tracking-widest text-xs"
               />
               <input
                 required
                 type="email"
-                placeholder="Your email address"
+                placeholder="YOUR BEST EMAIL"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-yellow-400 transition-colors font-bold uppercase tracking-widest text-xs"
               />
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-6 rounded-xl text-lg"
+                className="w-full bg-yellow-400 hover:bg-white text-black font-black py-7 rounded-2xl text-[10px] uppercase tracking-[0.3em] italic transition-all shadow-xl shadow-yellow-400/10"
               >
-                {loading ? "Sending…" : "Send Me the Guide →"}
+                {loading ? "INITIALIZING..." : "Send the Blueprint →"}
               </Button>
             </form>
-            <p className="text-center text-xs text-gray-400 mt-3">No spam. Unsubscribe anytime.</p>
-          </>
+            <p className="text-center text-[9px] font-black text-gray-600 uppercase tracking-widest mt-8">Encrypted Connection · Zero Spam</p>
+          </div>
         )}
       </motion.div>
     </div>
@@ -83,86 +93,103 @@ export default function Hero() {
 
   return (
     <>
-      <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0 bg-black/55 z-10 pointer-events-none" />
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none"
-          style={{ backgroundImage: "url('/cinematic-video-setup.png')" }}
-        />
-        {/* Radial glow */}
-        <div className="absolute inset-0 z-10 bg-[radial-gradient(ellipse_80%_60%_at_50%_60%,rgba(250,204,21,0.08),transparent)] pointer-events-none" />
+      <section className="relative min-h-screen flex items-center justify-center bg-[#050505] text-white overflow-hidden">
+        {/* Background Atmosphere */}
+        <div className="absolute inset-0 z-0">
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat grayscale-[40%] scale-105"
+            style={{ backgroundImage: "url('/cinematic-video-setup.png')" }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-[#050505]" />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+          
+          {/* Film Grain */}
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+        </div>
+
+        {/* Dynamic Light Leaks */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+           <div className="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] bg-yellow-400/10 blur-[180px] rounded-full animate-pulse" />
+           <div className="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-white/5 blur-[150px] rounded-full" />
+        </div>
 
         {/* Content */}
-        <div className="relative z-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-
-            {/* Badge */}
+        <div className="relative z-20 max-w-6xl mx-auto px-4 text-center">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }} 
+            animate={{ opacity: 1, scale: 1 }} 
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            className="space-y-10"
+          >
+            {/* Elite Badge */}
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="inline-flex items-center gap-2 bg-yellow-400/15 border border-yellow-400/30 text-yellow-400 text-sm font-semibold px-4 py-2 rounded-full mb-6"
+              transition={{ delay: 0.4 }}
+              className="inline-flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-6 py-3 rounded-full mb-4 shadow-2xl"
             >
-              🎓 Nigeria's #1 Video Editing Mentorship
+              <div className="w-2 h-2 bg-yellow-400 rounded-full animate-ping" />
+              <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.4em] text-yellow-500">
+                ÀGBÀ CINEMA PRESENTS
+              </span>
             </motion.div>
 
-            {/* Headline */}
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight tracking-tight">
-              Become a Professional<br />
-              <span className="text-yellow-400">Video Editor in 8 Weeks</span>
-            </h1>
+            {/* Main Title */}
+            <div className="space-y-2">
+              <h1 className="text-5xl md:text-8xl lg:text-9xl font-black mb-6 leading-[0.85] tracking-tighter uppercase italic">
+                Architecting <br />
+                <span className="text-yellow-400 drop-shadow-[0_0_40px_rgba(250,204,21,0.3)]">Master Editors</span>
+              </h1>
+            </div>
 
-            {/* Subheadline */}
-            <p className="text-lg md:text-2xl mb-10 max-w-3xl mx-auto text-gray-300 leading-relaxed">
-              Work on real brand projects and get internship opportunities.<br className="hidden md:block" />
-              <span className="text-gray-400 text-base md:text-lg">
-                Structured mentorship designed to make Nigerian creatives job-ready editors.
-              </span>
+            {/* Narrative Subtitle */}
+            <p className="text-lg md:text-2xl mb-12 max-w-3xl mx-auto text-gray-300 leading-relaxed font-medium italic opacity-80">
+              The only mentorship designed to transform African creatives into <span className="text-white">industry-ready cinematographers</span> and world-class editors. Work on real sets. Deploy real projects.
             </p>
 
-            {/* Social proof micro-line */}
-            <p className="text-yellow-400/80 text-sm font-semibold mb-8">
-              ✓ 200+ graduates · ✓ 50+ brand partners · ✓ Internship placement included
-            </p>
+            {/* Social Proof Bar */}
+            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-12">
+               <span className="flex items-center gap-2 italic"><Zap className="h-3 w-3 text-yellow-400" /> 200+ Graduates</span>
+               <span className="w-1 h-1 bg-gray-700 rounded-full hidden md:block" />
+               <span className="flex items-center gap-2 italic"><Zap className="h-3 w-3 text-yellow-400" /> 50+ Brand Partners</span>
+               <span className="w-1 h-1 bg-gray-700 rounded-full hidden md:block" />
+               <span className="flex items-center gap-2 italic"><Zap className="h-3 w-3 text-yellow-400" /> Internship Guaranteed</span>
+            </div>
 
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            {/* Strategic CTAs */}
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <Button
                 size="lg"
                 asChild
-                className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-lg px-8 py-6 rounded-xl transition-all duration-300 hover:scale-[1.03] shadow-lg shadow-yellow-400/20 w-full sm:w-auto"
+                className="group relative overflow-hidden bg-yellow-400 hover:bg-white text-black font-black uppercase italic tracking-tighter h-20 px-12 rounded-[2rem] transition-all w-full sm:w-auto text-xl shadow-2xl shadow-yellow-400/20"
               >
-                <a href="/academy">
-                  Apply for the Next Cohort
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </a>
+                <Link href="/academy" className="flex items-center gap-4">
+                  Initiate Training
+                  <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
+                </Link>
               </Button>
 
-              <Button
-                size="lg"
-                variant="outline"
+              <button
                 onClick={() => setGuideOpen(true)}
-                className="bg-white/5 hover:bg-white/15 border-white/40 text-white font-bold text-lg px-8 py-6 rounded-xl transition-all duration-300 hover:scale-[1.03] backdrop-blur-sm w-full sm:w-auto"
+                className="group relative flex items-center gap-4 h-20 px-12 bg-black/40 backdrop-blur-xl border border-white/10 text-white font-black uppercase italic tracking-tighter rounded-[2rem] hover:bg-white hover:text-black transition-all w-full sm:w-auto text-xl"
               >
-                <Download className="mr-2 h-5 w-5" />
-                Download the Program Guide
-              </Button>
-            </div>
-          </motion.div>
-
-          {/* Scroll Indicator */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2, duration: 0.8 }}
-            className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-          >
-            <div className="w-6 h-10 border-2 border-white/40 rounded-full flex justify-center">
-              <div className="w-1 h-3 bg-white/60 rounded-full mt-2 animate-bounce" />
+                <Download className="h-6 w-6 group-hover:-translate-y-1 transition-transform" />
+                Program Blueprint
+              </button>
             </div>
           </motion.div>
         </div>
+
+        {/* Floating Explore Indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5, duration: 1 }}
+          className="absolute bottom-12 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-4 opacity-30"
+        >
+          <span className="text-[10px] font-black uppercase tracking-[0.5em]">Scroll to Deploy</span>
+          <div className="w-px h-16 bg-gradient-to-b from-yellow-400 to-transparent animate-pulse" />
+        </motion.div>
       </section>
 
       <GuideModal open={guideOpen} onClose={() => setGuideOpen(false)} />
