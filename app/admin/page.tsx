@@ -15,7 +15,9 @@ import ContentHub from "@/components/admin/ContentHub"
 import EventManager from "@/components/admin/EventManager"
 import AcademyManager from "@/components/admin/AcademyManager"
 import BrandManagementPanel from "@/components/admin/BrandManagementPanel"
-import { LogOut, LayoutDashboard, Users, Briefcase, Star, Settings, GraduationCap, BookOpen, FileText, BookMarked, MonitorPlay, Calendar, Image as ImageIcon, Layers } from "lucide-react"
+import AnnouncementManager from "@/components/admin/AnnouncementManager"
+import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard"
+import { LogOut, LayoutDashboard, Users, Briefcase, Star, Settings, GraduationCap, BookOpen, FileText, BookMarked, MonitorPlay, Calendar, Image as ImageIcon, Layers, Bell, BarChart3 } from "lucide-react"
 import { motion } from "framer-motion"
 
 export default function AdminDashboardPage() {
@@ -135,6 +137,18 @@ export default function AdminDashboardPage() {
 
 
           <NavItem
+            active={activeTab === 'analytics'}
+            icon={<BarChart3 className="h-5 w-5" />}
+            label="Intelligence Hub"
+            onClick={() => setActiveTab('analytics')}
+          />
+          <NavItem
+            active={activeTab === 'broadcasts'}
+            icon={<Bell className="h-5 w-5" />}
+            label="Home Broadcasts"
+            onClick={() => setActiveTab('broadcasts')}
+          />
+          <NavItem
             active={activeTab === 'brands'}
             disabled={!hasAccess('manageBrands')}
             icon={<Briefcase className="h-5 w-5" />}
@@ -199,6 +213,18 @@ export default function AdminDashboardPage() {
           {activeTab === 'users' && isStaff && hasAccess('users') && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
               <UserManagement />
+            </motion.div>
+          )}
+
+          {activeTab === 'analytics' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+              <AnalyticsDashboard />
+            </motion.div>
+          )}
+
+          {activeTab === 'broadcasts' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+              <AnnouncementManager />
             </motion.div>
           )}
 

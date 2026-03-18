@@ -14,10 +14,12 @@ import FounderStory from "@/components/home/FounderStory"
 import Community from "@/components/home/Community"
 import TrustedLogosSlider from "@/components/home/TrustedLogosSlider"
 import FinalCTA from "@/components/home/FinalCTA"
+import AnnouncementBanner from "@/components/home/AnnouncementBanner"
 
 export default function HomePage() {
   return (
     <main>
+      <AnnouncementBanner />
       {/* 1️⃣  Hero — "Become a Pro in 8 Weeks" + guide download */}
       <Hero />
 

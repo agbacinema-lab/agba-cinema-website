@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { Plus, Edit2, Trash2, X } from "lucide-react"
+import { Plus, Edit2, Trash2, X, RefreshCw } from "lucide-react"
 import { blogService, BlogPost } from "@/lib/services"
 import { db } from "@/lib/firebase"
 import { doc, deleteDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore"
@@ -16,6 +16,7 @@ import { toast } from "sonner"
 export default function BlogManager() {
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
+  const [syncing, setSyncing] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [formData, setFormData] = useState({
@@ -136,6 +137,24 @@ export default function BlogManager() {
     setShowForm(false)
   }
 
+  const handleSyncMedium = async () => {
+    setSyncing(true)
+    try {
+      const res = await fetch("/api/blog/sync")
+      const data = await res.json()
+      if (data.success) {
+        toast.success(data.message)
+        loadPosts()
+      } else {
+        toast.error(data.error || "Sync failed")
+      }
+    } catch {
+      toast.error("Network error during sync")
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -149,16 +168,27 @@ export default function BlogManager() {
       {/* Add Post Button */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-black">Blog Posts</h2>
-        <Button
-          onClick={() => {
-            resetForm()
-            setShowForm(true)
-          }}
-          className="bg-yellow-400 text-black font-bold h-14 px-6 rounded-2xl flex items-center gap-2"
-        >
-          <Plus className="h-5 w-5" />
-          New Post
-        </Button>
+        <div className="flex gap-4">
+          <Button
+            onClick={handleSyncMedium}
+            disabled={syncing}
+            variant="outline"
+            className="h-14 px-6 rounded-2xl border-2 border-gray-100 flex items-center gap-2 hover:border-black font-black uppercase text-[10px] tracking-widest transition-all"
+          >
+            <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+            {syncing ? 'Syncing...' : 'Sync Substack'}
+          </Button>
+          <Button
+            onClick={() => {
+              resetForm()
+              setShowForm(true)
+            }}
+            className="bg-yellow-400 text-black font-bold h-14 px-6 rounded-2xl flex items-center gap-2"
+          >
+            <Plus className="h-5 w-5" />
+            New Post
+          </Button>
+        </div>
       </div>
 
       {/* Form */}

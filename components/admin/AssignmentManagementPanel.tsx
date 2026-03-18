@@ -5,21 +5,21 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { 
-  ClipboardList, 
-  ChevronDown, 
-  ChevronUp, 
-  CheckCircle, 
-  RefreshCw, 
-  User, 
-  Eye, 
+import {
+  ClipboardList,
+  ChevronDown,
+  ChevronUp,
+  CheckCircle,
+  RefreshCw,
+  User,
+  Eye,
   X,
   Award,
   ArrowLeft,
   AlertCircle,
   ShieldCheck
 } from "lucide-react"
-import { assignmentService, studentService } from "@/lib/services"
+import { assignmentService, studentService, adminService } from "@/lib/services"
 import { useAuth } from "@/context/AuthContext"
 import { motion, AnimatePresence } from "framer-motion"
 import { toast } from "sonner"
@@ -38,7 +38,7 @@ function InternalViewer({ url, onClose }: { url: string; onClose: () => void }) 
   }
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       className="fixed inset-0 bg-black/95 backdrop-blur-2xl z-[9999] flex flex-col"
     >
@@ -131,12 +131,38 @@ export default function AssignmentManagementPanel() {
     }
   }
 
-  const handleGrade = async (assignmentId: string, submissionId: string) => {
+  const handleGrade = async (assignmentId: string, submissionId: string, submission: any) => {
     const score = Number(gradeData.grade)
     if (!gradeData.grade || !gradeData.feedback) { toast.error("Score and feedback are required."); return }
     const { status, label } = getGradeCategory(score)
     try {
       await assignmentService.gradeSubmission(assignmentId, submissionId, score, gradeData.feedback, status as any)
+
+      // ── EMAIL NOTIFICATION ──────────────────────────────────────────────────
+      try {
+        const student = await adminService.getUserById(submission.studentUID || submission.studentId);
+        if (student?.email) {
+          await fetch("/api/notifications/email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              to_email: student.email,
+              to_name: student.name ?? "Academy Student",
+              subject: `Evaluation Result: ${label}`,
+              message: `Your project for ${assignmentId} has been graded by a tutor.`,
+              template_params: {
+                grade: `${score}%`,
+                status: label,
+                feedback: gradeData.feedback,
+                assignment_title: assignments.find(a => a.id === assignmentId)?.title || "Your Project"
+              }
+            })
+          });
+        }
+      } catch (emailErr) {
+        console.error("Email notification failed", emailErr);
+      }
+
       toast.success(`Project finalized as ${label}!`)
       setGradingId(null)
       setGradeData({ grade: "", feedback: "" })
@@ -305,7 +331,7 @@ export default function AssignmentManagementPanel() {
                                           </div>
                                           <div className="flex flex-col gap-4 pt-4">
                                             <Button
-                                              onClick={() => handleGrade(assignment.id, submission.id)}
+                                              onClick={() => handleGrade(assignment.id, submission.id, submission)}
                                               className="w-full bg-black text-white font-black h-20 rounded-[1.5rem] hover:bg-yellow-400 hover:text-black transition-all shadow-2xl uppercase tracking-widest text-xs"
                                             >
                                               Commit Evaluation

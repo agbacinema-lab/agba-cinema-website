@@ -9,7 +9,7 @@ import {
   reauthenticateWithCredential,
   EmailAuthProvider
 } from "firebase/auth";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 
 export type UserRole = 'super_admin' | 'director' | 'head_of_department' | 'admin' | 'tutor' | 'staff' | 'student' | 'brand';
 
@@ -41,6 +41,8 @@ export const authService = {
           createdAt: serverTimestamp(),
           ...(role === 'student' && programType ? { programType } : {}),
           ...(role === 'student' && specialization ? { specialization } : {}),
+          ...(role === 'student' ? { studentId: `stu_${Math.floor(100000 + Math.random() * 900000)}` } : {}),
+          ...(role === 'tutor' ? { tutorId: `tut_${Math.floor(100000 + Math.random() * 900000)}` } : {}),
         };
         await setDoc(userRef, profile);
         
@@ -55,9 +57,8 @@ export const authService = {
             verified: false
           });
         } else if (role === 'student') {
-          const studentId = `AC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
           await setDoc(doc(db, "students", user.uid), {
-            studentId,
+            studentId: (profile as any).studentId,
             userId: user.uid,
             studentUID: user.uid,
             fullName: user.displayName || "New Student",
@@ -92,14 +93,14 @@ export const authService = {
         createdAt: serverTimestamp(),
         ...(role === 'student' && programType ? { programType } : {}),
         ...(role === 'student' && specialization ? { specialization } : {}),
+        ...(role === 'student' ? { studentId: `stu_${Math.floor(100000 + Math.random() * 900000)}` } : {}),
+        ...(role === 'tutor' ? { tutorId: `tut_${Math.floor(100000 + Math.random() * 900000)}` } : {}),
       };
       await setDoc(userRef, profile);
 
       if (role === 'student') {
-        // Create student document with auto-generated ID
-        const studentId = `AC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
         await setDoc(doc(db, "students", user.uid), {
-          studentId,
+          studentId: (profile as any).studentId,
           userId: user.uid,
           studentUID: user.uid,
           fullName: name,
@@ -107,12 +108,7 @@ export const authService = {
           skills: [],
           programType: programType || "gopro",
           specialization: specialization || "",
-          portfolioLinks: {
-            youtube: "",
-            drive: "",
-            behance: "",
-            website: ""
-          },
+          portfolioLinks: { youtube: "", drive: "", behance: "", website: "" },
           createdAt: serverTimestamp()
         });
       }

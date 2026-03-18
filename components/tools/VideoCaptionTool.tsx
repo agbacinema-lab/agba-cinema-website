@@ -160,15 +160,15 @@ export default function VideoCaptionTool() {
 
     const scaledSize = Math.max(fontSize * (resX / 1000), 34)
 
-    // Elite Style Definitions - Using unique font handle
-    let styleLine = `Style: Default,Inter-Agba,${scaledSize},&H00${bgrFF},&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,3,2,2,20,20,200,1`
+    // Elite Style Definitions - Using Arial as the stable handle
+    let styleLine = `Style: Default,Arial,${scaledSize},&H00${bgrFF},&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,3,2,2,20,20,200,1`
     
     if (captionStyle === "social" || captionStyle === "pop") {
-      styleLine = `Style: Default,Inter-Agba,${scaledSize + 16},&H00${bgrFF},&H000000FF,&H00000000,&H99000000,-1,0,0,0,100,100,0,0,3,0,0,2,30,30,240,1`
+      styleLine = `Style: Default,Arial,${scaledSize + 16},&H00${bgrFF},&H000000FF,&H00000000,&H99000000,-1,0,0,0,100,100,0,0,3,0,0,2,30,30,240,1`
     } else if (captionStyle === "cinematic" || captionStyle === "slide") {
-      styleLine = `Style: Default,Inter-Agba,${scaledSize - 2},&H00FFFFFF,&H000000FF,&H00000000,&HAA000000,0,0,0,0,110,100,1,0,1,2,0,2,40,40,160,1`
+      styleLine = `Style: Default,Arial,${scaledSize - 2},&H00FFFFFF,&H000000FF,&H00000000,&HAA000000,0,0,0,0,110,100,1,0,1,2,0,2,40,40,160,1`
     } else if (captionStyle === "glow") {
-      styleLine = `Style: Default,Inter-Agba,${scaledSize},&H00FFFFFF,&H000000FF,&H00${bgrFF},&H44${bgrFF},0,0,0,0,100,100,0,0,1,4,2,2,20,20,200,1`
+      styleLine = `Style: Default,Arial,${scaledSize},&H00FFFFFF,&H000000FF,&H00${bgrFF},&H44${bgrFF},0,0,0,0,100,100,0,0,1,4,2,2,20,20,200,1`
     }
 
     const header = `[Script Info]
@@ -372,8 +372,10 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         const fontRes = await fetch("https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/inter/static/Inter-Bold.ttf")
         if (fontRes.ok) {
           const fontData = new Uint8Array(await fontRes.arrayBuffer())
+          // Save as both for maximum compatibility with different libass builds
           await ffmpeg.writeFile("Inter-Agba.ttf", fontData)
-          console.log("Elite Font Injected: Inter-Agba.ttf")
+          await ffmpeg.writeFile("Arial.ttf", fontData) 
+          console.log("Elite Font Injected: Inter-Agba.ttf / Arial.ttf")
         }
       } catch (e) { }
 
@@ -400,9 +402,11 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
       const targetH = isPortrait ? 960 : 540
       
       const scaleFilter = `scale=${targetW}:${targetH}:force_original_aspect_ratio=decrease,pad=${targetW}:${targetH}:(ow-iw)/2:(oh-ih)/2:black`
-      const vfChain = `${scaleFilter},subtitles=f=${subName}:fontsdir=.`
+      
+      // CRITICAL FIX: Ensure fontsdir is absolute or matches the written file
+      const vfChain = `${scaleFilter},subtitles=${subName}:fontsdir=.`
 
-      console.log("Starting FFmpeg Render with Config:", { targetW, targetH, vfChain })
+      console.log("Executing Burn Command:", vfChain)
       
       try {
         await ffmpeg.exec([
@@ -410,7 +414,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
           "-vf", vfChain,
           "-c:v", "libx264",
           "-preset", "ultrafast",
-          "-crf", "25",
+          "-crf", "28", // Slightly higher compression for faster browser processing
           "-c:a", "aac",
           "-b:a", "128k",
           "-af", audioFilter,

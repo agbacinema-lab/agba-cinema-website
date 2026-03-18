@@ -309,3 +309,14 @@ export interface AssignmentSubmission {
   feedback?: string;
   status: 'submitted' | 'graded' | 'revision_needed';
 }
+
+export interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  isActive: boolean;
+  priority: 'low' | 'medium' | 'high';
+  link?: string;
+  createdAt: any;
+  updatedAt: any;
+}

@@ -1,5 +1,5 @@
-
 import { NextRequest, NextResponse } from "next/server"
+import { adminService } from "@/lib/services"
 
 export async function GET(request: NextRequest, { params }: { params: { reference: string } }) {
   const reference = params.reference
@@ -81,6 +81,23 @@ export async function GET(request: NextRequest, { params }: { params: { referenc
         });
       } catch (sheetError) {
         console.error("Failed to append to sheet", sheetError);
+      }
+
+      // 3. Log to Firestore for Analytics
+      try {
+        await adminService.logPayment({
+           reference: tx.reference,
+           fullName: fullName,
+           email: toEmail,
+           amount: tx.amount / 100, // Normalized to NGN
+           service: service,
+           category: tx.metadata?.category || "general",
+           status: tx.status,
+           customerEmail: toEmail,
+           isNewStudent: tx.metadata?.type === "academy_enrollment"
+        });
+      } catch (logError) {
+        console.error("Failed to log payment to firestore", logError);
       }
     }
 

@@ -24,7 +24,8 @@ import {
   AdminProfile,
   ApprovalRequest,
   BrandMeeting,
-  PerformanceFeedback
+  PerformanceFeedback,
+  Announcement
 } from "./types";
 
 // BLOG SERVICE
@@ -110,6 +111,21 @@ export const adminService = {
     return snapshot.docs.map(doc => doc.data() as UserProfile);
   },
 
+  getUserById: async (id: string): Promise<UserProfile | null> => {
+    // If it's a student or tutor ID (public format)
+    if (id.startsWith('stu_') || id.startsWith('tut_')) {
+      const field = id.startsWith('stu_') ? 'studentId' : 'tutorId'
+      const q = query(collection(db, "users"), where(field, "==", id), limit(1))
+      const snap = await getDocs(q)
+      if (snap.empty) return null
+      return snap.docs[0].data() as UserProfile
+    }
+    
+    // Otherwise assume it's a Firebase UID
+    const snap = await getDoc(doc(db, "users", id));
+    return snap.exists() ? snap.data() as UserProfile : null;
+  },
+
   promoteToAdmin: async (userId: string, type: 'tutor' | 'staff' | 'both'): Promise<void> => {
     await updateDoc(doc(db, "users", userId), { role: 'admin' });
     await setDoc(doc(db, "admins", userId), {
@@ -183,6 +199,64 @@ export const adminService = {
     await updateDoc(adminRef, {
       [`permissions.${permission}`]: value
     });
+  },
+
+  getAnnouncements: async (): Promise<Announcement[]> => {
+    const col = collection(db, "announcements");
+    const snapshot = await getDocs(query(col, orderBy("createdAt", "desc")));
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Announcement));
+  },
+
+  createAnnouncement: async (ann: Omit<Announcement, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> => {
+    const col = collection(db, "announcements");
+    const docRef = await addDoc(col, {
+       ...ann,
+       createdAt: serverTimestamp(),
+       updatedAt: serverTimestamp()
+    });
+    return docRef.id;
+  },
+
+  updateAnnouncement: async (id: string, data: Partial<Announcement>): Promise<void> => {
+    await updateDoc(doc(db, "announcements", id), {
+      ...data,
+      updatedAt: serverTimestamp()
+    });
+  },
+
+  deleteAnnouncement: async (id: string): Promise<void> => {
+    await deleteDoc(doc(db, "announcements", id));
+  },
+
+  getSalesStats: async () => {
+    const col = collection(db, "payments");
+    const q = query(col, orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
+    
+    const raw = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const totalRevenue = raw.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+    const count = raw.length;
+    
+    return { totalRevenue, count, transactions: raw };
+  },
+
+  logPayment: async (data: any) => {
+    const col = collection(db, "payments");
+    await addDoc(col, {
+      ...data,
+      createdAt: serverTimestamp()
+    });
+  },
+
+  getEngagementData: async () => {
+    // Basic engagement tracking based on user roles and registrations for now
+    const users = await adminService.getAllUsers();
+    return {
+       totalUsers: users.length,
+       students: users.filter(u => u.role === 'student').length,
+       brands: users.filter(u => u.role === 'brand').length,
+       staff: users.filter(u => u.role !== 'student' && u.role !== 'brand').length
+    };
   }
 };
 
