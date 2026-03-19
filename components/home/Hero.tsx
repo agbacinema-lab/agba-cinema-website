@@ -6,6 +6,8 @@ import { Download, ArrowRight, Zap, Play } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
 
+import Image from "next/image"
+
 function GuideModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [email, setEmail] = useState("")
   const [name, setName] = useState("")
@@ -96,9 +98,13 @@ export default function Hero() {
       <section className="relative min-h-screen flex items-center justify-center bg-[#050505] text-white overflow-hidden">
         {/* Background Atmosphere */}
         <div className="absolute inset-0 z-0">
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat grayscale-[40%] scale-105"
-            style={{ backgroundImage: "url('/cinematic-video-setup.png')" }}
+          <Image
+            src="/cinematic-video-setup.png"
+            alt="Cinematic Video Setup"
+            fill
+            quality={60}
+            priority
+            className="object-cover object-center grayscale-[40%] scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-[#050505]" />
           <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />

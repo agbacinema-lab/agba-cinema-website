@@ -119,75 +119,129 @@ export default function BrandDashboard() {
     )
   }
 
+  const BRAND_TABS = [
+    { id: "overview",  label: "Overview", icon: LayoutDashboard },
+    { id: "roster",    label: "Talent",   icon: Users },
+    { id: "requests",  label: "Requests", icon: ClipboardList },
+    { id: "interns",   label: "Interns",  icon: Clock },
+    { id: "meetings",  label: "Strategy", icon: Calendar },
+    { id: "settings",  label: "Config",   icon: Settings },
+  ]
+
   return (
-    <div className="min-h-screen bg-[#FDFCF6] flex flex-col md:flex-row shadow-2xl overflow-hidden pt-20">
-      {/* Sidebar */}
-      <aside className="w-full md:w-80 bg-black text-white p-8 flex flex-col border-r border-white/5 pt-24 shrink-0">
-        <div className="mb-12">
-          <div className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-400 mb-2">Partner Portal</div>
-          <h1 className="text-2xl font-black italic uppercase tracking-tighter">{brandData?.companyName || "Your Brand"}</h1>
+    <div className="min-h-screen bg-[#FDFCF6] text-black">
+      {/* ── TOP HEADER ── */}
+      <header className="fixed top-0 inset-x-0 z-50 h-16 bg-black text-white flex items-center justify-between px-4 md:px-6 shadow-2xl">
+        <div>
+          <p className="text-[9px] text-yellow-400 font-black uppercase tracking-[0.3em]">Partner Portal</p>
+          <h1 className="text-base font-black italic tracking-tighter leading-none uppercase">
+            {brandData?.companyName || "Your Brand"}
+          </h1>
         </div>
-
-        <nav className="space-y-2 flex-grow">
-          <NavItem active={activeTab === "overview"} icon={<LayoutDashboard className="h-5 w-5" />} label="Command Overview" onClick={() => setActiveTab("overview")} />
-          <NavItem active={activeTab === "roster"} icon={<Users className="h-5 w-5" />} label="Scout Talent" onClick={() => setActiveTab("roster")} />
-          <NavItem active={activeTab === "requests"} icon={<ClipboardList className="h-5 w-5" />} label="Hire Requests" onClick={() => setActiveTab("requests")} />
-          <NavItem active={activeTab === "interns"} icon={<Clock className="h-5 w-5" />} label="Active Interns" onClick={() => setActiveTab("interns")} />
-          <NavItem active={activeTab === "meetings"} icon={<Calendar className="h-5 w-5" />} label="Book Strategy" onClick={() => setActiveTab("meetings")} />
-          <NavItem active={activeTab === "settings"} icon={<Settings className="h-5 w-5" />} label="Configuration" onClick={() => setActiveTab("settings")} />
-        </nav>
-
-        <Button 
-          variant="ghost" 
-          onClick={() => authService.logout()}
-          className="mt-10 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl justify-start p-4 h-auto font-bold"
-        >
-          <LogOut className="h-5 w-5 mr-3" /> Log Out
-        </Button>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-grow p-8 md:p-16 overflow-y-auto pt-24 pb-32">
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-16">
-          <div>
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-2 italic uppercase tracking-tighter">The Operational Hub</h2>
-            <p className="text-gray-500 font-medium italic">Welcome back, {brandData?.contactPerson?.split(' ')[0] || "Partner"}.</p>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-yellow-400 rounded-xl flex items-center justify-center text-black font-black text-lg">
+            {brandData?.companyName?.[0] || "B"}
           </div>
-          <div className="flex items-center gap-4 bg-white p-4 rounded-3xl shadow-premium border border-gray-100">
-             <div className="w-14 h-14 bg-yellow-400 rounded-2xl flex items-center justify-center font-black text-2xl text-black">
-                {brandData?.companyName?.[0] || "B"}
-             </div>
-             <div>
-                <p className="text-xs font-black uppercase tracking-tighter text-gray-900">{brandData?.companyName}</p>
-                <div className="flex items-center gap-2 mt-0.5">
-                   <div className={`w-1.5 h-1.5 rounded-full ${brandData?.hasPaidAccess ? 'bg-green-500' : 'bg-yellow-500'} animate-pulse`} />
-                   <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest">{brandData?.hasPaidAccess ? "LOCKED-IN ACCREDITED" : "PROBATION ACCOUNT"}</p>
+        </div>
+      </header>
+
+      <div className="flex pt-16">
+        {/* ── DESKTOP SIDEBAR ── */}
+        <aside className="hidden md:flex flex-col w-72 fixed top-16 bottom-0 left-0 bg-black text-white p-5 border-r border-white/5 overflow-y-auto">
+          {/* Status card */}
+          <div className="bg-white/5 rounded-2xl p-4 mb-6">
+            <div className="flex items-center gap-2 mb-1">
+              <div className={`w-2 h-2 rounded-full ${brandData?.hasPaidAccess ? 'bg-green-500' : 'bg-yellow-500'} animate-pulse`} />
+              <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest">
+                {brandData?.hasPaidAccess ? "Accredited" : "Probation"}
+              </p>
+            </div>
+            <p className="text-sm font-black truncate">{brandData?.contactPerson}</p>
+          </div>
+
+          <nav className="flex-1 space-y-1.5">
+            {BRAND_TABS.map(tab => (
+              <NavItem key={tab.id} active={activeTab === tab.id} icon={<tab.icon className="h-4 w-4" />} label={tab.label} onClick={() => setActiveTab(tab.id)} />
+            ))}
+          </nav>
+
+          <Button variant="ghost" onClick={() => authService.logout()} className="mt-6 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl justify-start p-4 h-auto font-bold border-t border-white/10 pt-4">
+            <LogOut className="h-4 w-4 mr-3" /> Log Out
+          </Button>
+        </aside>
+
+        {/* ── MAIN CONTENT ── */}
+        <main className="flex-1 md:ml-72 min-h-[calc(100vh-4rem)] overflow-y-auto">
+          {/* Mobile page title */}
+          <div className="md:hidden bg-white border-b border-gray-100 px-4 py-3 sticky top-16 z-40">
+            <h2 className="font-black text-sm uppercase tracking-widest text-gray-800">
+              {BRAND_TABS.find(t => t.id === activeTab)?.label || 'Overview'}
+            </h2>
+          </div>
+
+          <div className="p-4 md:p-12 pb-24 md:pb-12">
+            <div className="hidden md:flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+              <div>
+                <h2 className="text-4xl font-black text-gray-900 mb-2 italic uppercase tracking-tighter">The Operational Hub</h2>
+                <p className="text-gray-500 font-medium italic">Welcome back, {brandData?.contactPerson?.split(' ')[0] || "Partner"}.</p>
+              </div>
+              <div className="flex items-center gap-4 bg-white p-4 rounded-3xl shadow-sm border border-gray-100">
+                <div className="w-12 h-12 bg-yellow-400 rounded-2xl flex items-center justify-center font-black text-xl text-black">{brandData?.companyName?.[0] || "B"}</div>
+                <div>
+                  <p className="text-xs font-black uppercase tracking-tighter text-gray-900">{brandData?.companyName}</p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <div className={`w-1.5 h-1.5 rounded-full ${brandData?.hasPaidAccess ? 'bg-green-500' : 'bg-yellow-500'} animate-pulse`} />
+                    <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest">{brandData?.hasPaidAccess ? "Accredited" : "Probation"}</p>
+                  </div>
                 </div>
-             </div>
-          </div>
-        </header>
+              </div>
+            </div>
 
-        <AnimatePresence mode="wait">
-          {activeTab === "overview" && <OverviewTab brandData={brandData} stats={{ interns: activeInterns.length, requests: requests.length }} onUpdateBrief={() => setActiveTab("settings")} />}
-          {activeTab === "roster" && <RosterTab talents={talents} hasPaidAccess={brandData?.hasPaidAccess || false} onRefresh={loadData} onRecruit={handleRecruit} isRecruiting={isRecruiting} />}
-          {activeTab === "requests" && <RequestsTab requests={requests} />}
-          {activeTab === "interns" && <InternsTab interns={activeInterns} onRefresh={loadData} />}
-          {activeTab === "meetings" && <MeetingTab brandName={brandData?.companyName || ""} brandId={profile?.uid || ""} />}
-          {activeTab === "settings" && <BrandSettings brandData={brandData} onRefresh={loadData} />}
-        </AnimatePresence>
-      </main>
+            <AnimatePresence mode="wait">
+              {activeTab === "overview" && <OverviewTab brandData={brandData} stats={{ interns: activeInterns.length, requests: requests.length }} onUpdateBrief={() => setActiveTab("settings")} />}
+              {activeTab === "roster" && <RosterTab talents={talents} hasPaidAccess={brandData?.hasPaidAccess || false} onRefresh={loadData} onRecruit={handleRecruit} isRecruiting={isRecruiting} />}
+              {activeTab === "requests" && <RequestsTab requests={requests} />}
+              {activeTab === "interns" && <InternsTab interns={activeInterns} onRefresh={loadData} />}
+              {activeTab === "meetings" && <MeetingTab brandName={brandData?.companyName || ""} brandId={profile?.uid || ""} />}
+              {activeTab === "settings" && <BrandSettings brandData={brandData} onRefresh={loadData} />}
+            </AnimatePresence>
+          </div>
+        </main>
+      </div>
+
+      {/* ── MOBILE BOTTOM TAB BAR ── */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-black border-t border-white/10 flex items-stretch">
+        {BRAND_TABS.map((tab) => {
+          const isActive = activeTab === tab.id
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 transition-colors ${isActive ? 'text-yellow-400' : 'text-gray-500'}`}
+            >
+              <tab.icon className={`h-5 w-5 ${isActive ? 'stroke-[2.5]' : ''}`} />
+              <span className={`text-[8px] font-black uppercase tracking-wider ${isActive ? 'text-yellow-400' : 'text-gray-600'}`}>{tab.label}</span>
+            </button>
+          )
+        })}
+        <button onClick={() => authService.logout()} className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-red-500">
+          <LogOut className="h-5 w-5" />
+          <span className="text-[8px] font-black uppercase tracking-wider">Exit</span>
+        </button>
+      </nav>
     </div>
   )
 }
 
 function NavItem({ active, icon, label, onClick }: any) {
   return (
-    <button onClick={onClick} className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all font-black text-[11px] uppercase tracking-tighter ${active ? 'bg-yellow-400 text-black shadow-xl shadow-yellow-400/20' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}>
-      <div className={`${active ? 'text-black' : 'text-gray-500'} transition-colors`}>{icon}</div>
+    <button onClick={onClick} className={`w-full flex items-center gap-3 px-4 h-12 rounded-2xl transition-all font-black text-xs uppercase tracking-wider ${active ? 'bg-yellow-400 text-black shadow-lg shadow-yellow-400/20' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>
+      <div className={`${active ? 'text-black' : 'text-gray-500'}`}>{icon}</div>
       {label}
     </button>
   )
 }
+
 
 function OverviewTab({ brandData, stats, onUpdateBrief }: any) {
   return (

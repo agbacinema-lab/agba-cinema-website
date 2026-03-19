@@ -79,206 +79,183 @@ export default function AdminDashboardPage() {
     return null
   }
 
+  // Build a flat list of visible tabs for mobile bar
+  const mobileTabs = [
+    { id: 'overview', label: 'Home', icon: LayoutDashboard },
+    ...(isStaff ? [
+      { id: 'users', label: 'Users', icon: Users },
+      { id: 'readiness', label: 'Ready', icon: GraduationCap },
+      { id: 'assignments', label: 'Tasks', icon: BookOpen },
+    ] : []),
+    { id: 'analytics', label: 'Stats', icon: BarChart3 },
+    { id: 'broadcasts', label: 'Alerts', icon: Bell },
+    { id: 'brands', label: 'Brands', icon: Briefcase },
+    { id: 'settings', label: 'Settings', icon: Settings },
+  ]
+
   return (
-    <div className="min-h-screen bg-[#FDFCF6] flex flex-col md:flex-row shadow-2xl overflow-hidden">
+    <div className="min-h-screen bg-[#FDFCF6] text-black">
       {isSuperAdmin && <NotificationBar />}
-      {/* Sidebar navigation */}
-      <aside className="w-full md:w-80 bg-black text-white p-8 flex flex-col pt-24 border-r border-white/5">
-        <div className="mb-12">
-          <div className="text-sm font-black uppercase tracking-widest text-yellow-400 mb-2">Portal</div>
-          <h1 className="text-2xl font-black">{profile?.role?.replace('_', ' ')}</h1>
+
+      {/* ── TOP HEADER ── */}
+      <header className="fixed top-0 inset-x-0 z-50 h-16 bg-black text-white flex items-center justify-between px-4 md:px-6 shadow-2xl">
+        <div>
+          <p className="text-[9px] text-yellow-400 font-black uppercase tracking-[0.3em]">Admin Portal</p>
+          <h1 className="text-base font-black italic tracking-tighter leading-none capitalize">
+            {profile?.role?.replace('_', ' ')}
+          </h1>
         </div>
+        <div className="flex items-center gap-3">
+          <div className="hidden md:block text-right">
+            <p className="text-xs font-black text-gray-400 uppercase tracking-widest">{profile?.name}</p>
+            <p className="text-[9px] text-gray-600">{profile?.email}</p>
+          </div>
+          <div className="w-9 h-9 rounded-full bg-yellow-400 flex items-center justify-center text-black font-black text-sm">
+            {profile?.name[0]}
+          </div>
+        </div>
+      </header>
 
-        <nav className="space-y-2 flex-grow">
-          <NavItem
-            active={activeTab === 'overview'}
-            disabled={!hasAccess('overview')}
-            icon={<LayoutDashboard className="h-5 w-5" />}
-            label="Overview"
-            onClick={() => setActiveTab('overview')}
-          />
-          {isStaff && (
-            <>
-              <NavItem
-                active={activeTab === 'users'}
-                disabled={!hasAccess('users')}
-                icon={<Users className="h-5 w-5" />}
-                label="User Management"
-                onClick={() => setActiveTab('users')}
-              />
-              <NavItem
-                active={activeTab === 'readiness'}
-                disabled={!hasAccess('readiness')}
-                icon={<GraduationCap className="h-5 w-5" />}
-                label="Internship Ready"
-                onClick={() => setActiveTab('readiness')}
-              />
-              <NavItem
-                active={activeTab === 'courses'}
-                disabled={!hasAccess('courses')}
-                icon={<BookMarked className="h-5 w-5" />}
-                label="Course Builder"
-                onClick={() => setActiveTab('courses')}
-              />
-              <NavItem
-                active={activeTab === 'content'}
-                disabled={!hasAccess('content')}
-                icon={<Layers className="h-5 w-5" />}
-                label="Content Hub"
-                onClick={() => setActiveTab('content')}
-              />
-              <NavItem
-                active={activeTab === 'assignments'}
-                disabled={!hasAccess('assignments')}
-                icon={<BookOpen className="h-5 w-5" />}
-                label="Manage Assignments"
-                onClick={() => setActiveTab('assignments')}
-              />
-              <NavItem
-                active={activeTab === 'profile'}
-                icon={<UserCircle className="h-5 w-5" />}
-                label="Personnel Identity"
-                onClick={() => setActiveTab('profile')}
-              />
-            </>
-          )}
+      <div className="flex pt-16">
+        {/* ── DESKTOP SIDEBAR ── */}
+        <aside className="hidden md:flex flex-col w-72 fixed top-16 bottom-0 left-0 bg-black text-white p-5 border-r border-white/5 overflow-y-auto">
+          <nav className="flex-1 space-y-1.5 mt-4">
+            <NavItem active={activeTab === 'overview'} disabled={!hasAccess('overview')} icon={<LayoutDashboard className="h-4 w-4" />} label="Overview" onClick={() => setActiveTab('overview')} />
+            {isStaff && (
+              <>
+                <NavItem active={activeTab === 'users'} disabled={!hasAccess('users')} icon={<Users className="h-4 w-4" />} label="User Management" onClick={() => setActiveTab('users')} />
+                <NavItem active={activeTab === 'readiness'} disabled={!hasAccess('readiness')} icon={<GraduationCap className="h-4 w-4" />} label="Internship Ready" onClick={() => setActiveTab('readiness')} />
+                <NavItem active={activeTab === 'courses'} disabled={!hasAccess('courses')} icon={<BookMarked className="h-4 w-4" />} label="Course Builder" onClick={() => setActiveTab('courses')} />
+                <NavItem active={activeTab === 'content'} disabled={!hasAccess('content')} icon={<Layers className="h-4 w-4" />} label="Content Hub" onClick={() => setActiveTab('content')} />
+                <NavItem active={activeTab === 'assignments'} disabled={!hasAccess('assignments')} icon={<BookOpen className="h-4 w-4" />} label="Manage Assignments" onClick={() => setActiveTab('assignments')} />
+                <NavItem active={activeTab === 'profile'} icon={<UserCircle className="h-4 w-4" />} label="Personnel Identity" onClick={() => setActiveTab('profile')} />
+              </>
+            )}
+            <NavItem active={activeTab === 'analytics'} icon={<BarChart3 className="h-4 w-4" />} label="Intelligence Hub" onClick={() => setActiveTab('analytics')} />
+            <NavItem active={activeTab === 'broadcasts'} icon={<Bell className="h-4 w-4" />} label="Home Broadcasts" onClick={() => setActiveTab('broadcasts')} />
+            <NavItem active={activeTab === 'brands'} disabled={!hasAccess('manageBrands')} icon={<Briefcase className="h-4 w-4" />} label="Brands & Partners" onClick={() => setActiveTab('brands')} />
+            {isBrand && <NavItem active={activeTab === 'requests'} icon={<Briefcase className="h-4 w-4" />} label="Talent Requests" onClick={() => setActiveTab('requests')} />}
+            <NavItem active={activeTab === 'settings'} disabled={!hasAccess('settings')} icon={<Settings className="h-4 w-4" />} label="Settings" onClick={() => setActiveTab('settings')} />
+          </nav>
+          <Button variant="ghost" onClick={() => authService.logout()} className="mt-6 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl justify-start p-4 h-auto font-bold border-t border-white/10 pt-4">
+            <LogOut className="h-4 w-4 mr-3" /> Log Out
+          </Button>
+        </aside>
+
+        {/* Main content area */}
+        <main className="flex-1 md:ml-72 min-h-[calc(100vh-4rem)] overflow-y-auto">
+          {/* Mobile page title */}
+          <div className="md:hidden bg-white border-b border-gray-100 px-4 py-3 sticky top-16 z-40">
+            <h2 className="font-black text-sm uppercase tracking-widest text-gray-800">
+              {mobileTabs.find(t => t.id === activeTab)?.label || 'Overview'}
+            </h2>
+          </div>
+
+          <div className="p-4 md:p-12 pb-24 md:pb-12 max-w-6xl">
+            <div className="hidden md:block mb-10">
+              <h2 className="text-4xl font-black text-gray-900 mb-2 capitalize">Welcome, {profile?.name.split(' ')[0]}</h2>
+              <p className="text-gray-500 font-medium">Here's what's happening in the ÀGBÀ ecosystem.</p>
+            </div>
+
+            {activeTab === 'overview' && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <StatCard label="Total Projects" value="12" subtext="+2 this month" color="bg-blue-50 text-blue-600" />
+                <StatCard label="Live Profile" value="Public" subtext="Viewable by brands" color="bg-green-50 text-green-600" />
+                <StatCard label="Feedback" value="4.8/5" subtext="From 3 tutors" color="bg-yellow-50 text-yellow-600" />
+              </motion.div>
+            )}
+
+            {activeTab === 'users' && isStaff && hasAccess('users') && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <UserManagement />
+              </motion.div>
+            )}
+
+            {activeTab === 'analytics' && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <AnalyticsDashboard />
+              </motion.div>
+            )}
+
+            {activeTab === 'broadcasts' && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <AnnouncementManager />
+              </motion.div>
+            )}
+
+            {activeTab === 'brands' && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <BrandManagementPanel />
+              </motion.div>
+            )}
+
+            {activeTab === 'readiness' && isStaff && hasAccess('readiness') && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <StudentReadiness />
+              </motion.div>
+            )}
+
+            {activeTab === 'courses' && isStaff && hasAccess('courses') && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <CurriculumAdminPanel />
+              </motion.div>
+            )}
+
+            {activeTab === 'content' && isStaff && hasAccess('content') && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <ContentHub />
+              </motion.div>
+            )}
+
+            {activeTab === 'assignments' && isStaff && hasAccess('assignments') && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <AssignmentManagementPanel />
+              </motion.div>
+            )}
+
+            {activeTab === 'profile' && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <AdminProfile />
+              </motion.div>
+            )}
+
+            {activeTab === 'settings' && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <AdminSettings />
+              </motion.div>
+            )}
+          </div>
+
+        </main>
+      </div>
 
 
-          <NavItem
-            active={activeTab === 'analytics'}
-            icon={<BarChart3 className="h-5 w-5" />}
-            label="Intelligence Hub"
-            onClick={() => setActiveTab('analytics')}
-          />
-          <NavItem
-            active={activeTab === 'broadcasts'}
-            icon={<Bell className="h-5 w-5" />}
-            label="Home Broadcasts"
-            onClick={() => setActiveTab('broadcasts')}
-          />
-          <NavItem
-            active={activeTab === 'brands'}
-            disabled={!hasAccess('manageBrands')}
-            icon={<Briefcase className="h-5 w-5" />}
-            label="Brands & Partners"
-            onClick={() => setActiveTab('brands')}
-          />
-          {isBrand && (
-            <NavItem
-              active={activeTab === 'requests'}
-              icon={<Briefcase className="h-5 w-5" />}
-              label="Talent Requests"
-              onClick={() => setActiveTab('requests')}
-            />
-          )}
-          <NavItem
-            active={activeTab === 'settings'}
-            disabled={!hasAccess('settings')}
-            icon={<Settings className="h-5 w-5" />}
-            label="Settings"
-            onClick={() => setActiveTab('settings')}
-          />
-        </nav>
-
-        <Button
-          variant="ghost"
+      {/* ── MOBILE BOTTOM TAB BAR ── */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-black border-t border-white/10 flex items-stretch overflow-x-auto">
+        {mobileTabs.map((tab) => {
+          const Icon = tab.icon
+          const isActive = activeTab === tab.id
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 min-w-[56px] flex flex-col items-center justify-center gap-0.5 py-2.5 transition-colors ${isActive ? 'text-yellow-400' : 'text-gray-500'}`}
+            >
+              <Icon className={`h-5 w-5 ${isActive ? 'stroke-[2.5]' : ''}`} />
+              <span className={`text-[8px] font-black uppercase tracking-wider whitespace-nowrap ${isActive ? 'text-yellow-400' : 'text-gray-600'}`}>
+                {tab.label}
+              </span>
+            </button>
+          )
+        })}
+        <button
           onClick={() => authService.logout()}
-          className="mt-20 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl justify-start p-4 h-auto font-bold"
+          className="flex-1 min-w-[56px] flex flex-col items-center justify-center gap-0.5 py-2.5 text-red-500"
         >
-          <LogOut className="h-5 w-5 mr-3" />
-          Log Out
-        </Button>
-      </aside>
-
-      {/* Main content area */}
-      <main className="flex-grow p-8 md:p-20 pt-24 overflow-y-auto">
-        <header className="flex justify-between items-center mb-12">
-          <div>
-            <h2 className="text-4xl font-black text-gray-900 mb-2 capitalize">Welcome, {profile?.name.split(' ')[0]}</h2>
-            <p className="text-gray-500 font-medium">Here's what's happening in the ÀGBÀ ecosystem.</p>
-          </div>
-          <div className="hidden md:flex items-center gap-4 bg-white p-2 rounded-2xl shadow-sm border border-gray-100">
-            <div className="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center font-black">
-              {profile?.name[0]}
-            </div>
-            <div className="pr-4">
-              <p className="text-sm font-bold text-gray-900">{profile?.name}</p>
-              <p className="text-xs text-gray-400">{profile?.email}</p>
-            </div>
-          </div>
-        </header>
-
-        {/* Content Tabs */}
-        <div className="max-w-6xl">
-          {activeTab === 'overview' && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <StatCard label="Total Projects" value="12" subtext="+2 this month" color="bg-blue-50 text-blue-600" />
-              <StatCard label="Live Profile" value="Public" subtext="Viewable by brands" color="bg-green-50 text-green-600" />
-              <StatCard label="Feedback" value="4.8/5" subtext="From 3 tutors" color="bg-yellow-50 text-yellow-600" />
-            </motion.div>
-          )}
-
-          {activeTab === 'users' && isStaff && hasAccess('users') && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <UserManagement />
-            </motion.div>
-          )}
-
-          {activeTab === 'analytics' && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <AnalyticsDashboard />
-            </motion.div>
-          )}
-
-          {activeTab === 'broadcasts' && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <AnnouncementManager />
-            </motion.div>
-          )}
-
-          {activeTab === 'brands' && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <BrandManagementPanel />
-            </motion.div>
-          )}
-
-          {activeTab === 'readiness' && isStaff && hasAccess('readiness') && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <StudentReadiness />
-            </motion.div>
-          )}
-
-          {activeTab === 'courses' && isStaff && hasAccess('courses') && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <CurriculumAdminPanel />
-            </motion.div>
-          )}
-
-          {activeTab === 'content' && isStaff && hasAccess('content') && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <ContentHub />
-            </motion.div>
-          )}
-
-          {activeTab === 'assignments' && isStaff && hasAccess('assignments') && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <AssignmentManagementPanel />
-            </motion.div>
-          )}
-
-          {activeTab === 'profile' && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <AdminProfile />
-            </motion.div>
-          )}
-
-          {activeTab === 'settings' && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <AdminSettings />
-            </motion.div>
-          )}
-        </div>
-      </main>
+          <LogOut className="h-5 w-5" />
+          <span className="text-[8px] font-black uppercase tracking-wider">Exit</span>
+        </button>
+      </nav>
     </div>
   )
 }
