@@ -24,13 +24,27 @@ export default function StudentReadiness() {
 
   useEffect(() => {
     const fetchStudents = async () => {
-      const q = query(collection(db, "students"), where("status", "!=", "internship_ready"))
-      const snap = await getDocs(q)
-      setStudents(snap.docs.map(doc => doc.data() as StudentProfile))
-      setLoading(false)
+      try {
+        const snap = await getDocs(collection(db, "students"))
+        const allStudents = snap.docs.map(doc => doc.data() as StudentProfile)
+        
+        // Filter out anyone who is already marked as ready
+        let available = allStudents.filter(s => s.status !== "internship_ready")
+
+        // If the current user is a tutor, restrict the view to ONLY their assigned students
+        if (currentAdmin?.role === 'tutor') {
+           available = available.filter(s => (s as any).tutorId === currentAdmin.uid || (s as any).tutorName === currentAdmin.name)
+        }
+
+        setStudents(available)
+        setLoading(false)
+      } catch (err) {
+        console.error("Error fetching students:", err)
+        setLoading(false)
+      }
     }
-    fetchStudents()
-  }, [])
+    if (currentAdmin) fetchStudents()
+  }, [currentAdmin])
 
   const initiateReadiness = (student: StudentProfile) => {
     setPendingStudent(student)

@@ -5,10 +5,10 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Plus, Trash2, Edit2, X, Zap, Users } from "lucide-react"
 import { specializationService } from "@/lib/services"
+import { useAuth } from "@/context/AuthContext"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
 
@@ -21,6 +21,7 @@ export default function SpecializationManager({
   programFilter, 
   onManageSpecialization 
 }: SpecializationManagerProps = {}) {
+  const { profile } = useAuth()
   const [specializations, setSpecializations] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -42,7 +43,13 @@ export default function SpecializationManager({
     try {
       setLoading(true)
       const data = await specializationService.getAllSpecializations()
-      setSpecializations(data)
+      
+      // If user is restricted to a specific course, hide all others
+      if (profile && ['tutor', 'staff', 'admin'].includes(profile.role) && (profile as any).specialization) {
+         setSpecializations(data.filter((s:any) => s.value === (profile as any).specialization))
+      } else {
+         setSpecializations(data)
+      }
     } catch (error) {
       console.error("Error loading specializations:", error)
     } finally {

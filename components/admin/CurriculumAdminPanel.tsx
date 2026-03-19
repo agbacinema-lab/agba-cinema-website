@@ -1,18 +1,38 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Zap, Users, BookOpen } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { useAuth } from "@/context/AuthContext"
 import CurriculumCreator from "./CurriculumCreator"
 import CurriculumSelector from "./CurriculumSelector"
 import CurriculumManager from "./CurriculumManager"
 import SpecializationManager from "./SpecializationManager"
 
 export default function CurriculumAdminPanel() {
+  const { profile, isSuperAdmin } = useAuth()
   const [view, setView] = useState<'programs' | 'specializations' | 'curricula' | 'modules'>('programs')
   const [selectedProgram, setSelectedProgram] = useState<'gopro' | 'mentorship' | null>(null)
+  const isRestricted = !!(profile && !isSuperAdmin && (profile as any).specialization)
+
+  // Restriction logic: if they are restricted to a course, we should auto-select their program type
+  useEffect(() => {
+    const checkRestriction = async () => {
+      if (isRestricted) {
+        const { specializationService } = await import("@/lib/services")
+        const specs = await specializationService.getAllSpecializations()
+        const mySpec = specs.find((s:any) => s.value === (profile as any).specialization)
+        if (mySpec) {
+          setSelectedProgram(mySpec.programType)
+          setView('specializations')
+        }
+      }
+    }
+    checkRestriction()
+  }, [profile, isRestricted, isSuperAdmin])
+
   const [selectedSpecialization, setSelectedSpecialization] = useState<any>(null)
   const [selectedCurriculumId, setSelectedCurriculumId] = useState<string | null>(null)
   const [curriculumData, setCurriculumData] = useState<any>(null)
@@ -45,6 +65,7 @@ export default function CurriculumAdminPanel() {
 
   // Back Navigation
   const goBackFromSpecializations = () => {
+    if (isRestricted) return
     setSelectedProgram(null)
     setView('programs')
   }

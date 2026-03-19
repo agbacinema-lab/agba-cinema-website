@@ -28,7 +28,7 @@ export default function Header() {
   const navigation = [
     { name: "Academy", href: "/academy" },
     { name: "Work Bank", href: "/portfolio" },
-    { name: "Talent Board", href: "/talent" },
+
     { name: "Events", href: "/events" },
     { name: "Blog", href: "/blog" },
     { name: "About", href: "/about" },

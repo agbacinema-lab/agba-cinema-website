@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { BookOpen, Edit2, Trash2, ArrowRight, Zap, Users } from "lucide-react"
 import { curriculumService } from "@/lib/services"
+import { useAuth } from "@/context/AuthContext"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
 
@@ -28,6 +29,7 @@ export default function CurriculumSelector({
   filter = 'all',
   specializationFilter
 }: CurriculumSelectorProps) {
+  const { profile, isSuperAdmin } = useAuth()
   const [curricula, setCurricula] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [specializationMap, setSpecializationMap] = useState<Record<string, string>>({})
@@ -47,7 +49,7 @@ export default function CurriculumSelector({
 
   useEffect(() => {
     loadCurricula()
-  }, [filter, specializationFilter])
+  }, [filter, specializationFilter, profile])
 
   const loadCurricula = async () => {
     try {
@@ -59,8 +61,11 @@ export default function CurriculumSelector({
         data = await curriculumService.getCurriculaByProgram(filter)
       }
 
-      if (specializationFilter) {
-        data = data.filter((c: any) => c.specialization === specializationFilter)
+      // Hardcode restriction for tutors/staff if they have a specialization assigned
+      if (profile && !isSuperAdmin && (profile as any).specialization) {
+         data = data.filter((c: any) => c.specialization === (profile as any).specialization)
+      } else if (specializationFilter) {
+         data = data.filter((c: any) => c.specialization === specializationFilter)
       }
 
       setCurricula(data)

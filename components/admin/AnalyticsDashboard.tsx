@@ -85,9 +85,9 @@ export default function AnalyticsDashboard() {
            color="bg-card border-2 border-muted transition-colors text-foreground"
          />
          <StatsCard 
-           title="Conversion Rate" 
-           value="4.2%" 
-           trend="-0.5%" 
+           title="Platform Success" 
+           value={engagement?.students > 0 ? `${((sales?.count / engagement?.students) * 100).toFixed(1)}%` : "0%"} 
+           trend={sales?.count > 0 ? "Positive" : "Initial"} 
            icon={<Activity className="h-5 w-5" />} 
            color="bg-card border-2 border-muted transition-colors text-foreground"
          />

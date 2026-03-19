@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { adminService } from "@/lib/services"
 import { useAuth } from "@/context/AuthContext"
 import { authService } from "@/lib/auth-service"
 import { Button } from "@/components/ui/button"
@@ -28,6 +29,30 @@ import NotificationBell from "@/components/common/NotificationBell"
 export default function AdminDashboardPage() {
   const { user, profile, loading, isAdmin, isSuperAdmin, isStudent, isBrand } = useAuth()
   const [activeTab, setActiveTab] = useState('overview')
+  const [stats, setStats] = useState<{ revenue: number; users: number; pending: number }>({ revenue: 0, users: 0, pending: 0 })
+  const [loadingStats, setLoadingStats] = useState(true)
+
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const [sales, engagement, pending] = await Promise.all([
+          adminService.getSalesStats(),
+          adminService.getEngagementData(),
+          adminService.getPendingApprovals()
+        ])
+        setStats({
+          revenue: sales.totalRevenue || 0,
+          users: engagement.totalUsers || 0,
+          pending: pending.length || 0
+        })
+      } catch (err) {
+        console.error("Error loading admin stats:", err)
+      } finally {
+        setLoadingStats(false)
+      }
+    }
+    loadStats()
+  }, [])
 
   useEffect(() => {
     if (!loading && profile) {
@@ -114,7 +139,10 @@ export default function AdminDashboardPage() {
         </div>
         <div className="flex items-center gap-6">
           <NotificationBell />
-          <UserDropdown onSettingsClick={() => setActiveTab('settings')} />
+          <UserDropdown 
+             onSettingsClick={() => setActiveTab('settings')} 
+             onProfileClick={() => setActiveTab('profile')}
+          />
         </div>
       </header>
 
@@ -155,9 +183,24 @@ export default function AdminDashboardPage() {
 
             {activeTab === 'overview' && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <StatCard label="Total Projects" value="12" subtext="+2 this month" color="bg-blue-500/10 text-blue-500" />
-                <StatCard label="Live Profile" value="Public" subtext="Viewable by brands" color="bg-green-500/10 text-green-500" />
-                <StatCard label="Feedback" value="4.8/5" subtext="From 3 tutors" color="bg-yellow-500/10 text-yellow-500" />
+                <StatCard 
+                  label="Network Revenue" 
+                  value={loadingStats ? "..." : `₦${stats.revenue.toLocaleString()}`} 
+                  subtext="Total Gross Income" 
+                  color="bg-green-500/10 text-green-500" 
+                />
+                <StatCard 
+                  label="Registered Assets" 
+                  value={loadingStats ? "..." : stats.users.toString()} 
+                  subtext="Total Platform Users" 
+                  color="bg-blue-500/10 text-blue-500" 
+                />
+                <StatCard 
+                  label="Critical Alerts" 
+                  value={loadingStats ? "..." : stats.pending.toString()} 
+                  subtext="Tasks Awaiting Approval" 
+                  color="bg-red-500/10 text-red-500" 
+                />
               </motion.div>
             )}
 

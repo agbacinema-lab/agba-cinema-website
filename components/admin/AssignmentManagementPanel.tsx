@@ -97,7 +97,18 @@ export default function AssignmentManagementPanel() {
         assignmentService.getAllAssignments(),
         isSuperAdmin ? Promise.resolve([]) : studentService.getStudentsByTutor(profile?.uid || "")
       ])
-      setAssignments(assignmentData)
+      
+      // Filter assignments if tutor is restricted to a course
+      let filteredAssignments = assignmentData
+      if (profile && !isSuperAdmin && (profile as any).specialization) {
+        filteredAssignments = assignmentData.filter((a: any) => 
+          a.specialization === (profile as any).specialization || 
+          a.programType === (profile as any).specialization // fallback if saved under programType
+        )
+      }
+      
+      setAssignments(filteredAssignments)
+      
       // Super admins see EVERYTHING; tutors only see their assigned students
       if (!isSuperAdmin) {
         setMyStudentIds(new Set(myStudents.map((s: any) => s.uid)))

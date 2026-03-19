@@ -16,9 +16,10 @@ import { useRouter } from "next/navigation"
 
 interface UserDropdownProps {
   onSettingsClick?: () => void
+  onProfileClick?: () => void
 }
 
-export function UserDropdown({ onSettingsClick }: UserDropdownProps) {
+export function UserDropdown({ onSettingsClick, onProfileClick }: UserDropdownProps) {
   const { profile } = useAuth()
   const router = useRouter()
 
@@ -67,7 +68,19 @@ export function UserDropdown({ onSettingsClick }: UserDropdownProps) {
 
         <DropdownMenuItem 
           className="p-4 focus:bg-indigo-400/10 focus:text-foreground text-muted-foreground rounded-2xl cursor-pointer transition-all gap-4 mb-2"
-          onClick={() => router.push('/student/profile')}
+          onClick={() => {
+            if (onProfileClick) {
+               onProfileClick()
+               return
+            }
+            if (['admin', 'super_admin', 'director', 'hod', 'tutor', 'staff'].includes(profile?.role || '')) {
+               router.push('/admin') // Their profile is handled inside the admin dashboard
+            } else if (profile?.role === 'brand') {
+               router.push('/brand/dashboard')
+            } else {
+               router.push('/student/profile')
+            }
+          }}
         >
           <div className="w-8 h-8 rounded-lg bg-muted/30 flex items-center justify-center">
              <User className="h-4 w-4" />
@@ -90,7 +103,10 @@ export function UserDropdown({ onSettingsClick }: UserDropdownProps) {
 
         
         <DropdownMenuItem 
-          onClick={() => authService.logout()}
+          onClick={async () => {
+             await authService.logout()
+             window.location.href = '/login'
+          }}
           className="p-4 focus:bg-red-500/10 focus:text-red-500 text-red-500 rounded-2xl cursor-pointer transition-all gap-4"
         >
           <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">

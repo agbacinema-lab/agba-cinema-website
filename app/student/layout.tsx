@@ -34,8 +34,14 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
   useEffect(() => {
     if (!loading && !user) {
       router.push("/login")
-    } else if (!loading && profile && !(profile.role === 'student' || profile.role === 'admin' || profile.role === 'super_admin')) {
-      router.push("/")
+    } else if (!loading && profile) {
+      if (['super_admin', 'director', 'hod', 'admin', 'tutor', 'staff'].includes(profile.role)) {
+        router.push("/admin")
+      } else if (profile.role === 'brand') {
+        router.push("/brand/dashboard")
+      } else if (profile.role !== 'student') {
+        router.push("/")
+      }
     }
   }, [user, profile, loading, router])
 

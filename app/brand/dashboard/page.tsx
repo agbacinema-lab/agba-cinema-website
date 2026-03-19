@@ -44,10 +44,12 @@ export default function BrandDashboard() {
   const [isRecruiting, setIsRecruiting] = useState<string | null>(null)
 
   useEffect(() => {
-    if (profile?.uid) {
+    if (!loading && !user) {
+      window.location.href = '/login'
+    } else if (profile?.uid) {
       loadData()
     }
-  }, [profile])
+  }, [profile, user, loading])
 
   const loadData = async () => {
     if (!profile?.uid) return
@@ -165,6 +167,19 @@ export default function BrandDashboard() {
               <NavItem key={tab.id} active={activeTab === tab.id} icon={<tab.icon className="h-4 w-4" />} label={tab.label} onClick={() => setActiveTab(tab.id)} />
             ))}
           </nav>
+          
+          <div className="mt-8 pt-8 border-t border-white/5 mx-auto w-full">
+             <button 
+                onClick={async () => {
+                   await authService.logout()
+                   window.location.href = '/login'
+                }}
+                className="w-full h-12 flex items-center gap-3 px-4 rounded-2xl text-red-500 hover:bg-red-500/10 transition-all font-black text-xs uppercase tracking-wider"
+             >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+             </button>
+          </div>
         </aside>
 
         {/* ── MAIN CONTENT ── */}
