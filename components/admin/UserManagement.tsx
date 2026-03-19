@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { adminService, studentService } from "@/lib/services"
 import { useAuth } from "@/context/AuthContext"
 import { UserProfile, UserRole } from "@/lib/types"
@@ -34,6 +34,11 @@ export default function UserManagement() {
   const [massOldTutorId, setMassOldTutorId] = useState("")
   const [massNewTutorId, setMassNewTutorId] = useState("")
   const [massLoading, setMassLoading] = useState(false)
+  
+  // Tactical Search & Load
+  const [searchQuery, setSearchQuery] = useState("")
+  const [limitView, setLimitView] = useState(true)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   const loadData = async () => {
     setLoading(true)
@@ -199,10 +204,15 @@ export default function UserManagement() {
     </div>
   )
 
-  const students = users.filter(u => u.role === 'student').sort((a,b) => {
-    if (sortAsc) return a.name.localeCompare(b.name)
-    return b.name.localeCompare(a.name)
-  })
+  const students = users
+    .filter(u => u.role === 'student')
+    .filter(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    .sort((a,b) => {
+      if (sortAsc) return a.name.localeCompare(b.name)
+      return b.name.localeCompare(a.name)
+    })
+  
+  const displayedStudents = limitView && searchQuery === "" ? students.slice(0, 5) : students
   const staff = users.filter(u => u.role !== 'student')
 
   return (
@@ -279,103 +289,162 @@ export default function UserManagement() {
 
       {/* ─── Tutor Assignment Table (Students) ─── */}
       <Card className="border border-muted shadow-premium rounded-[3rem] bg-card overflow-hidden transition-colors relative group">
-        <CardHeader className="p-10 lg:p-14 border-b border-muted bg-muted/20 transition-colors">
-          <CardTitle className="flex items-center gap-5 text-3xl font-black italic uppercase tracking-tighter text-foreground transition-colors">
-            <div className="w-14 h-14 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-xl">
-              <UserCheck className="h-7 w-7 text-black" />
-            </div>
-            Assign Tutors
-          </CardTitle>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground mt-4 transition-colors opacity-60">
-            Assign students to specific tutors based on their specialized curriculum.
-          </p>
+        <CardHeader className="p-10 lg:p-14 border-b border-muted bg-muted/20 transition-colors flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+          <div className="space-y-4 max-w-lg">
+            <CardTitle className="flex items-center gap-5 text-3xl font-black italic uppercase tracking-tighter text-foreground transition-colors">
+              <div className="w-14 h-14 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-xl">
+                <UserCheck className="h-7 w-7 text-black" />
+              </div>
+              Assign Tutors
+            </CardTitle>
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground transition-colors opacity-60 leading-relaxed">
+              Tactical student-to-tutor deployment. Search or filter for rapid assignment.
+            </p>
+          </div>
+          
+          <div className="relative w-full md:w-80 group">
+             <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+                <Search className="h-4 w-4 text-muted-foreground group-focus-within:text-yellow-400 transition-colors" />
+             </div>
+             <input 
+               type="text" 
+               placeholder="SEARCH TALENT..." 
+               value={searchQuery}
+               onChange={e => setSearchQuery(e.target.value)}
+               className="w-full h-14 pl-14 pr-6 bg-card border border-muted rounded-2xl text-[10px] font-black uppercase tracking-widest outline-none focus:border-yellow-400 transition-all shadow-sm"
+             />
+          </div>
         </CardHeader>
         <CardContent className="p-0 transition-colors">
           <div className="overflow-x-auto relative z-10">
             <table className="w-full text-left">
               <thead>
-                <tr className="bg-muted/50 text-[10px] font-black uppercase tracking-[0.5em] text-muted-foreground border-b border-muted transition-colors">
+                <tr className="bg-muted/50 text-[10px] font-black uppercase tracking-[0.5em] text-muted-foreground border-b border-muted transition-colors text-center">
                   <th className="px-10 py-6">
-                    <button onClick={() => setSortAsc(!sortAsc)} className="flex items-center gap-2 hover:text-foreground transition-colors uppercase">
-                       Student Name 
+                    <button onClick={() => setSortAsc(!sortAsc)} className="flex items-center justify-center gap-2 hover:text-foreground transition-colors uppercase w-full">
+                       Talent Roster Name
                        <RefreshCw className={`h-3 w-3 ${sortAsc ? '' : 'rotate-180'} transition-transform`} />
                     </button>
                   </th>
-                  <th className="px-10 py-6">Assigned Tutors (Per Specialization)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-muted transition-colors">
-                {students.length === 0 ? (
-                  <tr><td colSpan={2} className="py-24 text-center text-muted-foreground/30 font-black uppercase text-[12px] tracking-[0.5em] italic">No students found.</td></tr>
-                ) : students.map(u => (
-                  <tr key={u.uid} className="hover:bg-muted/10 transition-colors group">
-                    <td className="py-8 px-10">
-                      <p className="font-black text-foreground uppercase italic tracking-tighter text-xl transition-colors">{u.name}</p>
-                      <p className="text-xs text-muted-foreground font-medium mt-1 truncate max-w-sm italic opacity-60 transition-colors">{u.email}</p>
-                      <div className="mt-2">
-                         <span className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Original Track: {u.specialization || "UNSET"}</span>
-                      </div>
-                    </td>
-                    <td className="px-10 py-8">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {(u.enrolledSpecializations || [{ value: u.specialization || 'general' }]).map((spec: any) => {
-                           const specId = spec.value || spec.id || u.specialization || 'general'
-                           const assignment = (u as any).assignedTutors?.[specId]
-                           const specLabel = specs.find(s => s.value === specId)?.label || specId
-                           
-                           return (
-                             <div key={specId} className="p-4 bg-muted/10 rounded-2xl border border-muted/50 flex flex-col gap-3">
-                               <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">{specLabel}</p>
-                               {assigningTo === `${u.uid}_${specId}` ? (
-                                  <div className="flex flex-col gap-2">
-                                     <select
-                                       value={assigningTutorId}
-                                       autoFocus
-                                       onChange={e => setAssigningTutorId(e.target.value)}
-                                       className="h-12 w-full px-4 rounded-xl border border-muted text-[10px] font-black bg-card text-foreground outline-none uppercase shadow-inner"
-                                     >
-                                        <option value="">— SELECT QLFD TUTOR —</option>
-                                        {tutors.filter(t => {
-                                          const tSpecs = (t as any).specializations || []
-                                          return tSpecs.length === 0 || tSpecs.includes(specId)
-                                        }).map(t => (
-                                          <option key={t.uid} value={t.uid}>{t.name}</option>
-                                        ))}
-                                     </select>
-                                     <div className="flex gap-2">
-                                        <button onClick={() => handleAssignTutor(u.uid, specId, u.name)} disabled={assignLoading} className="flex-1 h-10 bg-black text-white rounded-xl font-black text-[9px] uppercase hover:bg-yellow-400 hover:text-black transition-all">
-                                          {assignLoading ? "..." : "CONFIRM"}
-                                        </button>
-                                        <button onClick={() => setAssigningTo(null)} className="px-4 h-10 bg-muted text-muted-foreground rounded-xl font-black text-[9px] uppercase hover:bg-red-500 hover:text-white transition-all">CANCEL</button>
-                                     </div>
-                                  </div>
-                               ) : (
-                                 <div className="flex items-center justify-between">
-                                   <div className="flex items-center gap-3">
-                                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-[10px] ${assignment ? 'bg-indigo-500/20 text-indigo-500' : 'bg-muted text-muted-foreground opacity-30'}`}>
-                                        {assignment ? (assignment.tutorName[0]) : "?"}
-                                      </div>
-                                      <span className="font-black text-[12px] uppercase italic text-foreground tracking-tighter">
-                                        {assignment?.tutorName || "No Tutor"}
-                                      </span>
-                                   </div>
-                                   {isSuperAdmin && (
-                                     <button onClick={() => setAssigningTo(`${u.uid}_${specId}`)} className="h-8 px-3 bg-muted/50 hover:bg-foreground hover:text-background rounded-lg text-[8px] font-black uppercase tracking-widest transition-all">
-                                       {assignment ? "CHANGE" : "ASSIGN"}
-                                     </button>
-                                   )}
+                {displayedStudents.length === 0 ? (
+                  <tr><td className="py-24 text-center text-muted-foreground/30 font-black uppercase text-[12px] tracking-[0.5em] italic">No students found.</td></tr>
+                ) : displayedStudents.map(u => {
+                  const isExpanded = expandedId === u.uid
+                  return (
+                  <React.Fragment key={u.uid}>
+                    <tr onClick={() => setExpandedId(isExpanded ? null : u.uid)} className={`hover:bg-muted/20 transition-all cursor-pointer group ${isExpanded ? 'bg-muted/10' : ''}`}>
+                      <td className="py-6 px-10 flex items-center justify-between">
+                         <div className="flex items-center gap-6">
+                            <div className={`w-3 h-3 rounded-full ${isExpanded ? 'bg-yellow-400' : 'bg-muted'} transition-all shadow-[0_0_10px_rgba(250,204,21,0.5)]`} />
+                            <div>
+                              <p className="font-black text-foreground uppercase italic tracking-tighter text-xl transition-colors">{u.name}</p>
+                              <p className="text-[9px] text-muted-foreground font-black uppercase tracking-widest mt-1 opacity-40">{u.email}</p>
+                            </div>
+                         </div>
+                         <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-500 ${isExpanded ? 'rotate-180 text-yellow-500' : ''}`} />
+                      </td>
+                    </tr>
+                    
+                    {isExpanded && (
+                      <tr>
+                        <td className="p-0 border-b border-muted bg-muted/5">
+                           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="overflow-hidden">
+                              <div className="p-10 lg:p-14 space-y-10">
+                                 <div className="flex items-center gap-4 border-b border-muted pb-6">
+                                    <div className="w-10 h-10 bg-foreground/10 rounded-xl flex items-center justify-center text-foreground font-black uppercase text-[10px]">
+                                       {u.name[0]}
+                                    </div>
+                                    <div>
+                                       <h4 className="text-sm font-black uppercase tracking-widest text-foreground">Operational Track Engagement</h4>
+                                       <p className="text-[10px] text-muted-foreground font-medium italic">Enrolled specializations and assigned tutorial personnel.</p>
+                                    </div>
                                  </div>
-                               )}
-                             </div>
-                           )
-                        })}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+
+                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    {(u.enrolledSpecializations || [{ value: u.specialization || 'general' }]).map((spec: any) => {
+                                       const specId = spec.value || spec.id || u.specialization || 'general'
+                                       const assignment = (u as any).assignedTutors?.[specId]
+                                       const specLabel = specs.find(s => s.value === specId)?.label || specId
+                                       
+                                       return (
+                                         <div key={specId} className="p-8 bg-card rounded-[2rem] border border-muted shadow-xl space-y-6 group/spec hover:border-yellow-400/50 transition-colors">
+                                           <div className="flex justify-between items-start">
+                                              <p className="text-[10px] font-black uppercase text-yellow-500 tracking-[0.2em]">{specLabel}</p>
+                                              <div className="h-1.5 w-1.5 rounded-full bg-yellow-400 animate-pulse" />
+                                           </div>
+                                           
+                                           {assigningTo === `${u.uid}_${specId}` ? (
+                                              <div className="space-y-4">
+                                                 <select
+                                                   value={assigningTutorId}
+                                                   autoFocus
+                                                   onChange={e => setAssigningTutorId(e.target.value)}
+                                                   className="h-14 w-full px-6 rounded-2xl border-2 border-muted text-[10px] font-black bg-muted/30 text-foreground outline-none uppercase shadow-inner focus:border-yellow-400 transition-all"
+                                                 >
+                                                    <option value="">— SELECT TUTOR —</option>
+                                                    {tutors.filter(t => {
+                                                      const tSpecs = (t as any).specializations || []
+                                                      return tSpecs.length === 0 || tSpecs.includes(specId)
+                                                    }).map(t => (
+                                                      <option key={t.uid} value={t.uid}>{t.name}</option>
+                                                    ))}
+                                                 </select>
+                                                 <div className="flex gap-3">
+                                                    <button onClick={() => handleAssignTutor(u.uid, specId, u.name)} disabled={assignLoading} className="flex-1 h-12 bg-foreground text-background rounded-xl font-black text-[10px] uppercase hover:bg-yellow-400 hover:text-black transition-all shadow-lg active:scale-95">
+                                                      {assignLoading ? "..." : "DEPLOY"}
+                                                    </button>
+                                                    <button onClick={() => setAssigningTo(null)} className="px-6 h-12 bg-muted text-muted-foreground rounded-xl font-black text-[10px] uppercase hover:bg-black hover:text-white transition-all">CLOSE</button>
+                                                 </div>
+                                              </div>
+                                           ) : (
+                                             <div className="space-y-6">
+                                               <div className="flex items-center gap-4">
+                                                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-2xl ${assignment ? 'bg-yellow-400 text-black' : 'bg-muted/20 text-muted-foreground opacity-20'}`}>
+                                                    {assignment ? (assignment.tutorName[0]) : "?"}
+                                                  </div>
+                                                  <div>
+                                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Assigned Support</p>
+                                                    <h5 className="font-black text-lg uppercase italic text-foreground tracking-tighter leading-none">
+                                                      {assignment?.tutorName || "AWAITING UNIT"}
+                                                    </h5>
+                                                  </div>
+                                               </div>
+                                               
+                                               {isSuperAdmin && (
+                                                 <button onClick={(e) => { e.stopPropagation(); setAssigningTo(`${u.uid}_${specId}`) }} className="w-full h-12 bg-muted/30 hover:bg-foreground hover:text-background border-2 border-transparent hover:border-black rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">
+                                                   {assignment ? "MODIFY DEPLOYMENT" : "INITIALIZE TUTOR"}
+                                                 </button>
+                                               )}
+                                             </div>
+                                           )}
+                                         </div>
+                                       )
+                                    })}
+                                 </div>
+                              </div>
+                           </motion.div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                )})}
               </tbody>
             </table>
           </div>
+
+          {!searchQuery && students.length > 5 && (
+            <div className="p-10 border-t border-muted bg-muted/5 flex justify-center">
+               <button 
+                onClick={() => setLimitView(!limitView)}
+                className="px-10 h-14 rounded-2xl border-2 border-foreground text-foreground font-black uppercase tracking-widest text-[10px] hover:bg-foreground hover:text-background transition-all shadow-lg active:scale-95"
+               >
+                 {limitView ? `VIEW ALL ${students.length} STUDENTS` : "COLLAPSE STUDENT POOL"}
+               </button>
+            </div>
+          )}
         </CardContent>
       </Card>
 

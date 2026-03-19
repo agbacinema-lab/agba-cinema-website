@@ -23,8 +23,8 @@ import { motion } from "framer-motion"
 
 export default function BrandManagementPanel() {
   const [requests, setRequests] = useState<InternshipRequest[]>([])
-  const [meetings, setMeetings] = useState<any[]>([]) // Using any for meeting for now
   const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({ revenue: 0, brands: 0 })
 
   useEffect(() => {
     loadData()
@@ -33,24 +33,54 @@ export default function BrandManagementPanel() {
   const loadData = async () => {
     setLoading(true)
     try {
-      const [r] = await Promise.all([
+      const { collection, getDocs, query, orderBy, where } = await import('firebase/firestore')
+      const { db } = await import('@/lib/firebase')
+      
+      const [r, p, b] = await Promise.all([
         brandService.getBrandRequests("all"),
+        adminService.getSalesStats(),
+        getDocs(query(collection(db, "users"), where("role", "==", "brand")))
       ])
+      
       setRequests(r)
-      setLoading(false)
+      setStats({
+        revenue: p.totalRevenue || 0,
+        brands: b.size || 0
+      })
     } catch (error) {
        console.error(error)
+    } finally {
        setLoading(false)
     }
   }
 
   const handleApprove = async (requestId: string) => {
     try {
-      // Mark as approved/assigned
-      // Notify intern via email logic here
-      toast.success("Internship request approved. Notification sent to student.")
+      const { doc, updateDoc } = await import('firebase/firestore')
+      const { db } = await import('@/lib/firebase')
+      await updateDoc(doc(db, "internship_requests", requestId), { 
+        status: 'assigned',
+        updatedAt: new Date()
+      })
+      toast.success("Internship request approved.")
+      loadData()
     } catch (error) {
       toast.error("Failed to approve request.")
+    }
+  }
+
+  const handleDecline = async (requestId: string) => {
+    try {
+      const { doc, updateDoc } = await import('firebase/firestore')
+      const { db } = await import('@/lib/firebase')
+      await updateDoc(doc(db, "internship_requests", requestId), { 
+        status: 'declined',
+        updatedAt: new Date()
+      })
+      toast.success("Request declined.")
+      loadData()
+    } catch (error) {
+      toast.error("Action failed.")
     }
   }
 
@@ -85,15 +115,50 @@ export default function BrandManagementPanel() {
           </div>
         </CardHeader>
         <CardContent className="p-0 transition-colors">
-           <div className="p-24 text-center space-y-8 relative z-10">
-              <div className="w-20 h-20 bg-muted/10 rounded-[2rem] flex items-center justify-center mx-auto border border-muted/20">
-                 <ShieldCheck className="h-10 w-10 text-muted-foreground/30" />
-              </div>
-              <div>
-                <p className="text-2xl font-black italic uppercase tracking-tight text-foreground transition-colors">Operational Silence</p>
-                <p className="text-muted-foreground font-medium italic mt-2 max-w-sm mx-auto">No brand recruitment actions currently detected. All drafts will appear here for high-level vetting.</p>
-              </div>
-           </div>
+           {requests.filter(r => r.status === 'pending').length === 0 ? (
+             <div className="p-24 text-center space-y-8 relative z-10">
+                <div className="w-20 h-20 bg-muted/10 rounded-[2rem] flex items-center justify-center mx-auto border border-muted/20">
+                   <ShieldCheck className="h-10 w-10 text-muted-foreground/30" />
+                </div>
+                <div>
+                  <p className="text-2xl font-black italic uppercase tracking-tight text-foreground transition-colors">Operational Silence</p>
+                  <p className="text-muted-foreground font-medium italic mt-2 max-w-sm mx-auto">No brand recruitment actions currently detected. All drafts will appear here for high-level vetting.</p>
+                </div>
+             </div>
+           ) : (
+             <div className="overflow-x-auto relative z-10">
+                <table className="w-full text-left">
+                   <thead>
+                      <tr className="bg-muted/50 text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground border-b border-muted">
+                         <th className="px-10 py-6">Partner Brand</th>
+                         <th className="px-10 py-6">Target Student</th>
+                         <th className="px-10 py-6">Status</th>
+                         <th className="px-10 py-6 text-right">Deployment</th>
+                      </tr>
+                   </thead>
+                   <tbody className="divide-y divide-muted">
+                      {requests.filter(r => r.status === 'pending').map(request => (
+                        <tr key={request.requestId} className="group/row hover:bg-muted/10 transition-colors">
+                           <td className="px-10 py-6">
+                              <p className="text-sm font-black text-foreground uppercase tracking-tight">{request.brandName}</p>
+                              <p className="text-[10px] text-muted-foreground font-medium italic">Protocol ID: {request.requestId.slice(0,8)}</p>
+                           </td>
+                           <td className="px-10 py-6 text-sm font-bold text-foreground">
+                              {request.studentName}
+                           </td>
+                           <td className="px-10 py-6">
+                              <span className="px-3 py-1 bg-yellow-400/10 text-yellow-600 rounded-full text-[9px] font-black uppercase tracking-widest">Awaiting Vetting</span>
+                           </td>
+                           <td className="px-10 py-6 text-right space-x-2">
+                              <button onClick={() => handleApprove(request.requestId)} className="px-4 py-2 bg-green-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-green-600 transition-all">Approve</button>
+                              <button onClick={() => handleDecline(request.requestId)} className="px-4 py-2 bg-red-500/10 text-red-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all">Decline</button>
+                           </td>
+                        </tr>
+                      ))}
+                   </tbody>
+                </table>
+             </div>
+           )}
            <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-yellow-400/5 blur-[120px] rounded-full pointer-events-none group-hover:bg-yellow-400/10 transition-all duration-700" />
         </CardContent>
       </Card>
@@ -139,7 +204,7 @@ export default function BrandManagementPanel() {
                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground mb-3 leading-none">Gross Cumulative Fees</p>
                <div className="flex items-center gap-3">
                   <TrendingUp className="h-6 w-6 text-green-500" />
-                  <h4 className="text-4xl font-black text-foreground italic tracking-tighter leading-none">₦0.00</h4>
+                  <h4 className="text-4xl font-black text-foreground italic tracking-tighter leading-none">₦{stats.revenue.toLocaleString()}</h4>
                </div>
             </div>
             
@@ -147,7 +212,7 @@ export default function BrandManagementPanel() {
                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground mb-3 leading-none">Activated Access Points</p>
                <div className="flex items-center gap-3">
                   <Briefcase className="h-6 w-6 text-yellow-500" />
-                  <h4 className="text-4xl font-black text-foreground italic tracking-tighter leading-none">0</h4>
+                  <h4 className="text-4xl font-black text-foreground italic tracking-tighter leading-none">{stats.brands}</h4>
                </div>
             </div>
          </div>
