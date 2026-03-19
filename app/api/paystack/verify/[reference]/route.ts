@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { adminService } from "@/lib/services"
+import sgMail from "@sendgrid/mail"
 
 export async function GET(request: NextRequest, { params }: { params: { reference: string } }) {
   const reference = params.reference
   const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY
+  const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY
+  const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || "agbacinema@gmail.com"
+
   if (!PAYSTACK_SECRET) {
     return NextResponse.json({ message: "Paystack secret not configured" }, { status: 500 })
   }
@@ -30,40 +34,50 @@ export async function GET(request: NextRequest, { params }: { params: { referenc
       const service = tx.metadata?.service || "Your booking"
       const fullName = tx.metadata?.fullName || "Valued Customer"
 
-      // 1. Send Email via EmailJS REST API (Server-side)
-      try {
-        const emailResponse = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            service_id: process.env.EMAILJS_SERVICE_ID,
-            template_id: process.env.EMAILJS_TEMPLATE_ID,
-            user_id: process.env.EMAILJS_PUBLIC_KEY,
-            accessToken: process.env.EMAILJS_PRIVATE_KEY,
-            template_params: {
-              to_name: fullName,
-              to_email: toEmail,
-              amount: amountNGN,
-              reference: tx.reference,
-              service: service,
-              date: new Date(tx.transaction_date || Date.now()).toLocaleDateString(),
-              message: "Thank you for your payment! Your booking is confirmed.",
-            },
-          }),
-        });
+      // 1. Send Email via SendGrid
+      if (SENDGRID_API_KEY) {
+        sgMail.setApiKey(SENDGRID_API_KEY)
+        try {
+          const html = `
+            <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+              <div style="background-color: #000; color: #fbbf24; padding: 20px; text-align: center;">
+                <h1 style="margin: 0; font-style: italic; letter-spacing: -1px; text-transform: uppercase;">ÀGBÀ CINEMA</h1>
+              </div>
+              <div style="padding: 30px;">
+                <h2 style="color: #000; border-bottom: 2px solid #fbbf24; padding-bottom: 10px; text-transform: uppercase;">Payment Verified</h2>
+                <p>Hello ${fullName},</p>
+                <p>Your payment of <strong>${amountNGN}</strong> for <strong>${service}</strong> has been successfully verified.</p>
+                
+                <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #000;">
+                  <p style="font-weight: bold; margin-bottom: 15px; color: #000; text-transform: uppercase; font-size: 12px; letter-spacing: 1px;">Transaction Details:</p>
+                  <p style="margin: 5px 0;"><strong style="text-transform: uppercase; font-size: 10px; color: #666;">Reference:</strong> <span style="font-weight: bold;">${tx.reference}</span></p>
+                </div>
+                
+                <p style="margin-top: 20px;">We are processing your request and will be in touch shortly.</p>
+              </div>
+              <div style="background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 12px; color: #888;">
+                <p style="margin: 0;">&copy; ${new Date().getFullYear()} ÀGBÀ CINEMA HQ. ALL RIGHTS RESERVED.</p>
+              </div>
+            </div>
+          `
 
-        if (emailResponse.ok) {
-          console.log("Email sent successfully from server");
-          emailSent = true;
-        } else {
-          const errorText = await emailResponse.text();
-          console.error("EmailJS Server Error:", errorText);
-          // @ts-ignore
-          data.emailError = errorText; // Pass error back to UI for debugging
+          await sgMail.send({
+            to: toEmail,
+            from: {
+              email: FROM_EMAIL,
+              name: "ÀGBÀ CINEMA",
+            },
+            subject: `PAYMENT VERIFIED: ${service}`,
+            text: `Thank you for your payment of ${amountNGN} for ${service}. Your reference is ${tx.reference}.`,
+            html: html,
+          })
+          
+          emailSent = true
+        } catch (emailError) {
+          console.error("Failed to send verification email (SendGrid):", emailError)
         }
-      } catch (emailError) {
-        console.error("Failed to send email from server:", emailError);
       }
+
 
       // 2. Append to Google Sheet
       try {

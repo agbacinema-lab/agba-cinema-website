@@ -6,7 +6,9 @@ import Header from "@/components/common/layout/Header"
 import Footer from "@/components/common/layout/Footer"
 import WhatsAppButton from "@/components/common/WhatsAppButton"
 import { AuthProvider } from "@/context/AuthContext"
+import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
+
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -104,15 +106,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={inter.className}>
         <AuthProvider>
-          <Header />
-          <div className="relative min-h-screen">
-            {children}
-          </div>
-          <Footer />
-          <WhatsAppButton />
-          <Toaster />
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+            <Header />
+            <div className="relative min-h-screen">
+              {children}
+            </div>
+            <Footer />
+            <WhatsAppButton />
+            <Toaster />
+          </ThemeProvider>
         </AuthProvider>
       </body>
+
     </html>
   )
 }

@@ -7,43 +7,60 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Mail, Phone, MapPin, Clock, Send, Zap, ShieldCheck } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-import emailjs from "@emailjs/browser"
+import { toast } from "sonner"
 import PageHero from "@/components/common/layout/PageHero"
 import { motion } from "framer-motion"
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { toast } = useToast()
+  const [submitted, setSubmitted] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsSubmitting(true)
-    const form = e.currentTarget
+    const formData = new FormData(e.currentTarget)
+    const data = {
+      firstName: formData.get("firstName"),
+      lastName: formData.get("lastName"),
+      email: formData.get("email"),
+      subject: formData.get("subject"),
+      message: formData.get("message"),
+    }
 
     try {
-      await emailjs.sendForm(
-        "service_a1sqad8",
-        "template_87aom8b",
-        form,
-        "JH5HK81ALIHAE-ELW"
-      )
-      toast({
-        title: "Transmission Received",
+      const response = await fetch("/api/notifications/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to_email: "agbacinema@gmail.com", // Admin notification
+          to_name: "Admin",
+          subject: `NEW SIGNAL: ${data.subject}`,
+          message: `A new transmission has been received from ${data.firstName} ${data.lastName}.`,
+          template_params: {
+            sender_name: `${data.firstName} ${data.lastName}`,
+            sender_email: data.email,
+            subject: data.subject,
+            brief: data.message,
+          },
+        }),
+      })
+
+      if (!response.ok) throw new Error("Failed to send transmission")
+
+      toast.success("Transmission Received", {
         description: "Our unit will respond within the next 24 operational hours.",
       })
-      form.reset()
+      setSubmitted(true)
     } catch (error) {
-      console.error("EmailJS Error:", error)
-      toast({
-        title: "Transmission Failed",
+      console.error("Transmission Error:", error)
+      toast.error("Transmission Failed", {
         description: "Please check your network and attempt the protocol again.",
-        variant: "destructive",
       })
     } finally {
       setIsSubmitting(false)
     }
   }
+
 
   return (
     <div className="min-h-screen bg-white overflow-hidden">
@@ -111,85 +128,109 @@ export default function ContactPage() {
                initial={{ opacity: 0, y: 30 }}
                whileInView={{ opacity: 1, y: 0 }}
                viewport={{ once: true }}
-               className="lg:col-span-7 bg-white rounded-[3rem] border border-gray-100 p-10 md:p-16 shadow-premium hover:border-black transition-all duration-700"
+               className="lg:col-span-7 bg-white rounded-[3rem] border border-gray-100 p-10 md:p-16 shadow-premium hover:border-black transition-all duration-700 min-h-[500px] flex flex-col justify-center"
             >
-              <div className="mb-12">
-                 <h3 className="text-4xl font-black text-black italic uppercase tracking-tighter mb-4">Initiate Protocol</h3>
-                 <p className="text-gray-400 font-medium italic uppercase tracking-widest text-[10px]">Fill the brief below to establish contact</p>
-              </div>
-
-              <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Codename / First Name</Label>
-                  <Input 
-                    id="firstName" 
-                    name="firstName" 
-                    required 
-                    placeholder="ENTER NAME" 
-                    className="h-16 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-yellow-400 px-6 font-bold text-sm"
-                  />
+              {submitted ? (
+                <div className="text-center space-y-8 py-10">
+                   <div className="w-24 h-24 bg-yellow-400 rounded-[2rem] flex items-center justify-center mx-auto shadow-2xl shadow-yellow-400/20">
+                      <ShieldCheck className="h-12 w-12 text-black" />
+                   </div>
+                   <div className="space-y-4">
+                      <h3 className="text-4xl font-black text-black italic uppercase tracking-tighter">Transmission Secured</h3>
+                      <p className="text-gray-500 font-medium italic text-lg leading-relaxed max-w-md mx-auto">
+                        Your brief has been logged into our operational queue. An elite unit will be assigned to your inquiry shortly.
+                      </p>
+                   </div>
+                   <Button 
+                      onClick={() => setSubmitted(false)}
+                      variant="outline"
+                      className="h-16 rounded-2xl px-12 font-black uppercase tracking-widest border-2 hover:bg-black hover:text-white transition-all"
+                   >
+                     Initiate Another Brief
+                   </Button>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Surname</Label>
-                  <Input 
-                    id="lastName" 
-                    name="lastName" 
-                    required 
-                    placeholder="ENTER SURNAME" 
-                    className="h-16 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-yellow-400 px-6 font-bold text-sm"
-                  />
-                </div>
-                <div className="md:col-span-2 space-y-2">
-                  <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Secure Channel (Email)</Label>
-                  <Input 
-                    id="email" 
-                    name="email" 
-                    type="email" 
-                    required 
-                    placeholder="VITAL@EMAIL.COM" 
-                    className="h-16 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-yellow-400 px-6 font-bold text-sm"
-                  />
-                </div>
-                <div className="md:col-span-2 space-y-2">
-                  <Label htmlFor="subject" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Inquiry Objective</Label>
-                  <Input 
-                    id="subject" 
-                    name="subject" 
-                    required 
-                    placeholder="E.G. DIRECTORIAL INQUIRY" 
-                    className="h-16 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-yellow-400 px-6 font-bold text-sm"
-                  />
-                </div>
-                <div className="md:col-span-2 space-y-2">
-                  <Label htmlFor="message" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Project Brief / Message</Label>
-                  <Textarea
-                    id="message"
-                    name="message"
-                    required
-                    placeholder="DESCRIBE THE VISION AND MISSION..."
-                    rows={6}
-                    className="rounded-[2rem] bg-gray-50 border-none focus:ring-2 focus:ring-yellow-400 p-8 font-bold text-sm"
-                  />
+              ) : (
+                <>
+                <div className="mb-12">
+                   <h3 className="text-4xl font-black text-black italic uppercase tracking-tighter mb-4">Initiate Protocol</h3>
+                   <p className="text-gray-400 font-medium italic uppercase tracking-widest text-[10px]">Fill the brief below to establish contact</p>
                 </div>
 
-                <div className="md:col-span-2 pt-6">
-                  <Button 
-                    type="submit" 
-                    disabled={isSubmitting}
-                    className="w-full h-20 bg-black text-white hover:bg-yellow-400 hover:text-black font-black uppercase italic tracking-tighter text-xl rounded-3xl transition-all shadow-2xl flex items-center justify-center gap-4 group"
-                  >
-                    {isSubmitting ? (
-                       <div className="w-6 h-6 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <>
-                        Launch Transmission
-                        <Send className="h-6 w-6 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </form>
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Codename / First Name</Label>
+                    <Input 
+                      id="firstName" 
+                      name="firstName" 
+                      required 
+                      placeholder="ENTER NAME" 
+                      className="h-16 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-yellow-400 px-6 font-bold text-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Surname</Label>
+                    <Input 
+                      id="lastName" 
+                      name="lastName" 
+                      required 
+                      placeholder="ENTER SURNAME" 
+                      className="h-16 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-yellow-400 px-6 font-bold text-sm"
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Secure Channel (Email)</Label>
+                    <Input 
+                      id="email" 
+                      name="email" 
+                      type="email" 
+                      required 
+                      placeholder="VITAL@EMAIL.COM" 
+                      className="h-16 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-yellow-400 px-6 font-bold text-sm"
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <Label htmlFor="subject" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Inquiry Objective</Label>
+                    <Input 
+                      id="subject" 
+                      name="subject" 
+                      required 
+                      placeholder="E.G. DIRECTORIAL INQUIRY" 
+                      className="h-16 rounded-2xl bg-gray-50 border-none focus:ring-2 focus:ring-yellow-400 px-6 font-bold text-sm"
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <Label htmlFor="message" className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4">Project Brief / Message</Label>
+                    <Textarea
+                      id="message"
+                      name="message"
+                      required
+                      placeholder="DESCRIBE THE VISION AND MISSION..."
+                      rows={6}
+                      className="rounded-[2rem] bg-gray-50 border-none focus:ring-2 focus:ring-yellow-400 p-8 font-bold text-sm"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2 pt-6">
+                    <Button 
+                      type="submit" 
+                      disabled={isSubmitting}
+                      className="w-full h-20 bg-black text-white hover:bg-yellow-400 hover:text-black font-black uppercase italic tracking-tighter text-xl rounded-3xl transition-all shadow-2xl flex items-center justify-center gap-4 group"
+                    >
+                      {isSubmitting ? (
+                         <div className="w-6 h-6 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          Launch Transmission
+                          <Send className="h-6 w-6 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform" />
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+                </>
+              )}
             </motion.div>
+
 
           </div>
         </div>

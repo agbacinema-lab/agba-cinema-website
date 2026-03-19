@@ -79,9 +79,31 @@ export default function BrandDashboard() {
         studentName: student.fullName,
         duration: "Flexible (Pending Negotiation)",
       })
+
+      // Send Email Notification to Admin
+      await fetch("/api/notifications/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to_email: "agbacinema@gmail.com",
+          to_name: "Admin",
+          subject: `RECRUITMENT SIGNAL: ${brandData.companyName} → ${student.fullName}`,
+          message: `${brandData.companyName} has initiated a recruitment protocol for ${student.fullName}.`,
+          template_params: {
+            brand_name: brandData.companyName,
+            brand_contact: brandData.contactPerson,
+            brand_email: profile.email,
+            talent_name: student.fullName,
+            talent_id: student.studentId || student.userId,
+            intent: "Internship / Hire"
+          }
+        })
+      }).catch(e => console.error("Recruitment Notification Error:", e))
+
       toast.success(`Recruitment protocol initiated for ${student.fullName}. Admin will contact you shortly.`)
       loadData()
     } catch (error) {
+
       console.error(error)
       toast.error("Failed to initiate recruitment.")
     } finally {

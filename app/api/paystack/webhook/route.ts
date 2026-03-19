@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import crypto from "crypto"
+import sgMail from "@sendgrid/mail"
 
 export async function POST(request: NextRequest) {
     try {
@@ -7,10 +8,14 @@ export async function POST(request: NextRequest) {
         const signature = request.headers.get("x-paystack-signature")
 
         const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY
+        const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY
+        const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || "agbacinema@gmail.com"
 
-        if (!PAYSTACK_SECRET || !signature) {
+        if (!PAYSTACK_SECRET || !signature || !SENDGRID_API_KEY) {
             return NextResponse.json({ message: "Configuration error" }, { status: 500 })
         }
+
+        sgMail.setApiKey(SENDGRID_API_KEY)
 
         const hash = crypto.createHmac("sha512", PAYSTACK_SECRET).update(body).digest("hex")
 
@@ -30,37 +35,52 @@ export async function POST(request: NextRequest) {
             const service = data.metadata?.service || "Your booking"
             const fullName = data.metadata?.fullName || "Valued Customer"
 
-            // Send Email via EmailJS REST API
+            // Send Email via SendGrid
             try {
-                const emailResponse = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        service_id: process.env.EMAILJS_SERVICE_ID,
-                        template_id: process.env.EMAILJS_TEMPLATE_ID,
-                        user_id: process.env.EMAILJS_PUBLIC_KEY,
-                        accessToken: process.env.EMAILJS_PRIVATE_KEY,
-                        template_params: {
-                            to_name: fullName,
-                            to_email: toEmail,
-                            amount: amountNGN,
-                            reference: data.reference,
-                            service: service,
-                            date: new Date(data.transaction_date || Date.now()).toLocaleDateString(),
-                            message: "Thank you for your payment! Your booking is confirmed. Next step 👇Join the class WhatsApp group here:https://chat.whatsapp.com/Hu8ZRryOCkg96G90oELK6J",
-                        },
-                    }),
+                const html = `
+                    <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+                        <div style="background-color: #000; color: #fbbf24; padding: 20px; text-align: center;">
+                            <h1 style="margin: 0; font-style: italic; letter-spacing: -1px; text-transform: uppercase;">ÀGBÀ CINEMA</h1>
+                        </div>
+                        <div style="padding: 30px;">
+                            <h2 style="color: #000; border-bottom: 2px solid #fbbf24; padding-bottom: 10px; text-transform: uppercase;">Payment Confirmed</h2>
+                            <p>Hello ${fullName},</p>
+                            <p>Your payment of <strong>${amountNGN}</strong> for <strong>${service}</strong> has been successfully processed.</p>
+                            
+                            <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #000;">
+                                <p style="font-weight: bold; margin-bottom: 15px; color: #000; text-transform: uppercase; font-size: 12px; letter-spacing: 1px;">Transaction Details:</p>
+                                <p style="margin: 5px 0;"><strong style="text-transform: uppercase; font-size: 10px; color: #666;">Reference:</strong> <span style="font-weight: bold;">${data.reference}</span></p>
+                                <p style="margin: 5px 0;"><strong style="text-transform: uppercase; font-size: 10px; color: #666;">Date:</strong> <span style="font-weight: bold;">${new Date(data.transaction_date || Date.now()).toLocaleDateString()}</span></p>
+                            </div>
+
+                            <div style="margin-top: 30px; padding: 20px; background-color: #fffbeb; border: 1px dashed #fbbf24; border-radius: 8px; text-align: center;">
+                                <p style="font-weight: bold; color: #92400e; margin-bottom: 10px;">IMPORTANT NEXT STEP</p>
+                                <p style="margin-bottom: 15px;">Join the official WhatsApp group for your session to receive updates and materials:</p>
+                                <a href="https://chat.whatsapp.com/Hu8ZRryOCkg96G90oELK6J" style="display: inline-block; background-color: #25d366; color: white; padding: 12px 25px; border-radius: 50px; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 14px;">Join WhatsApp Group</a>
+                            </div>
+                        </div>
+                        <div style="background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 12px; color: #888;">
+                            <p style="margin: 0;">&copy; ${new Date().getFullYear()} ÀGBÀ CINEMA HQ. ALL RIGHTS RESERVED.</p>
+                        </div>
+                    </div>
+                `
+
+                await sgMail.send({
+                    to: toEmail,
+                    from: {
+                        email: FROM_EMAIL,
+                        name: "ÀGBÀ CINEMA",
+                    },
+                    subject: `PAYMENT CONFIRMED: ${service}`,
+                    text: `Thank you for your payment of ${amountNGN} for ${service}. Your reference is ${data.reference}.`,
+                    html: html,
                 })
 
-                if (emailResponse.ok) {
-                    console.log("Email sent successfully via webhook")
-                } else {
-                    const errorText = await emailResponse.text()
-                    console.error("Webhook EmailJS Error:", errorText)
-                }
+                console.log("Email sent successfully via webhook (SendGrid)")
             } catch (emailError) {
-                console.error("Failed to send email via webhook:", emailError)
+                console.error("Failed to send email via webhook (SendGrid):", emailError)
             }
+
 
             // Note: DB/Sheet updates should ideally be handled here too if not already done by verify
         }
