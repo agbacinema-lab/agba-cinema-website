@@ -124,13 +124,13 @@ export default function AcademyManager() {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-black">Academy Manager</h2>
+        <h2 className="text-2xl font-black text-foreground">Academy Manager</h2>
         <Button
           onClick={() => {
             resetForm()
             setShowForm(true)
           }}
-          className="bg-yellow-400 text-black font-bold h-14 px-6 rounded-2xl flex items-center gap-2"
+          className="bg-yellow-400 text-black font-black h-14 px-8 rounded-2xl flex items-center gap-2 hover:bg-black hover:text-white transition-all shadow-xl shadow-yellow-400/10"
         >
           <Plus className="h-5 w-5" />
           New Service
@@ -143,12 +143,12 @@ export default function AcademyManager() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
         >
-          <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-12">
+          <Card className="border border-muted shadow-premium rounded-[2.5rem] bg-card p-12 transition-colors">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-black">{editingId ? "Edit Service" : "Create New Service"}</h3>
+              <h3 className="text-2xl font-black text-foreground">{editingId ? "Edit Service" : "Create New Service"}</h3>
               <button
                 onClick={resetForm}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -157,71 +157,71 @@ export default function AcademyManager() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Title *</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/50">Title *</label>
                   <Input
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     placeholder="Service Title"
-                    className="h-12 rounded-xl border-gray-200"
+                    className="h-12 rounded-xl border-muted bg-muted/20 text-foreground"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Price</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/50">Price</label>
                   <Input
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                     placeholder="e.g. From #50,000"
-                    className="h-12 rounded-xl border-gray-200"
+                    className="h-12 rounded-xl border-muted bg-muted/20 text-foreground"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400">Description</label>
+                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/50">Description</label>
                 <Textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Service Description"
-                  className="min-h-24 rounded-xl border-gray-200"
+                  className="min-h-24 rounded-xl border-muted bg-muted/20 text-foreground"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Link URL (href)</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/50">Link URL (href)</label>
                   <Input
                     value={formData.href}
                     onChange={(e) => setFormData({ ...formData, href: e.target.value })}
                     placeholder="/booking/..."
-                    className="h-12 rounded-xl border-gray-200"
+                    className="h-12 rounded-xl border-muted bg-muted/20 text-foreground"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Features (comma-separated)</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/50">Features (comma-separated)</label>
                   <Input
                     value={formData.features}
                     onChange={(e) => setFormData({ ...formData, features: e.target.value })}
                     placeholder="e.g. Concept development, Story structure"
-                    className="h-12 rounded-xl border-gray-200"
+                    className="h-12 rounded-xl border-muted bg-muted/20 text-foreground"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400">Image URL / Graphic</label>
+                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/50">Image URL / Graphic</label>
                 <Input
                   value={formData.image}
                   onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                   placeholder="https://... or /image.jpg"
-                  className="h-12 rounded-xl border-gray-200"
+                  className="h-12 rounded-xl border-muted bg-muted/20 text-foreground"
                 />
               </div>
 
               <div className="flex gap-4 pt-6">
-                <Button type="submit" className="bg-yellow-400 text-black font-black h-14 px-8 rounded-2xl flex-1">
+                <Button type="submit" className="bg-yellow-400 text-black font-black h-14 px-8 rounded-2xl flex-1 hover:bg-black hover:text-white transition-all shadow-xl shadow-yellow-400/10">
                   {editingId ? "Update Service" : "Create Service"}
                 </Button>
-                <Button type="button" onClick={resetForm} variant="outline" className="h-14 px-8 rounded-2xl flex-1">
+                <Button type="button" onClick={resetForm} variant="outline" className="h-14 px-8 rounded-2xl flex-1 border-muted text-foreground hover:bg-muted">
                   Cancel
                 </Button>
               </div>
@@ -232,26 +232,26 @@ export default function AcademyManager() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {items.length === 0 ? (
-          <Card className="col-span-full border-none shadow-premium rounded-[2.5rem] bg-white p-12 text-center">
-            <p className="text-gray-500 font-medium">No academy services yet.</p>
+          <Card className="col-span-full border border-muted shadow-premium rounded-[2.5rem] bg-card p-12 text-center transition-colors">
+            <p className="text-muted-foreground font-medium italic">No academy services yet.</p>
           </Card>
         ) : (
           items.map((item) => (
             <motion.div key={item.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <Card className="border-none shadow-md rounded-[2rem] bg-white p-6 hover:shadow-lg transition-shadow">
+              <Card className="border border-muted shadow-md rounded-[2rem] bg-card p-6 hover:shadow-lg transition-all">
                 <CardContent className="p-0 flex flex-col gap-4">
                   <div>
-                    <h3 className="text-lg font-black text-gray-900 mb-1">{item.title}</h3>
-                    <p className="text-sm text-gray-500 mb-1 font-bold text-yellow-600">{item.price}</p>
-                    <p className="text-sm text-gray-500 line-clamp-2">{item.description}</p>
+                    <h3 className="text-lg font-black text-foreground mb-1 italic uppercase tracking-tighter">{item.title}</h3>
+                    <p className="text-sm text-yellow-500 mb-1 font-black uppercase tracking-widest">{item.price}</p>
+                    <p className="text-sm text-muted-foreground line-clamp-2 italic font-medium">{item.description}</p>
                   </div>
-                  <div className="flex gap-2 mt-auto pt-2 border-t border-gray-50">
-                    <Button onClick={() => handleEdit(item)} size="sm" variant="outline" className="flex-1 rounded-xl">
+                  <div className="flex gap-2 mt-auto pt-4 border-t border-muted transition-colors">
+                    <Button onClick={() => handleEdit(item)} size="sm" variant="outline" className="flex-1 rounded-xl border-muted text-foreground hover:bg-muted font-black h-10 uppercase tracking-widest text-[9px]">
                       <Edit2 className="h-4 w-4 mr-2" /> Edit
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button size="sm" variant="destructive" className="flex-1 rounded-xl">
+                        <Button size="sm" variant="destructive" className="flex-1 rounded-xl font-black h-10 uppercase tracking-widest text-[9px]">
                           <Trash2 className="h-4 w-4 mr-2" /> Delete
                         </Button>
                       </AlertDialogTrigger>

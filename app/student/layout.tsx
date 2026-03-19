@@ -14,6 +14,9 @@ import {
   Bell
 } from "lucide-react"
 import { authService } from "@/lib/auth-service"
+import PushPrompt from "@/components/common/PushPrompt"
+import { UserDropdown } from "@/components/common/UserDropdown"
+import NotificationBell from "@/components/common/NotificationBell"
 
 const NAV_ITEMS = [
   { id: "dashboard",   label: "Home",       icon: LayoutDashboard, href: "/student/dashboard" },
@@ -21,7 +24,6 @@ const NAV_ITEMS = [
   { id: "assignments", label: "Tasks",      icon: FileText,        href: "/student/assignments" },
   { id: "portfolio",   label: "Portfolio",  icon: Star,            href: "/student/portfolio" },
   { id: "shop",        label: "Shop",       icon: ShoppingBag,     href: "/student/shop" },
-  { id: "profile",     label: "Profile",    icon: User,            href: "/student/profile" },
 ]
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
@@ -39,10 +41,10 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
   if (loading || !profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-yellow-400 mx-auto mb-4" />
-          <p className="text-gray-500 font-black uppercase tracking-[0.2em] text-xs">Accessing Portal...</p>
+          <p className="text-muted-foreground font-black uppercase tracking-[0.2em] text-xs">Accessing Portal...</p>
         </div>
       </div>
     )
@@ -51,7 +53,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
   const currentPage = NAV_ITEMS.find(i => i.href === pathname)?.label || "Dashboard"
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-black">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       {/* ── TOP HEADER (always visible) ── */}
       <header className="fixed top-0 inset-x-0 z-50 h-16 bg-black text-white flex items-center justify-between px-4 md:px-6 shadow-2xl">
         <div className="flex items-center gap-3">
@@ -66,18 +68,10 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
         <div className="flex items-center gap-3">
           {/* Page label – desktop only */}
-          <span className="hidden md:block text-[10px] font-black uppercase tracking-widest text-gray-400">{currentPage}</span>
+          <span className="hidden md:block text-[10px] font-black uppercase tracking-widest text-gray-400 mr-2">{currentPage}</span>
 
-          {/* Bell */}
-          <button className="relative p-2 hover:bg-white/10 rounded-xl transition-colors">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-yellow-400 rounded-full border-2 border-black" />
-          </button>
-
-          {/* Avatar */}
-          <div className="w-9 h-9 rounded-full bg-yellow-400 flex items-center justify-center text-black font-black text-sm flex-shrink-0">
-            {profile.name?.[0] || 'S'}
-          </div>
+          <NotificationBell />
+          <UserDropdown onSettingsClick={() => router.push('/student/profile')} />
         </div>
       </header>
 
@@ -85,19 +79,8 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
       <div className="flex pt-16">
         {/* ── DESKTOP SIDEBAR ── */}
         <aside className="hidden md:flex flex-col w-64 fixed top-16 bottom-0 left-0 bg-black text-white p-5 border-r border-white/5 overflow-y-auto">
-          {/* User card */}
-          <div className="bg-white/5 rounded-2xl p-4 mb-6 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center text-black font-black text-xs flex-shrink-0">
-              {profile.name?.[0] || 'S'}
-            </div>
-            <div className="overflow-hidden">
-              <p className="font-black text-sm truncate">{profile.name}</p>
-              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest truncate">{profile.uid.slice(-6)}</p>
-            </div>
-          </div>
-
           {/* Nav links */}
-          <nav className="flex-1 space-y-1.5">
+          <nav className="flex-1 space-y-1.5 mt-8">
             {NAV_ITEMS.map((item) => {
               const isActive = pathname === item.href
               return (
@@ -116,25 +99,12 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
               )
             })}
           </nav>
-
-          {/* Logout */}
-          <button
-            onClick={() => authService.logout()}
-            className="flex items-center gap-3 px-4 h-12 rounded-2xl text-red-400 hover:bg-red-400/10 transition-all font-black text-xs uppercase tracking-wider mt-4 border-t border-white/10 pt-4"
-          >
-            <LogOut className="h-4 w-4" />
-            <span>Log Out</span>
-          </button>
         </aside>
 
         {/* ── MAIN CONTENT ── */}
-        <main className="flex-1 md:ml-64 min-h-[calc(100vh-4rem)]">
-          {/* Mobile page title bar */}
-          <div className="md:hidden bg-white border-b border-gray-100 px-4 py-3 sticky top-16 z-40">
-            <h2 className="font-black text-sm uppercase tracking-widest text-gray-800">{currentPage}</h2>
-          </div>
+        <main className="flex-1 md:ml-64 min-h-[calc(100vh-4rem)] w-full max-w-full overflow-x-hidden">
 
-          <div className="p-4 md:p-8 max-w-7xl mx-auto pb-24 md:pb-8">
+          <div className="p-4 md:p-8 max-w-7xl mx-auto pb-24 md:pb-8 w-full">
             {children}
           </div>
         </main>
@@ -160,14 +130,9 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             </button>
           )
         })}
-        <button
-          onClick={() => authService.logout()}
-          className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 text-red-500"
-        >
-          <LogOut className="h-5 w-5" />
-          <span className="text-[9px] font-black uppercase tracking-wider">Exit</span>
-        </button>
       </nav>
+
+      <PushPrompt />
     </div>
   )
 }

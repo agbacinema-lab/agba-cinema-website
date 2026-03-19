@@ -35,40 +35,40 @@ export default function NotificationBar() {
           className="bg-red-600 text-white p-4 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all outline-none animate-bounce"
         >
           <Bell className="h-6 w-6" />
-          <span className="absolute -top-1 -right-1 bg-white text-red-600 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-red-600">
+          <span className="absolute -top-1 -right-1 bg-foreground text-background text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-red-600">
             {requests.length}
           </span>
         </button>
 
         {isOpen && (
-          <div className="absolute top-16 right-0 w-[400px] bg-white rounded-[2rem] shadow-3xl border border-gray-100 overflow-hidden transform origin-top-right transition-all">
-            <div className="bg-gray-900 p-6 text-white">
-              <h3 className="text-lg font-black flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-yellow-400" />
+          <div className="absolute top-16 right-0 w-[400px] bg-card rounded-[2rem] shadow-3xl border border-muted overflow-hidden transform origin-top-right transition-all">
+            <div className="bg-black text-white p-6 border-b border-white/10">
+              <h3 className="text-lg font-black flex items-center gap-2 italic uppercase tracking-tighter">
+                <ShieldCheck className="h-5 w-5 text-yellow-500" />
                 Pending Approvals
               </h3>
-              <p className="text-xs text-gray-400 mt-1">These actions require your official authorization</p>
+              <p className="text-[10px] text-gray-400 mt-1 font-black uppercase tracking-widest">Administrative Authorization Required</p>
             </div>
             
             <div className="max-h-[500px] overflow-y-auto p-4 space-y-4">
               {requests.map(req => (
-                <div key={req.id} className="bg-gray-50 rounded-2xl p-5 border border-gray-100 transition-all hover:border-red-200">
+                <div key={req.id} className="bg-muted/30 rounded-2xl p-5 border border-muted transition-all hover:border-red-500/30">
                   <div className="flex items-start gap-4 mb-4">
-                    <div className={`p-3 rounded-xl ${req.type === 'role_change' ? 'bg-indigo-100 text-indigo-600' : 'bg-yellow-100 text-yellow-600'}`}>
+                    <div className={`p-3 rounded-xl ${req.type === 'role_change' ? 'bg-indigo-500/20 text-indigo-400' : 'bg-yellow-400/20 text-yellow-400'}`}>
                       {req.type === 'role_change' ? <UserCog className="h-5 w-5" /> : <GraduationCap className="h-5 w-5" />}
                     </div>
                     <div>
-                      <h4 className="font-bold text-gray-900 text-sm">
+                      <h4 className="font-bold text-foreground text-sm uppercase italic tracking-tight">
                         {req.type === 'role_change' 
                           ? `Role Change for ${req.data.userName}` 
                           : `Internship Readiness: ${req.data.userName}`}
                       </h4>
-                      <p className="text-[10px] text-gray-500 font-medium">Requested by: {req.requestBy.name}</p>
+                      <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest mt-0.5">Requested by: {req.requestBy.name}</p>
                       {req.type === 'role_change' && (
                         <div className="mt-2 flex items-center gap-2">
-                          <span className="text-[10px] bg-gray-200 px-2 py-0.5 rounded text-gray-600">{req.data.currentRole}</span>
-                          <span className="text-gray-400 text-xs">→</span>
-                          <span className="text-[10px] bg-yellow-400 px-2 py-0.5 rounded text-black font-bold">{req.data.targetRole?.replace('_', ' ')}</span>
+                          <span className="text-[9px] font-black bg-muted px-2 py-1 rounded text-muted-foreground uppercase tracking-widest">{req.data.currentRole}</span>
+                          <span className="text-muted-foreground/30 text-xs">→</span>
+                          <span className="text-[9px] bg-yellow-400 px-2 py-1 rounded text-black font-black uppercase tracking-widest">{req.data.targetRole?.replace('_', ' ')}</span>
                         </div>
                       )}
                     </div>
@@ -77,13 +77,13 @@ export default function NotificationBar() {
                   <div className="flex gap-2">
                     <Button 
                       onClick={() => handleProcess(req.id, true)}
-                      className="flex-1 bg-black text-white hover:bg-green-600 h-10 rounded-xl font-bold text-xs"
+                      className="flex-1 bg-foreground text-background hover:bg-green-600 hover:text-white h-10 rounded-xl font-bold text-xs uppercase italic tracking-tighter"
                     >
                       <Check className="h-4 w-4 mr-1" /> Approve
                     </Button>
                     <button 
                       onClick={() => handleProcess(req.id, false)}
-                      className="w-10 h-10 bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-500 rounded-xl flex items-center justify-center transition-all"
+                      className="w-10 h-10 bg-muted text-muted-foreground hover:bg-red-500/20 hover:text-red-500 rounded-xl flex items-center justify-center transition-all border border-transparent hover:border-red-500/30"
                     >
                       <X className="h-4 w-4" />
                     </button>

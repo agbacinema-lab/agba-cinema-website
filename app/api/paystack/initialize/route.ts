@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
   try {
-    const { amount, email, service, fullName, phone } = await request.json()
+    const { amount, email, service, fullName, phone, userId, type, programType } = await request.json()
     if (!amount || !email) {
       return NextResponse.json({ message: "Missing amount or email" }, { status: 400 })
     }
@@ -16,8 +16,15 @@ export async function POST(request: NextRequest) {
     const body = {
       email,
       amount: Math.round(Number(amount) * 100), // kobo
-      metadata: { service, fullName, phone, type: "academy_enrollment" },
-      callback_url: process.env.PAYSTACK_CALLBACK_URL || `${origin}/register?role=student`,
+      metadata: { 
+        service, 
+        fullName, 
+        phone, 
+        userId: userId || "", 
+        type: type || "academy_enrollment",
+        programType: programType || "mentorship"
+      },
+      callback_url: `${origin}/api/paystack/verify`,
     }
 
     const res = await fetch("https://api.paystack.co/transaction/initialize", {

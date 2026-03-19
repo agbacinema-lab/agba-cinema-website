@@ -47,12 +47,12 @@ export default function BrandSettings({ brandData, onRefresh }: any) {
   return (
     <div className="space-y-8 max-w-4xl pb-20">
       <header>
-        <h2 className="text-4xl font-black italic uppercase tracking-tighter">Corporate Configuration</h2>
-        <p className="text-gray-500 font-medium">Manage your brand identity and recruitment preferences within the ÀGBÀ ecosystem.</p>
+        <h2 className="text-4xl font-black italic uppercase tracking-tighter text-foreground">Corporate Configuration</h2>
+        <p className="text-muted-foreground font-medium">Manage your brand identity and recruitment preferences within the ÀGBÀ ecosystem.</p>
       </header>
 
       <div className="grid grid-cols-1 gap-8">
-        <Card className="border-none shadow-premium rounded-[2.5rem] bg-white overflow-hidden">
+        <Card className="border-none shadow-premium rounded-[2.5rem] bg-card overflow-hidden transition-colors">
            <CardHeader className="bg-black text-white p-10">
               <div className="flex justify-between items-center">
                 <div className="space-y-1">
@@ -101,14 +101,14 @@ export default function BrandSettings({ brandData, onRefresh }: any) {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Current Recruitment Brief</label>
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Current Recruitment Brief</label>
                   <Textarea 
                     value={formData.requirements}
                     onChange={(e) => setFormData({...formData, requirements: e.target.value})}
                     placeholder="Describe the type of talent you are looking for..."
-                    className="min-h-32 rounded-3xl border-gray-100 bg-gray-50 focus:bg-white font-medium p-6 leading-relaxed"
+                    className="min-h-32 rounded-3xl border-muted bg-muted/30 focus:bg-background text-foreground font-medium p-6 leading-relaxed outline-none focus:ring-2 focus:ring-yellow-400"
                   />
-                   <p className="text-[9px] text-gray-400 italic">This brief helps our HODs match the best students to your requirements.</p>
+                   <p className="text-[9px] text-muted-foreground italic text-center">This brief helps our HODs match the best students to your requirements.</p>
                 </div>
 
                 <div className="pt-4">
@@ -155,10 +155,10 @@ export default function BrandSettings({ brandData, onRefresh }: any) {
 function FormInput({ label, value, onChange, icon, placeholder }: any) {
   return (
     <div className="space-y-2">
-      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">{label}</label>
+      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">{label}</label>
       <div className="relative">
         {icon && (
-          <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">
+          <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground">
             {icon}
           </div>
         )}
@@ -166,7 +166,7 @@ function FormInput({ label, value, onChange, icon, placeholder }: any) {
           value={value}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
-          className={`${icon ? "pl-12" : "px-6"} h-14 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white font-bold transition-all`}
+          className={`${icon ? "pl-12" : "px-6"} h-14 rounded-2xl border-muted bg-muted/30 focus:bg-background text-foreground font-bold transition-all focus:ring-2 focus:ring-yellow-400`}
         />
       </div>
     </div>

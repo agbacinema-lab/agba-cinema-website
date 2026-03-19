@@ -49,7 +49,7 @@ export default function AnalyticsDashboard() {
     loadData()
   }, [])
 
-  if (loading) return <div className="p-20 text-center font-black animate-pulse text-gray-400">DECIPHERING DATA STREAMS...</div>
+  if (loading) return <div className="p-20 text-center font-black animate-pulse text-gray-400 uppercase tracking-widest">Loading Data...</div>
 
   // Prepare chart data (Mocking some time series if no data exists)
   const chartData = sales?.transactions?.slice(0, 10).reverse() || []
@@ -57,8 +57,8 @@ export default function AnalyticsDashboard() {
   return (
     <div className="space-y-10 selection:bg-yellow-400 selection:text-black">
       <header>
-        <h2 className="text-3xl font-black italic uppercase tracking-tighter">Command Intelligence</h2>
-        <p className="text-gray-500 font-medium">Real-time oversight of registration velocity and fiscal performance.</p>
+        <h2 className="text-3xl font-black italic uppercase tracking-tighter text-foreground text-4xl">Portal Statistics</h2>
+        <p className="text-muted-foreground font-medium italic">View total revenue, active students, and overall platform growth.</p>
       </header>
 
       {/* Primary KPI Grid */}
@@ -82,25 +82,25 @@ export default function AnalyticsDashboard() {
            value={engagement?.brands || 0} 
            trend="Stable" 
            icon={<Briefcase className="h-5 w-5" />} 
-           color="bg-white border-2 border-gray-100"
+           color="bg-card border-2 border-muted transition-colors text-foreground"
          />
          <StatsCard 
            title="Conversion Rate" 
            value="4.2%" 
            trend="-0.5%" 
            icon={<Activity className="h-5 w-5" />} 
-           color="bg-white border-2 border-gray-100"
+           color="bg-card border-2 border-muted transition-colors text-foreground"
          />
       </div>
 
       {/* Main Charts Area */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-         <Card className="lg:col-span-2 border-none shadow-premium rounded-[3rem] bg-white p-10">
+         <Card className="lg:col-span-2 border-none shadow-premium rounded-[3rem] bg-card p-10 transition-colors">
             <CardHeader className="p-0 mb-10">
-               <CardTitle className="text-xl font-black italic uppercase tracking-tight flex items-center justify-between">
-                  Fiscal Velocity (Sales)
-                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Last 10 Transactions</span>
-               </CardTitle>
+               <CardTitle className="text-xl font-black italic uppercase tracking-tight flex items-center justify-between text-foreground">
+                   Revenue Growth (Sales)
+                   <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Last 10 Transactions</span>
+                </CardTitle>
             </CardHeader>
             <CardContent className="p-0 h-[350px]">
                <ResponsiveContainer width="100%" height="100%">
@@ -111,13 +111,14 @@ export default function AnalyticsDashboard() {
                            <stop offset="95%" stopColor="#FACC15" stopOpacity={0}/>
                         </linearGradient>
                      </defs>
-                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-muted/20" />
                      <XAxis 
                         dataKey="createdAt" 
                         hide 
                      />
                      <YAxis 
-                        stroke="#94a3b8" 
+                        stroke="currentColor" 
+                        className="text-muted-foreground"
                         fontSize={10} 
                         fontWeight="black" 
                         tickFormatter={(v) => `₦${v/1000}k`}
@@ -148,54 +149,53 @@ export default function AnalyticsDashboard() {
             </CardContent>
          </Card>
 
-         <Card className="border-none shadow-premium rounded-[3rem] bg-black text-white p-10">
+         <Card className="border-none shadow-premium rounded-[3rem] bg-black text-white p-10 border border-white/5">
             <CardHeader className="p-0 mb-8">
-               <CardTitle className="text-xl font-black italic uppercase">Engagement Mix</CardTitle>
+                <CardTitle className="text-xl font-black italic uppercase">User Engagement</CardTitle>
             </CardHeader>
             <CardContent className="p-0 space-y-8">
                <EngagementRow label="Academy Enrollment" count={engagement?.students || 0} total={engagement?.totalUsers || 1} color="bg-yellow-400" />
                <EngagementRow label="Brand Partnerships" count={engagement?.brands || 0} total={engagement?.totalUsers || 1} color="bg-white" />
-               <EngagementRow label="Staff & Tutors" count={engagement?.staff || 0} total={engagement?.totalUsers || 1} color="bg-gray-600" />
-               
-               <div className="pt-8 border-t border-white/10 mt-8">
-                  <p className="text-[10px] font-black tracking-widest text-gray-500 uppercase mb-4">Live System Health</p>
-                  <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl">
-                     <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                     <span className="text-xs font-bold italic">ALL SYSTEMS OPERATIONAL</span>
-                  </div>
-               </div>
+               <EngagementRow label="Staff & Tutors" count={engagement?.staff || 0} total={engagement?.totalUsers || 1} color="bg-gray-400" />
+                              <div className="pt-8 border-t border-white/10 mt-8">
+                   <p className="text-[10px] font-black tracking-widest text-white/40 uppercase mb-4">System Status</p>
+                   <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                      <span className="text-xs font-bold italic uppercase tracking-widest">All Systems Online</span>
+                   </div>
+                </div>
             </CardContent>
          </Card>
       </div>
 
       {/* Recent Activity Table */}
-      <Card className="border-none shadow-premium rounded-[3rem] bg-white overflow-hidden">
-         <CardHeader className="p-10 border-b border-gray-50 flex flex-row items-center justify-between">
-            <CardTitle className="text-xl font-black italic uppercase">Recent Transactions</CardTitle>
-            <CreditCard className="h-6 w-6 text-gray-200" />
+      <Card className="border-none shadow-premium rounded-[3rem] bg-card overflow-hidden transition-colors">
+         <CardHeader className="p-10 border-b border-muted flex flex-row items-center justify-between">
+            <CardTitle className="text-xl font-black italic uppercase text-foreground">Recent Transactions</CardTitle>
+            <CreditCard className="h-6 w-6 text-muted-foreground" />
          </CardHeader>
          <div className="overflow-x-auto">
             <table className="w-full text-left">
                <thead>
-                  <tr className="bg-gray-50 text-[9px] font-black uppercase tracking-widest text-gray-400 border-b border-gray-100">
+                  <tr className="bg-muted/50 text-[9px] font-black uppercase tracking-widest text-muted-foreground border-b border-muted transition-colors">
                      <th className="px-10 py-5">Origin</th>
                      <th className="px-6 py-5">Amount</th>
                      <th className="px-6 py-5">Category</th>
                      <th className="px-10 py-5 text-right">Reference</th>
                   </tr>
                </thead>
-               <tbody className="divide-y divide-gray-50">
+               <tbody className="divide-y divide-muted transition-colors">
                   {(sales?.transactions || []).slice(0, 5).map((t: any) => (
-                    <tr key={t.id} className="hover:bg-gray-50/50 transition-colors">
+                    <tr key={t.id} className="hover:bg-muted/30 transition-colors">
                        <td className="px-10 py-6">
-                          <p className="font-black uppercase italic tracking-tighter">{t.fullName || "Anonymous"}</p>
-                          <p className="text-xs text-gray-400 font-medium">{t.customerEmail || t.email}</p>
+                          <p className="font-black uppercase italic tracking-tighter text-foreground">{t.fullName || "Anonymous"}</p>
+                          <p className="text-xs text-muted-foreground font-medium">{t.customerEmail || t.email}</p>
                        </td>
-                       <td className="px-6 py-6 font-black text-gray-900">₦{t.amount?.toLocaleString()}</td>
-                       <td className="px-6 py-6 font-bold uppercase text-[10px] text-indigo-600 italic tracking-widest">
+                       <td className="px-6 py-6 font-black text-foreground">₦{t.amount?.toLocaleString()}</td>
+                       <td className="px-6 py-6 font-bold uppercase text-[10px] text-indigo-500 italic tracking-widest">
                           {t.category || "General"}
                        </td>
-                       <td className="px-10 py-6 text-right font-mono text-[10px] text-gray-300">{t.reference}</td>
+                       <td className="px-10 py-6 text-right font-mono text-[10px] text-muted-foreground">{t.reference}</td>
                     </tr>
                   ))}
                </tbody>
@@ -228,7 +228,7 @@ function EngagementRow({ label, count, total, color }: any) {
   return (
     <div className="space-y-2">
        <div className="flex justify-between items-end">
-          <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{label}</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-white/40">{label}</p>
           <p className="text-lg font-black italic">{count}</p>
        </div>
        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">

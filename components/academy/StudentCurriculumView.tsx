@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { FileText, PlayCircle, Link as LinkIcon, Check, Lock, ChevronDown, Download } from "lucide-react"
 import { curriculumService } from "@/lib/services"
 import { motion } from "framer-motion"
+import PDFViewer from "@/components/curriculum/PDFViewer"
 
 interface StudentCurriculumViewProps {
   specialization: string
@@ -23,6 +24,7 @@ export default function StudentCurriculumView({
   const [loading, setLoading] = useState(true)
   const [expandedModule, setExpandedModule] = useState<string | null>(null)
   const [progress, setProgress] = useState<any>(null)
+  const [selectedMaterial, setSelectedMaterial] = useState<any>(null)
 
   useEffect(() => {
     loadCurriculum()
@@ -65,7 +67,7 @@ export default function StudentCurriculumView({
   const openMaterial = (material: any) => {
     if (material.type === 'pdf' || material.type === 'document') {
       if (material.fileUrl) {
-        window.open(material.fileUrl, '_blank')
+        setSelectedMaterial(material)
       }
     } else if (material.type === 'video' && material.videoUrl) {
       window.open(material.videoUrl, '_blank')
@@ -280,6 +282,14 @@ export default function StudentCurriculumView({
           })
         )}
       </div>
+
+      {selectedMaterial && (
+        <PDFViewer 
+          fileUrl={selectedMaterial.fileUrl}
+          fileName={selectedMaterial.title || selectedMaterial.fileName || "Document"}
+          onClose={() => setSelectedMaterial(null)}
+        />
+      )}
     </div>
   )
 }

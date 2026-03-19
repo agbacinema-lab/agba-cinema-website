@@ -2,233 +2,221 @@
 
 import { useState, useEffect } from "react"
 import { useAuth } from "@/context/AuthContext"
-import { motion, AnimatePresence } from "framer-motion"
-import { 
-  User, 
-  Smartphone, 
-  Mail, 
-  FileEdit, 
-  ChevronLeft, 
-  Save, 
-  CheckCircle,
-  Video,
-  Camera,
-  Layers,
-  Mic2,
-  Briefcase,
-  Monitor,
-  AlertCircle
-} from "lucide-react"
-import Link from "next/link"
+import { useTheme } from "next-themes"
+import { AnimatePresence, motion } from "framer-motion"
+import { Save, Sun, Moon, CheckCircle, AlertCircle, User, Phone, FileText, Mail } from "lucide-react"
 import { studentService as sService } from "@/lib/services"
-
-const AVATARS = [
-  { id: "director", name: "The Director", icon: Video, desc: "Visionary Leader" },
-  { id: "editor", name: "The Editor", icon: Layers, desc: "Rhythm & Story" },
-  { id: "colorist", name: "The Colorist", icon: Camera, desc: "Luminance Master" },
-  { id: "sound", name: "Sound Designer", icon: Mic2, desc: "Sonic Sculptor" },
-  { id: "producer", name: "The Producer", icon: Briefcase, desc: "Strategy Lead" },
-  { id: "vfx", name: "VFX Artist", icon: Monitor, desc: "Infinite Realities" }
-]
 
 export default function StudentSettings() {
   const { profile } = useAuth()
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    bio: "",
-    avatarId: ""
-  })
-  const [saving, setSaving] = useState(false)
-  const [saveDone, setSaveDone] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { theme, setTheme } = useTheme()
+
+  const [formData, setFormData] = useState({ name: "", phone: "", bio: "" })
+  const [saving, setSaving]     = useState(false)
+  const [saved, setSaved]       = useState(false)
+  const [error, setError]       = useState<string | null>(null)
 
   useEffect(() => {
-    // Only populate the form if we have a profile and the form is currently empty
-    // This prevents background syncs from wiping out what the user is currently typing
-    if (profile && !formData.name && !formData.phone && !formData.avatarId) {
+    if (profile && !formData.name) {
       setFormData({
-        name: profile.name || "",
+        name:  profile.name  || "",
         phone: profile.phone || "",
-        bio: profile.bio || "",
-        avatarId: profile.avatarId || ""
+        bio:   profile.bio   || "",
       })
     }
-  }, [profile, formData.name, formData.phone, formData.avatarId])
+  }, [profile])
+
+  if (!profile) return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-yellow-400" />
+    </div>
+  )
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!profile?.uid) return
-    
     setSaving(true)
     setError(null)
-    
     try {
       await sService.updateFullProfile(profile.uid, formData)
-      setSaveDone(true)
-      // Scroll to top to show success
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-      setTimeout(() => setSaveDone(false), 5000)
-    } catch (err) {
-      console.error("Identity Error:", err)
-      setError("Failed to synchronize with the AGBA core ledger.")
+      setSaved(true)
+      setTimeout(() => setSaved(false), 4000)
+    } catch {
+      setError("Failed to save. Please try again.")
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <div className="space-y-12 pb-32 max-w-5xl mx-auto px-4 pt-4">
-      {/* Dynamic Notification Bar */}
+    <div className="max-w-xl mx-auto px-4 pt-6 pb-24 space-y-6">
+
+      {/* ── Alerts ── */}
       <AnimatePresence>
-        {saveDone && (
-          <motion.div 
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="bg-green-600 text-white p-6 rounded-[2rem] flex items-center justify-between shadow-2xl shadow-green-200"
+        {saved && (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="flex items-center gap-3 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-2xl text-sm font-medium"
           >
-             <div className="flex items-center gap-4">
-                <CheckCircle className="h-6 w-6" />
-                <p className="font-black uppercase italic tracking-tighter text-sm">Identity Synchronized. Please refresh to see changes globally.</p>
-             </div>
-             <button onClick={() => window.location.reload()} className="bg-white text-green-600 px-6 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all">
-                Hot Reload
-             </button>
+            <CheckCircle className="h-4 w-4 shrink-0" /> Profile saved successfully.
           </motion.div>
         )}
         {error && (
-          <motion.div 
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            className="bg-red-600 text-white p-6 rounded-[2rem] flex items-center gap-4 shadow-2xl shadow-red-200"
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm font-medium"
           >
-             <AlertCircle className="h-6 w-6" />
-             <p className="font-black uppercase italic tracking-tighter text-sm">{error}</p>
+            <AlertCircle className="h-4 w-4 shrink-0" /> {error}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Control Header */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-        <Link href="/student/profile" className="flex items-center gap-3 group text-gray-500 hover:text-black transition-colors">
-          <ChevronLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
-          <span className="text-[11px] font-black uppercase tracking-[0.3em]">Operational Profile</span>
-        </Link>
-        <button 
-          onClick={handleSave}
+      {/* ── Appearance ── */}
+      <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-2xl p-5">
+        <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Appearance</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-semibold text-gray-900 dark:text-white text-sm">Theme</p>
+            <p className="text-xs text-gray-400 mt-0.5">Choose how the portal looks for you</p>
+          </div>
+          <div className="flex items-center bg-gray-100 dark:bg-zinc-800 rounded-xl p-1 gap-1">
+            <button
+              onClick={() => setTheme("light")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                theme === "light"
+                  ? "bg-white dark:bg-zinc-700 text-gray-900 dark:text-white shadow-sm"
+                  : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              }`}
+            >
+              <Sun className="h-4 w-4" /> Light
+            </button>
+            <button
+              onClick={() => setTheme("dark")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                theme === "dark"
+                  ? "bg-white dark:bg-zinc-700 text-gray-900 dark:text-white shadow-sm"
+                  : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              }`}
+            >
+              <Moon className="h-4 w-4" /> Dark
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Edit Profile ── */}
+      <form onSubmit={handleSave} className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-2xl p-5 space-y-5">
+        <p className="text-xs font-bold uppercase tracking-widest text-gray-400">Profile</p>
+
+        {/* Email – read only */}
+        <div className="space-y-1.5">
+          <label className="flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
+            <Mail className="h-3.5 w-3.5" /> Email
+          </label>
+          <div className="flex items-center bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 px-4 py-2.5 rounded-xl text-sm text-gray-400 dark:text-gray-500">
+            {profile.email}
+            <span className="ml-auto text-[10px] bg-gray-200 dark:bg-zinc-700 text-gray-400 px-2 py-0.5 rounded-full font-semibold">Can't change</span>
+          </div>
+        </div>
+
+        {/* Name */}
+        <div className="space-y-1.5">
+          <label className="flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
+            <User className="h-3.5 w-3.5" /> Full Name
+          </label>
+          <input
+            type="text"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            placeholder="Your name"
+            className="w-full bg-gray-50 dark:bg-zinc-800 border-2 border-gray-200 dark:border-zinc-700 focus:border-yellow-400 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-900 dark:text-white outline-none transition-all"
+          />
+        </div>
+
+        {/* Phone – only show if already set or user wants to add */}
+        <div className="space-y-1.5">
+          <label className="flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
+            <Phone className="h-3.5 w-3.5" /> Phone Number
+          </label>
+          <input
+            type="tel"
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            placeholder="+234 000 000 0000"
+            className="w-full bg-gray-50 dark:bg-zinc-800 border-2 border-gray-200 dark:border-zinc-700 focus:border-yellow-400 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-900 dark:text-white outline-none transition-all"
+          />
+        </div>
+
+        {/* Bio */}
+        <div className="space-y-1.5">
+          <label className="flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
+            <FileText className="h-3.5 w-3.5" /> Bio
+          </label>
+          <textarea
+            value={formData.bio}
+            onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+            rows={4}
+            placeholder="Write a short bio about yourself..."
+            className="w-full bg-gray-50 dark:bg-zinc-800 border-2 border-gray-200 dark:border-zinc-700 focus:border-yellow-400 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-900 dark:text-white outline-none transition-all resize-none"
+          />
+        </div>
+
+        <button
+          type="submit"
           disabled={saving}
-          className="h-16 px-12 bg-black text-white rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] flex items-center gap-4 shadow-[0_20px_40px_rgba(0,0,0,0.2)] hover:bg-yellow-400 hover:text-black hover:scale-105 active:scale-95 disabled:opacity-50 transition-all"
+          className="w-full h-11 bg-yellow-400 hover:bg-yellow-500 text-black rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 shadow-md shadow-yellow-400/20"
         >
-          {saving ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save className="h-5 w-5" />}
-          {saving ? "Transmitting..." : "Update Protocol"}
+          {saving
+            ? <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+            : <Save className="h-4 w-4" />}
+          {saving ? "Saving..." : "Save Changes"}
         </button>
-      </div>
+      </form>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-        {/* Role Manifestation Selector */}
-        <div className="lg:col-span-4 space-y-6">
-           <div className="space-y-1 ml-4">
-             <h3 className="text-2xl font-black italic uppercase tracking-tighter">Avatar Protocol</h3>
-             <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest">Select your creative manifestation</p>
-           </div>
-           
-           <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
-              {AVATARS.map((av) => (
-                <button
-                  key={av.id}
-                  type="button"
-                  onClick={() => setFormData({...formData, avatarId: av.id})}
-                  className={`p-8 rounded-[2.5rem] border-2 transition-all duration-500 flex items-center gap-6 relative group ${
-                    formData.avatarId === av.id 
-                    ? 'border-black bg-black text-white shadow-2xl translate-x-2' 
-                    : 'border-gray-50 bg-white text-gray-400 hover:border-gray-200 hover:translate-x-1'
-                  }`}
-                >
-                  <div className={`p-4 rounded-2xl ${formData.avatarId === av.id ? 'bg-yellow-400 text-black' : 'bg-gray-50 group-hover:bg-black group-hover:text-white transition-all duration-500'}`}>
-                    <av.icon className="h-6 w-6" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-xs font-black uppercase tracking-tight leading-none">{av.name}</p>
-                    <p className={`text-[8px] font-black uppercase tracking-widest mt-2 ${formData.avatarId === av.id ? 'text-gray-500' : 'text-gray-300'}`}>{av.desc}</p>
-                  </div>
-                  {formData.avatarId === av.id && (
-                    <motion.div layoutId="av-indicator" className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-12 bg-yellow-400 rounded-full shadow-[0_0_20px_rgba(250,204,21,0.5)]" />
-                  )}
-                </button>
-              ))}
-           </div>
+      {/* ── Account info (read-only, DB-driven) ── */}
+      <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-2xl p-5 space-y-3">
+        <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">Account</p>
+
+        <div className="flex items-center justify-between py-2">
+          <span className="text-sm text-gray-500 dark:text-gray-400">Role</span>
+          <span className="text-sm font-semibold text-gray-900 dark:text-white capitalize">{profile.role?.replace(/_/g, " ") || "Student"}</span>
         </div>
 
-        {/* Identity Inputs */}
-        <div className="lg:col-span-8 flex flex-col gap-10">
-           <div className="bg-white p-12 lg:p-16 rounded-[4rem] border border-gray-100 shadow-sm space-y-12">
-              <div className="space-y-2">
-                 <h4 className="text-3xl font-black italic uppercase tracking-tighter">Core Definition</h4>
-                 <p className="text-gray-400 text-[10px] font-black uppercase tracking-widest">Update your official recognition data</p>
-              </div>
+        {/* Courses – only if enrolled */}
+        {(profile.enrolledSpecializations?.length || profile.specialization) && (
+          <div className="flex items-start justify-between py-2 border-t border-gray-100 dark:border-zinc-800">
+            <span className="text-sm text-gray-500 dark:text-gray-400">My Courses</span>
+            <div className="flex flex-wrap gap-1.5 max-w-[60%] justify-end">
+              {profile.enrolledSpecializations?.length
+                ? profile.enrolledSpecializations.map(s => (
+                    <span key={s.id} className="text-[11px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-semibold">
+                      {s.title || s.value}
+                    </span>
+                  ))
+                : <span className="text-[11px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-semibold capitalize">
+                    {String(profile.specialization).replace(/-/g, " ")}
+                  </span>
+              }
+            </div>
+          </div>
+        )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                 <div className="space-y-3">
-                   <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4 flex items-center gap-2">
-                     <User className="h-3 w-3" /> Full Artist Name
-                   </label>
-                   <input 
-                      type="text" 
-                      value={formData.name}
-                      onChange={e => setFormData({...formData, name: e.target.value})}
-                      className="w-full h-16 bg-gray-50/50 border-2 border-transparent px-8 rounded-2xl text-[12px] font-black uppercase transition-all focus:bg-white focus:border-black outline-none italic tracking-tighter"
-                    />
-                 </div>
-                 <div className="space-y-3">
-                   <label className="text-[10px] font-black uppercase tracking-widest text-gray-300 ml-4 flex items-center gap-2">
-                     <Mail className="h-3 w-3" /> Email Channel (Locked)
-                   </label>
-                   <input 
-                      type="email" 
-                      value={profile?.email || ""}
-                      readOnly
-                      className="w-full h-16 bg-gray-50/30 border-2 border-transparent px-8 rounded-2xl text-[12px] font-black uppercase text-gray-300 cursor-not-allowed outline-none italic tracking-tighter"
-                    />
-                 </div>
-              </div>
+        {/* Tutor – only if assigned */}
+        {profile.tutorName && (
+          <div className="flex items-center justify-between py-2 border-t border-gray-100 dark:border-zinc-800">
+            <span className="text-sm text-gray-500 dark:text-gray-400">Tutor</span>
+            <span className="text-sm font-semibold text-gray-900 dark:text-white">{profile.tutorName}</span>
+          </div>
+        )}
 
-              <div className="space-y-3">
-                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4 flex items-center gap-2">
-                   <Smartphone className="h-3 w-3" /> Operational Phone Number
-                 </label>
-                 <input 
-                    type="tel" 
-                    value={formData.phone}
-                    onChange={e => setFormData({...formData, phone: e.target.value})}
-                    placeholder="+234 000 000 000"
-                    className="w-full h-16 bg-gray-50/50 border-2 border-transparent px-8 rounded-2xl text-[12px] font-black transition-all focus:bg-white focus:border-black outline-none italic tracking-tighter"
-                  />
-              </div>
-
-              <div className="space-y-3">
-                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4 flex items-center gap-2">
-                   <FileEdit className="h-3 w-3" /> Creative Manifesto (Bio)
-                 </label>
-                 <textarea 
-                    value={formData.bio}
-                    onChange={e => setFormData({...formData, bio: e.target.value})}
-                    rows={6}
-                    placeholder="Declare your vision to the collective..."
-                    className="w-full p-10 rounded-[3rem] bg-gray-50/50 border-2 border-transparent transition-all focus:bg-white focus:border-black outline-none text-[14px] font-medium leading-relaxed italic text-gray-600"
-                  />
-              </div>
-
-              <div className="pt-8 border-t border-gray-50 flex items-center justify-between">
-                 <div className="flex items-center gap-4">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Security: Verified PID Profile</span>
-                 </div>
-                 <p className="text-[8px] font-black uppercase tracking-widest text-gray-300 italic">Last Updated: {profile?.updatedAt ? new Date(profile.updatedAt.seconds * 1000).toLocaleDateString() : 'Never'}</p>
-              </div>
-           </div>
+        <div className="flex items-center justify-between py-2 border-t border-gray-100 dark:border-zinc-800">
+          <span className="text-sm text-gray-500 dark:text-gray-400">Last updated</span>
+          <span className="text-sm text-gray-400">
+            {profile.updatedAt
+              ? new Date(profile.updatedAt.seconds * 1000).toLocaleDateString()
+              : "Never"}
+          </span>
         </div>
       </div>
+
     </div>
   )
 }

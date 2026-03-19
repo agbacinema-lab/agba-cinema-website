@@ -10,6 +10,7 @@ import { Trash2, FileText, PlayCircle, Link as LinkIcon, Plus, X, Eye, ExternalL
 import { curriculumService } from "@/lib/services"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
+import PDFViewer from "@/components/curriculum/PDFViewer"
 
 interface CurriculumMaterialsProps {
   curriculumId: string
@@ -67,6 +68,7 @@ export default function CurriculumMaterials({
   })
   const [localMaterials, setLocalMaterials] = useState<any[]>([])
   const [previewingMaterial, setPreviewingMaterial] = useState<any | null>(null)
+  const [previewingUrl, setPreviewingUrl] = useState<string | null>(null)
 
   useEffect(() => {
     loadMaterials()
@@ -264,8 +266,17 @@ export default function CurriculumMaterials({
                     </ol>
                   </div>
                   {formData.driveUrl && (
-                    <div className="flex items-center gap-2 text-xs text-green-600 font-bold bg-green-50 px-3 py-2 rounded-lg">
-                      ✓ {isGoogleDrive(formData.driveUrl) ? 'Google Drive link detected' : isOneDrive(formData.driveUrl) ? 'OneDrive link detected' : 'Link entered'}
+                    <div className="flex items-center justify-between gap-3 bg-green-50 border border-green-200 px-4 py-3 rounded-xl">
+                      <div className="flex items-center gap-2 text-xs text-green-700 font-bold">
+                        ✓ {isGoogleDrive(formData.driveUrl) ? 'Google Drive link detected' : isOneDrive(formData.driveUrl) ? 'OneDrive link detected' : 'Link entered'}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewingUrl(formData.driveUrl)}
+                        className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg transition-all"
+                      >
+                        <Eye className="h-3 w-3" /> Preview
+                      </button>
                     </div>
                   )}
                 </div>
@@ -407,32 +418,22 @@ export default function CurriculumMaterials({
       </div>
     </div>
 
-    {/* PDF Preview Modal — built-in viewer, no external links */}
+    {/* Document Preview — via our PDFViewer (sandboxed, no download) */}
     {previewingMaterial && (
-      <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl overflow-hidden w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
-          <div className="flex justify-between items-center px-6 py-4 border-b bg-gray-50">
-            <div className="flex items-center gap-3">
-              <FileText className="h-5 w-5 text-red-500" />
-              <h3 className="font-black text-gray-900">{previewingMaterial.title}</h3>
-            </div>
-            <button
-              onClick={() => setPreviewingMaterial(null)}
-              className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-          <iframe
-            src={previewingMaterial.embedUrl || convertToEmbedUrl(previewingMaterial.fileUrl)}
-            className="flex-1 w-full"
-            style={{ minHeight: '72vh' }}
-            allow="autoplay"
-            title={previewingMaterial.title}
-            sandbox="allow-scripts allow-same-origin allow-forms"
-          />
-        </div>
-      </div>
+      <PDFViewer
+        fileUrl={previewingMaterial.fileUrl}
+        fileName={previewingMaterial.title}
+        onClose={() => setPreviewingMaterial(null)}
+      />
+    )}
+
+    {/* Live link preview — triggered when admin pastes a URL */}
+    {previewingUrl && (
+      <PDFViewer
+        fileUrl={previewingUrl}
+        fileName="Link Preview"
+        onClose={() => setPreviewingUrl(null)}
+      />
     )}
     </>
   )

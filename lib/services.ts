@@ -257,6 +257,26 @@ export const adminService = {
        brands: users.filter(u => u.role === 'brand').length,
        staff: users.filter(u => u.role !== 'student' && u.role !== 'brand').length
     };
+  },
+
+  getSettings: async () => {
+     const snap = await getDoc(doc(db, "system", "settings"));
+     if (!snap.exists()) {
+        return {
+           notifications: {
+              email: true,
+              browser: true,
+              studentJoining: true,
+              payments: true
+           },
+           theme: 'dark'
+        };
+     }
+     return snap.data();
+  },
+
+  updateSettings: async (settings: any) => {
+     await setDoc(doc(db, "system", "settings"), settings, { merge: true });
   }
 };
 
@@ -345,10 +365,11 @@ export const brandService = {
   },
 
   getBrandRequests: async (brandId: string): Promise<InternshipRequest[]> => {
-    const q = query(
-      collection(db, "internship_requests"), 
-      where("brandId", "==", brandId)
-    );
+    const col = collection(db, "internship_requests");
+    const q = brandId === "all" 
+      ? query(col, orderBy("requestedAt", "desc"))
+      : query(col, where("brandId", "==", brandId), orderBy("requestedAt", "desc"));
+    
     const snap = await getDocs(q);
     return snap.docs.map(doc => ({ requestId: doc.id, ...doc.data() } as InternshipRequest));
   },
@@ -793,6 +814,39 @@ export const specializationService = {
   // Delete specialization
   deleteSpecialization: async (id: string): Promise<void> => {
     await deleteDoc(doc(db, "specializations", id));
+  }
+};
+
+// NOTIFICATION SERVICE
+export const notificationService = {
+  getUserNotifications: async (userId: string): Promise<any[]> => {
+    const col = collection(db, "notifications");
+    // Radical fix: Get whole collection and filter in JS to definitely avoid index issues
+    const snap = await getDocs(col);
+    const allDocs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    return allDocs
+      .filter((n: any) => n.recipientId === userId || n.recipientId === "all")
+      .sort((a: any, b: any) => {
+        const timeA = a.createdAt?.toMillis?.() ?? (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0);
+        const timeB = b.createdAt?.toMillis?.() ?? (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0);
+        return timeB - timeA;
+      })
+      .slice(0, 30);
+  },
+
+  markAsRead: async (notificationId: string): Promise<void> => {
+    await updateDoc(doc(db, "notifications", notificationId), { read: true });
+  },
+
+  sendNotification: async (data: { recipientId: string, title: string, message: string, type: string }): Promise<string> => {
+    const col = collection(db, "notifications");
+    const docRef = await addDoc(col, {
+      ...data,
+      read: false,
+      createdAt: serverTimestamp()
+    });
+    return docRef.id;
   }
 };
 

@@ -102,112 +102,122 @@ export default function PaymentForm({ service, amount, category = "service" }: P
     }
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-sm border space-y-4">
-            <h3 className="text-xl font-semibold mb-4">Enter Your Details</h3>
-
-            <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input
-                    id="fullName"
-                    name="fullName"
-                    placeholder="agba cinema"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    required
-                />
-            </div>
-
-            <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="agbacinema@gmail.com"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                />
-            </div>
-
-            <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    placeholder="+234..."
-                    value={formData.phone}
-                    onChange={handleChange}
-                    required
-                />
+        <div className="bg-card p-8 rounded-[2.5rem] shadow-premium border border-muted space-y-8 transition-colors">
+            <header>
+                <h3 className="text-2xl font-black italic uppercase tracking-tighter text-foreground">Initiate Transaction</h3>
+                <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest mt-1">Operational details required for deployment</p>
+            </header>
+ 
+            <div className="space-y-6">
+                <div className="space-y-2">
+                    <Label htmlFor="fullName" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Full Operator Name</Label>
+                    <Input
+                        id="fullName"
+                        name="fullName"
+                        placeholder="e.g. AGBA CINEMA"
+                        value={formData.fullName}
+                        onChange={handleChange}
+                        className="h-14 rounded-2xl border-muted bg-muted/30 text-foreground font-bold"
+                        required
+                    />
+                </div>
+ 
+                <div className="space-y-2">
+                    <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Secure Email Signal</Label>
+                    <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="agbacinema@gmail.com"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className="h-14 rounded-2xl border-muted bg-muted/30 text-foreground font-bold"
+                        required
+                    />
+                </div>
+ 
+                <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Direct Comms (Phone)</Label>
+                    <Input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        placeholder="+234..."
+                        value={formData.phone}
+                        onChange={handleChange}
+                        className="h-14 rounded-2xl border-muted bg-muted/30 text-foreground font-bold"
+                        required
+                    />
+                </div>
             </div>
 
             {/* Promo Code Section */}
-            <div className="space-y-2 pt-2 border-t">
-                <Label htmlFor="promoCode">Promo Code</Label>
+            <div className="space-y-3 pt-6 border-t border-muted transition-colors">
+                <Label htmlFor="promoCode" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground ml-1">Strategic Promo Code</Label>
                 <div className="flex gap-2">
                     <Input
                         id="promoCode"
-                        placeholder="Enter code"
+                        placeholder="CODE"
                         value={promoCode}
                         onChange={(e) => setPromoCode(e.target.value)}
+                        className="h-12 rounded-xl border-muted bg-muted/30 uppercase font-black tracking-widest"
                     />
-                    <Button type="button" variant="outline" onClick={handleApplyPromo}>
+                    <Button type="button" variant="outline" onClick={handleApplyPromo} className="rounded-xl h-12 px-6 font-black text-[10px] uppercase tracking-widest border-2 hover:bg-foreground hover:text-background transition-all">
                         Apply
                     </Button>
                 </div>
                 {promoMessage && (
-                    <p className={`text-sm ${promoMessage.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+                    <p className={`text-[10px] font-black uppercase tracking-widest mt-1 ${promoMessage.type === 'success' ? 'text-green-500' : 'text-red-500'}`}>
                         {promoMessage.text}
                     </p>
                 )}
             </div>
 
             {/* Price Summary */}
-            <div className="bg-gray-50 p-4 rounded-md space-y-2">
-                <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Subtotal:</span>
-                    <span>#{amount.toLocaleString()}</span>
+            <div className="bg-muted/50 p-6 rounded-2xl space-y-3 border border-muted transition-colors">
+                <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest">
+                    <span className="text-muted-foreground">Operational Fee:</span>
+                    <span className="text-foreground">#{amount.toLocaleString()}</span>
                 </div>
                 {discount > 0 && (
-                    <div className="flex justify-between text-sm text-green-600">
-                        <span>Discount:</span>
+                    <div className="flex justify-between items-center text-xs font-black uppercase tracking-widest text-green-500">
+                        <span>Rebate Applied:</span>
                         <span>-#{discount.toLocaleString()}</span>
                     </div>
                 )}
-                <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2">
-                    <span>Total:</span>
-                    <span>#{finalAmount.toLocaleString()}</span>
+                <div className="flex justify-between items-center border-t border-muted/50 pt-4 mt-2">
+                    <span className="text-sm font-black italic uppercase tracking-tighter text-foreground">Total Commitment:</span>
+                    <span className="text-2xl font-black italic text-foreground">#{finalAmount.toLocaleString()}</span>
                 </div>
             </div>
 
-            <div className="flex items-center space-x-2 my-4">
+            <div className="flex items-start space-x-3 my-4">
                 <Checkbox
                     id="terms"
                     checked={termsAccepted}
                     onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+                    className="mt-1 border-muted data-[state=checked]:bg-yellow-400"
                 />
                 <label
                     htmlFor="terms"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    className="text-[10px] font-bold text-muted-foreground leading-relaxed uppercase tracking-widest cursor-pointer select-none"
                 >
-                    I agree to the{" "}
+                    I acknowledge and accept the full administrative{" "}
                     <Dialog>
                         <DialogTrigger asChild>
-                            <button type="button" className="text-primary hover:underline focus:outline-none">
-                                Terms and Conditions
+                            <button type="button" className="text-foreground font-black underline hover:text-yellow-400 focus:outline-none transition-colors">
+                                Protocols & Terms
                             </button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-[600px] max-h-[80vh] overflow-y-auto">
-                            <DialogHeader>
-                                <DialogTitle>{getTitle()}</DialogTitle>
-                                <DialogDescription>
-                                    Please read the following terms carefully before proceeding.
+                        <DialogContent className="max-w-[700px] max-h-[85vh] overflow-hidden flex flex-col p-0 rounded-[2.5rem] border-muted bg-card">
+                            <DialogHeader className="p-8 bg-black text-white border-b border-white/10">
+                                <p className="text-[9px] text-yellow-500 font-black uppercase tracking-[0.3em] mb-1">Authorization Protocol</p>
+                                <DialogTitle className="text-2xl font-black italic uppercase tracking-tighter">{getTitle()}</DialogTitle>
+                                <DialogDescription className="text-gray-400 font-medium">
+                                    Review these mandates before initiating secure synchronization.
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="py-4 text-sm space-y-4">
-                                {category === "event" && (
+                            <div className="flex-1 overflow-y-auto p-8 text-sm space-y-6 text-foreground">                                {category === "event" && (
                                     <>
                                         <p><strong>1. Ticket Validity:</strong> Tickets are valid only for the specific event, date, and time indicated. Please present your ticket at the entrance.</p>
                                         <p><strong>2. Refunds & Transfers:</strong> Tickets are non-refundable but may be transferable up to 48 hours before the event, subject to approval.</p>
@@ -285,17 +295,17 @@ export default function PaymentForm({ service, amount, category = "service" }: P
             </div>
 
             <Button
-                className="w-full mt-4"
+                className="w-full h-16 rounded-[1.5rem] bg-foreground text-background font-black italic uppercase tracking-[0.2em] text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-foreground/10 disabled:grayscale"
                 onClick={handlePayment}
                 disabled={loading || !formData.email || !formData.fullName || !formData.phone || !termsAccepted}
             >
                 {loading ? (
                     <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Processing...
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Initializing Sync...
                     </>
                 ) : (
-                    `Pay #${finalAmount.toLocaleString()}`
+                    `Authorize #${finalAmount.toLocaleString()}`
                 )}
             </Button>
         </div>

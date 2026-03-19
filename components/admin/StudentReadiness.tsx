@@ -70,20 +70,20 @@ export default function StudentReadiness() {
 
   return (
     <>
-      <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-8">
-        <CardHeader className="p-0 mb-8">
-          <CardTitle className="flex items-center gap-3 text-2xl font-black">
+      <Card className="border-none shadow-premium rounded-[2.5rem] bg-card p-8 transition-colors">
+        <CardHeader className="p-0 mb-8 transition-colors">
+          <CardTitle className="flex items-center gap-3 text-2xl font-black text-foreground uppercase italic tracking-tighter">
             <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center">
               <GraduationCap className="h-5 w-5 text-white" />
             </div>
             Internship Readiness
           </CardTitle>
           <div className="relative mt-6 max-w-md">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input 
               type="text" 
               placeholder="Search by name or Student ID..." 
-              className="w-full pl-10 pr-4 h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white transition-all text-sm outline-none"
+              className="w-full pl-10 pr-4 h-12 rounded-xl border-muted bg-muted/30 focus:bg-background text-foreground transition-all text-sm outline-none"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
@@ -92,16 +92,16 @@ export default function StudentReadiness() {
         <CardContent className="p-0">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filtered.map(s => (
-              <div key={s.studentId} className="group bg-gray-50 hover:bg-white hover:border-yellow-400 border border-transparent rounded-[2rem] p-6 transition-all duration-300">
+              <div key={s.studentId} className="group bg-muted/30 hover:bg-card hover:border-yellow-400 border border-transparent rounded-[2rem] p-6 transition-all duration-300">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <span className="text-[10px] font-black uppercase text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full mb-2 inline-block">
+                    <span className="text-[10px] font-black uppercase text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-full mb-2 inline-block">
                       {s.studentId}
                     </span>
-                    <h3 className="text-xl font-black text-gray-900">{s.fullName}</h3>
-                    <p className="text-xs text-gray-500 font-medium">Enrolled in {s.programType === 'mentorship' ? 'Mentorship' : 'Go PRO'}</p>
+                    <h3 className="text-xl font-black text-foreground uppercase italic tracking-tighter">{s.fullName}</h3>
+                    <p className="text-xs text-muted-foreground font-medium">Enrolled in {s.programType === 'mentorship' ? 'Mentorship' : 'Go PRO'}</p>
                   </div>
-                  <div className="w-12 h-12 bg-gray-200 rounded-2xl overflow-hidden">
+                  <div className="w-12 h-12 bg-muted rounded-2xl overflow-hidden">
                     {/* Placeholder for student photo */}
                   </div>
                 </div>
@@ -113,7 +113,7 @@ export default function StudentReadiness() {
                   >
                     Nominate for Internship
                   </Button>
-                  <button className="w-12 h-12 bg-white border border-gray-100 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-all text-gray-400">
+                  <button className="w-12 h-12 bg-card border border-muted rounded-xl flex items-center justify-center hover:bg-muted transition-all text-muted-foreground">
                     <ExternalLink className="h-4 w-4" />
                   </button>
                 </div>

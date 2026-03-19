@@ -52,10 +52,10 @@ export default function AdminProfile() {
           <div className="h-32 bg-yellow-400 relative" />
           <CardContent className="pt-0 relative px-8 pb-12">
             <div className="flex justify-center -mt-16 mb-6">
-              <div className="w-32 h-32 bg-black rounded-[2rem] border-8 border-black flex items-center justify-center text-4xl font-black relative group cursor-pointer">
+              <div className="w-32 h-32 bg-background rounded-[2rem] border-8 border-card flex items-center justify-center text-4xl font-black relative group cursor-pointer transition-colors shadow-2xl">
                 {profile?.name?.[0]}
-                <div className="absolute inset-0 bg-black/60 rounded-[1.5rem] opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                  <Camera className="h-6 w-6 text-white" />
+                <div className="absolute inset-0 bg-background/60 rounded-[1.5rem] opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                  <Camera className="h-6 w-6 text-foreground" />
                 </div>
               </div>
             </div>
@@ -85,75 +85,75 @@ export default function AdminProfile() {
         </Card>
 
         {/* Edit Form */}
-        <Card className="flex-grow border-none shadow-premium rounded-[2.5rem] bg-white p-12 overflow-hidden relative">
-           <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-400/5 blur-3xl rounded-full" />
+        <Card className="flex-grow border border-muted shadow-premium rounded-[3rem] bg-card p-12 overflow-hidden relative transition-colors">
+           <div className="absolute top-0 right-0 w-80 h-80 bg-yellow-400/5 blur-[100px] rounded-full pointer-events-none" />
            
-           <CardHeader className="p-0 mb-8">
+           <CardHeader className="p-0 mb-10 relative z-10">
               <div className="flex justify-between items-center">
-                <div className="space-y-1">
-                  <h2 className="text-3xl font-black italic uppercase tracking-tighter">Personnel Profile</h2>
-                  <p className="text-gray-500 font-medium">Manage your administrative identity and credentials.</p>
+                <div className="space-y-2">
+                  <h2 className="text-4xl font-black italic uppercase tracking-tighter text-foreground">Profile Settings</h2>
+                  <p className="text-muted-foreground font-medium italic">Manage your name, contact info, and role details here.</p>
                 </div>
                 {!isEditing && (
                   <Button 
                     onClick={() => setIsEditing(true)}
-                    className="bg-black text-white hover:bg-gray-800 h-12 rounded-xl px-6 font-bold"
+                    className="bg-foreground text-background hover:bg-yellow-400 hover:text-black h-16 rounded-[1.5rem] px-8 font-black uppercase tracking-widest text-[11px] transition-all shadow-xl active:scale-95"
                   >
-                    Edit Details
+                    Edit Profile
                   </Button>
                 )}
               </div>
            </CardHeader>
 
-           <CardContent className="p-0">
-             <form onSubmit={handleUpdate} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-gray-400">Display Name</label>
+           <CardContent className="p-0 relative z-10">
+             <form onSubmit={handleUpdate} className="space-y-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-6">Full Name</label>
                     <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <User className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-indigo-500" />
                       <Input 
                         disabled={!isEditing}
                         value={formData.name}
                         onChange={(e) => setFormData({...formData, name: e.target.value})}
-                        className="pl-12 h-14 rounded-2xl border-gray-100 bg-gray-50 font-bold"
+                        className="pl-14 h-16 rounded-2xl border-muted bg-muted/20 font-black uppercase italic tracking-tighter focus:bg-card focus:border-foreground transition-all text-foreground"
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-gray-400">Phone Contact</label>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-6">Phone Number</label>
                     <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Phone className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-indigo-500" />
                       <Input 
                         disabled={!isEditing}
                         value={formData.phone}
                         onChange={(e) => setFormData({...formData, phone: e.target.value})}
                         placeholder="+234..."
-                        className="pl-12 h-14 rounded-2xl border-gray-100 bg-gray-50 font-bold"
+                        className="pl-14 h-16 rounded-2xl border-muted bg-muted/20 font-black uppercase italic tracking-tighter focus:bg-card focus:border-foreground transition-all text-foreground"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Department / Specialization</label>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-6">Role / Job Title</label>
                   <Input 
                     disabled={!isEditing}
                     value={formData.specialization}
                     onChange={(e) => setFormData({...formData, specialization: e.target.value})}
-                    placeholder="e.g. Head of Video Editing"
-                    className="h-14 rounded-2xl border-gray-100 bg-gray-50 font-bold"
+                    placeholder="e.g. Head of Visual Effects"
+                    className="h-16 rounded-2xl border-muted bg-muted/20 font-black uppercase italic tracking-tighter focus:bg-card focus:border-foreground transition-all text-foreground"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Professional Bio</label>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-6">Bio</label>
                   <Textarea 
                     disabled={!isEditing}
                     value={formData.bio}
                     onChange={(e) => setFormData({...formData, bio: e.target.value})}
-                    placeholder="Tell the team about your creative background..."
-                    className="min-h-32 rounded-2xl border-gray-100 bg-gray-50 font-medium leading-relaxed"
+                    placeholder="Describe your creative authority and trajectory..."
+                    className="min-h-40 rounded-[2.5rem] border-muted bg-muted/20 font-medium leading-relaxed italic focus:bg-card focus:border-foreground transition-all text-foreground p-8"
                   />
                 </div>
 
@@ -166,18 +166,18 @@ export default function AdminProfile() {
                     <Button 
                       type="submit" 
                       disabled={loading}
-                      className="bg-yellow-400 hover:bg-yellow-500 text-black font-black h-14 rounded-2xl px-12 italic uppercase tracking-tighter"
+                      className="bg-yellow-400 hover:bg-yellow-500 text-black font-black h-16 rounded-[1.5rem] px-12 italic uppercase tracking-tighter transition-all shadow-xl shadow-yellow-400/20 active:scale-95"
                     >
-                      {loading ? "Processing..." : "Commit Changes"}
-                      <Save className="ml-2 h-4 w-4" />
+                      {loading ? "SAVING..." : "SAVE CHANGES"}
+                      <Save className="ml-3 h-5 w-5" />
                     </Button>
                     <Button 
                       type="button"
                       variant="ghost" 
                       onClick={() => setIsEditing(false)}
-                      className="h-14 rounded-2xl px-12 font-black italic uppercase tracking-tighter text-gray-400"
+                      className="h-16 rounded-[1.5rem] px-10 font-black italic uppercase tracking-tighter text-muted-foreground hover:text-foreground hover:bg-muted/10 transition-all"
                     >
-                      Discard
+                      CANCEL
                     </Button>
                   </motion.div>
                 )}
@@ -197,10 +197,11 @@ export default function AdminProfile() {
 
 function AccessCard({ title, value, sub }: any) {
   return (
-    <Card className="border-none shadow-premium rounded-3xl bg-gray-50/50 p-6 border border-gray-100 hover:bg-white transition-colors">
-      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">{title}</p>
-      <h4 className="text-xl font-black italic uppercase tracking-tighter text-gray-900">{value}</h4>
-      <p className="text-xs text-gray-500 font-medium">{sub}</p>
+    <Card className="border border-muted shadow-premium rounded-[2.5rem] bg-card p-8 hover:border-foreground/30 transition-all duration-500 group overflow-hidden relative">
+      <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground mb-3 relative z-10 transition-colors group-hover:text-yellow-500">{title}</p>
+      <h4 className="text-2xl font-black italic uppercase tracking-tighter text-foreground relative z-10">{value}</h4>
+      <p className="text-[10px] text-muted-foreground font-medium mt-1 relative z-10 opacity-60 tracking-widest">{sub}</p>
+      <div className="absolute -bottom-10 -right-10 w-24 h-24 bg-yellow-400/5 blur-2xl rounded-full transition-all group-hover:bg-yellow-400/10" />
     </Card>
   )
 }

@@ -2,9 +2,15 @@
 
 import React, { useState } from 'react'
 import { MessageCircle, X } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
 export default function WhatsAppButton() {
   const [showTooltip, setShowTooltip] = useState(true)
+  const pathname = usePathname()
+
+  if (pathname?.startsWith('/admin') || pathname?.startsWith('/student') || pathname?.startsWith('/brand') || pathname?.startsWith('/login')) {
+    return null
+  }
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">

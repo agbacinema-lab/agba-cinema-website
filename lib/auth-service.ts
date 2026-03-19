@@ -10,6 +10,7 @@ import {
   EmailAuthProvider
 } from "firebase/auth";
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { adminService } from "./services";
 
 export type UserRole = 'super_admin' | 'director' | 'head_of_department' | 'admin' | 'tutor' | 'staff' | 'student' | 'brand';
 
@@ -45,6 +46,33 @@ export const authService = {
           ...(role === 'tutor' ? { tutorId: `tut_${Math.floor(100000 + Math.random() * 900000)}` } : {}),
         };
         await setDoc(userRef, profile);
+        
+        // --- NOTIFICATION HANDLER ---
+        try {
+          const settings = await adminService.getSettings();
+          if (settings?.notifications?.studentJoining && (role === 'student' || role === 'brand')) {
+            await fetch("/api/notifications/email", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                to_email: "agbacinema@gmail.com",
+                to_name: "Admin",
+                subject: `NEW ${role.toUpperCase()} ENROLLED: ${profile.name}`,
+                message: `${profile.name} has just registered as a ${role}. Protocol initiated.`,
+                template_params: {
+                  user_name: profile.name,
+                  user_email: profile.email,
+                  user_id: profile.uid,
+                  role: role,
+                  intent: role === 'student' ? 'Education / Academy' : 'Partnership / Brand'
+                }
+              })
+            }).catch(e => console.error("Signal Broadcast Error:", e));
+          }
+        } catch (e) {
+          console.error("Critical Settings Access Failure:", e);
+        }
+        // --- END NOTIFICATION HANDLER ---
         
         if (role === 'brand') {
           await setDoc(doc(db, "brands", user.uid), {
@@ -97,7 +125,34 @@ export const authService = {
         ...(role === 'tutor' ? { tutorId: `tut_${Math.floor(100000 + Math.random() * 900000)}` } : {}),
       };
       await setDoc(userRef, profile);
-
+ 
+      // --- NOTIFICATION HANDLER ---
+      try {
+        const settings = await adminService.getSettings();
+        if (settings?.notifications?.studentJoining && (role === 'student' || role === 'brand')) {
+          await fetch("/api/notifications/email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              to_email: "agbacinema@gmail.com",
+              to_name: "Admin",
+              subject: `NEW ${role.toUpperCase()} ENROLLED: ${profile.name}`,
+              message: `${profile.name} has just registered as a ${role}. Protocol initiated.`,
+              template_params: {
+                user_name: profile.name,
+                user_email: profile.email,
+                user_id: profile.uid,
+                role: role,
+                intent: role === 'student' ? 'Education / Academy' : 'Partnership / Brand'
+              }
+            })
+          }).catch(e => console.error("Signal Broadcast Error:", e));
+        }
+      } catch (e) {
+        console.error("Critical Settings Access Failure:", e);
+      }
+      // --- END NOTIFICATION HANDLER ---
+ 
       if (role === 'student') {
         await setDoc(doc(db, "students", user.uid), {
           studentId: (profile as any).studentId,

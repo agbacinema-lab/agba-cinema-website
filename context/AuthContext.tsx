@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { UserProfile } from "@/lib/types";
 
 interface AuthContextType {
@@ -32,30 +32,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      try {
-        setUser(firebaseUser);
-        if (firebaseUser) {
-          // Fetch profile
-          const userRef = doc(db, "users", firebaseUser.uid);
-          const userSnap = await getDoc(userRef);
+    let unsubscribeProfile: (() => void) | null = null;
+    
+    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (unsubscribeProfile) {
+        unsubscribeProfile();
+        unsubscribeProfile = null;
+      }
+      
+      setUser(firebaseUser);
+      if (firebaseUser) {
+        // Real-time profile listener
+        const userRef = doc(db, "users", firebaseUser.uid);
+        unsubscribeProfile = onSnapshot(userRef, (userSnap) => {
           if (userSnap.exists()) {
             setProfile(userSnap.data() as UserProfile);
           } else {
             setProfile(null);
           }
-        } else {
-          setProfile(null);
-        }
-      } catch (error) {
-        console.error("AuthContext Error:", error);
+          setLoading(false);
+        }, (err) => {
+          console.error("Profile Listener Error:", err);
+          setLoading(false);
+        });
+      } else {
         setProfile(null);
-      } finally {
         setLoading(false);
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeProfile) (unsubscribeProfile as () => void)();
+    };
   }, []);
 
   const value = {
