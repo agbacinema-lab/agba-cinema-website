@@ -131,6 +131,8 @@ export interface Order {
   state: string;
   country: string;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  paymentType?: 'online' | 'cash';
+  paymentStatus?: 'pending' | 'paid' | 'failed';
   paymentId?: string;
   createdAt: any;
 }

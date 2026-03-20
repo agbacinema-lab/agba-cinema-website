@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useAuth } from "@/context/AuthContext"
 import { doc, updateDoc, serverTimestamp } from "firebase/firestore"
 import { db } from "@/lib/firebase"
@@ -17,15 +17,31 @@ export default function AdminProfile() {
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
-    name: profile?.name || "",
-    phone: profile?.phone || "",
-    bio: profile?.bio || "",
-    specialization: profile?.specialization || "",
-    address: profile?.address || "",
-    city: profile?.city || "",
-    state: profile?.state || "Lagos",
-    country: profile?.country || "Nigeria"
+    name: "",
+    phone: "",
+    bio: "",
+    specialization: "",
+    address: "",
+    city: "",
+    state: "Lagos",
+    country: "Nigeria"
   })
+
+  // Synchronize state with profile once it loads
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        name: profile.name || "",
+        phone: profile.phone || "",
+        bio: profile.bio || "",
+        specialization: profile.specialization || "",
+        address: profile.address || "",
+        city: profile.city || "",
+        state: profile.state || "Lagos",
+        country: profile.country || "Nigeria"
+      })
+    }
+  }, [profile])
 
   const nigerianStates = [
     "Lagos", "Abuja", "Port Harcourt", "Rivers", "Enugu", "Anambra", "Delta", "Kano", 
@@ -58,13 +74,13 @@ export default function AdminProfile() {
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto pb-20">
-      <div className="flex flex-col md:flex-row gap-8 items-start">
+      <div className="flex flex-col md:flex-row gap-8 items-start text-left">
         {/* Profile Card */}
         <Card className="w-full md:w-80 border-none shadow-premium rounded-[2.5rem] bg-black text-white overflow-hidden shrink-0">
           <div className="h-32 bg-yellow-400 relative" />
           <CardContent className="pt-0 relative px-8 pb-12">
             <div className="flex justify-center -mt-16 mb-6">
-              <div className="w-32 h-32 bg-background rounded-[2rem] border-8 border-card flex items-center justify-center text-4xl font-black relative group cursor-pointer transition-colors shadow-2xl">
+              <div className="w-32 h-32 bg-background rounded-[2rem] border-8 border-card flex items-center justify-center text-4xl font-black relative group cursor-pointer transition-colors shadow-2xl overflow-hidden">
                 {profile?.name?.[0]}
                 <div className="absolute inset-0 bg-background/60 rounded-[1.5rem] opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                   <Camera className="h-6 w-6 text-foreground" />
@@ -86,11 +102,11 @@ export default function AdminProfile() {
             <div className="mt-8 pt-8 border-t border-white/5 space-y-4 text-left">
               <div className="flex items-center gap-3 text-xs font-black tracking-widest text-gray-400">
                 <Mail className="h-4 w-4 text-yellow-500" />
-                {profile?.email}
+                <span className="truncate">{profile?.email}</span>
               </div>
               <div className="flex items-center gap-3 text-xs font-black tracking-widest text-gray-400">
                 <Fingerprint className="h-4 w-4 text-yellow-500" />
-                {profile?.tutorId || profile?.uid.substring(0, 8)}
+                {profile?.tutorId || profile?.uid?.substring(0, 8)}
               </div>
             </div>
           </CardContent>
@@ -226,7 +242,7 @@ export default function AdminProfile() {
                     </Button>
                   </motion.div>
                 )}
-             </form>
+              </form>
            </CardContent>
         </Card>
       </div>

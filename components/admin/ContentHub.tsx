@@ -1,19 +1,24 @@
 "use client"
 
 import { useState } from "react"
-import { FileText, Calendar, MonitorPlay, Image as ImageIcon } from "lucide-react"
+import { FileText, Calendar, MonitorPlay, Image as ImageIcon, Clock, Clipboard, MailOpen } from "lucide-react"
 import BlogManager from "./BlogManager"
 import EventManager from "./EventManager"
 import AcademyManager from "./AcademyManager"
 import PortfolioManager from "./PortfolioManager"
+import UrgencyManager from "./UrgencyManager"
+import BlueprintManager from "./BlueprintManager"
+import LeadDispatcher from "./LeadDispatcher"
 import { motion } from "framer-motion"
-import { eventService, academyService } from "@/lib/services"
 
 const TABS = [
   { id: "blog", label: "Blog Posts", icon: FileText, color: "from-orange-400 to-yellow-400" },
   { id: "events", label: "Events", icon: Calendar, color: "from-blue-500 to-cyan-400" },
   { id: "academy", label: "Academy Services", icon: MonitorPlay, color: "from-purple-500 to-pink-400" },
   { id: "portfolio", label: "Portfolio", icon: ImageIcon, color: "from-green-500 to-emerald-400" },
+  { id: "urgency", label: "Urgency Signals", icon: Clock, color: "from-red-500 to-orange-400" },
+  { id: "blueprint", label: "Program Blueprint", icon: Clipboard, color: "from-indigo-500 to-violet-400" },
+  { id: "leads", label: "Lead Dispatcher", icon: MailOpen, color: "from-pink-500 to-rose-400" },
 ]
 
 export default function ContentHub() {
@@ -24,7 +29,7 @@ export default function ContentHub() {
     <div className="space-y-8">
       {/* Header */}
       <div className="text-left">
-        <h2 className="text-3xl font-black mb-1 tracking-tighter">Content hub</h2>
+        <h2 className="text-3xl font-black mb-1 tracking-tighter text-foreground">Content hub</h2>
         <p className="text-muted-foreground font-black text-[10px] tracking-widest uppercase opacity-60">Manage all public-facing content from one place</p>
       </div>
 
@@ -60,6 +65,9 @@ export default function ContentHub() {
         {activeSection === "events" && <EventManager />}
         {activeSection === "academy" && <AcademyManager />}
         {activeSection === "portfolio" && <PortfolioManager />}
+        {activeSection === "urgency" && <UrgencyManager />}
+        {activeSection === "blueprint" && <BlueprintManager />}
+        {activeSection === "leads" && <LeadDispatcher />}
       </motion.div>
     </div>
   )

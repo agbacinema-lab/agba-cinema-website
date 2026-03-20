@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { useAuth } from "@/context/AuthContext"
 import { brandService, studentService } from "@/lib/services"
 import { BrandProfile, InternshipRequest, StudentProfile } from "@/lib/types"
@@ -34,14 +35,38 @@ import BrandSettings from "@/components/brand/BrandSettings"
 import PushPrompt from "@/components/common/PushPrompt"
 
 export default function BrandDashboard() {
+  return (
+    <Suspense fallback={
+       <div className="min-h-screen flex items-center justify-center bg-background transition-colors">
+         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-yellow-400" />
+       </div>
+    }>
+       <BrandDashboardContent />
+    </Suspense>
+  )
+}
+
+function BrandDashboardContent() {
   const { user, profile, loading } = useAuth()
-  const [activeTab, setActiveTab] = useState("overview")
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  
+  const initialTab = searchParams.get('tab') || 'overview'
+  const [activeTab, setActiveTab] = useState(initialTab)
   const [brandData, setBrandData] = useState<BrandProfile | null>(null)
   const [talents, setTalents] = useState<StudentProfile[]>([])
   const [requests, setRequests] = useState<InternshipRequest[]>([])
   const [activeInterns, setActiveInterns] = useState<InternshipRequest[]>([])
   const [fetching, setFetching] = useState(true)
   const [isRecruiting, setIsRecruiting] = useState<string | null>(null)
+
+  // Sync tab with URL
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId)
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('tab', tabId)
+    router.replace(`/brand/dashboard?${params.toString()}`, { scroll: false })
+  }
 
   useEffect(() => {
     if (!loading && !user) {
@@ -144,7 +169,7 @@ export default function BrandDashboard() {
         </div>
         <div className="flex items-center gap-3">
           <NotificationBell />
-          <UserDropdown onSettingsClick={() => setActiveTab('settings')} />
+          <UserDropdown onSettingsClick={() => handleTabChange('settings')} />
         </div>
       </header>
 
@@ -164,7 +189,7 @@ export default function BrandDashboard() {
 
           <nav className="flex-1 space-y-1.5">
             {BRAND_TABS.map(tab => (
-              <NavItem key={tab.id} active={activeTab === tab.id} icon={<tab.icon className="h-4 w-4" />} label={tab.label} onClick={() => setActiveTab(tab.id)} />
+              <NavItem key={tab.id} active={activeTab === tab.id} icon={<tab.icon className="h-4 w-4" />} label={tab.label} onClick={() => handleTabChange(tab.id)} />
             ))}
           </nav>
           
@@ -204,7 +229,7 @@ export default function BrandDashboard() {
             </div>
 
             <AnimatePresence mode="wait">
-              {activeTab === "overview" && <OverviewTab brandData={brandData} stats={{ interns: activeInterns.length, requests: requests.length }} onUpdateBrief={() => setActiveTab("settings")} />}
+              {activeTab === "overview" && <OverviewTab brandData={brandData} stats={{ interns: activeInterns.length, requests: requests.length }} onUpdateBrief={() => handleTabChange("settings")} />}
               {activeTab === "roster" && <RosterTab talents={talents} hasPaidAccess={brandData?.hasPaidAccess || false} onRefresh={loadData} onRecruit={handleRecruit} isRecruiting={isRecruiting} />}
               {activeTab === "requests" && <RequestsTab requests={requests} />}
               {activeTab === "interns" && <InternsTab interns={activeInterns} onRefresh={loadData} />}
@@ -222,7 +247,7 @@ export default function BrandDashboard() {
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => handleTabChange(tab.id)}
               className={`flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 transition-colors ${isActive ? 'text-yellow-400' : 'text-gray-500'}`}
             >
               <tab.icon className={`h-5 w-5 ${isActive ? 'stroke-[2.5]' : ''}`} />

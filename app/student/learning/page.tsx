@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { useAuth } from "@/context/AuthContext"
 import { useRouter } from "next/navigation"
 import { curriculumService, specializationService } from "@/lib/services"
@@ -132,9 +133,7 @@ function EnrollModal({ userId, existingIds, profile, onClose }: {
           email: profile?.email,
           userId: userId,
           type: "academy_enrollment",
-          programType: programType,
-          service: serviceName,
-          fullName: profile?.fullName || profile?.name || "Student"
+          programType: programType
         })
       });
 
@@ -220,11 +219,33 @@ function EnrollModal({ userId, existingIds, profile, onClose }: {
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function StudentLearning() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-yellow-400" />
+      </div>
+    }>
+      <StudentLearningContent />
+    </Suspense>
+  )
+}
+
+function StudentLearningContent() {
   const { profile, user } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
 
-  // Multi-track state
-  const [activeSpecId, setActiveSpecId] = useState("")
+  // Track persistence
+  const initialTrackId = searchParams.get('track') || ""
+  const [activeSpecId, setActiveSpecId] = useState(initialTrackId)
+  
+  const handleTrackChange = (trackId: string) => {
+    setActiveSpecId(trackId)
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('track', trackId)
+    const newUrl = `${window.location.pathname}?${params.toString()}`
+    window.history.replaceState({ ...window.history.state, as: newUrl, url: newUrl }, '', newUrl)
+  }
   const [showEnroll, setShowEnroll] = useState(false)
   const [viewingUrl, setViewingUrl] = useState<string | null>(null)
   const [viewingDocument, setViewingDocument] = useState<{url: string, title?: string} | null>(null)
@@ -344,7 +365,7 @@ export default function StudentLearning() {
             {enrolled.map((spec) => (
               <button
                 key={spec.id}
-                onClick={() => setActiveSpecId(spec.id)}
+                onClick={() => handleTrackChange(spec.id)}
                 className={`shrink-0 snap-start flex flex-col items-start text-left p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] border-2 transition-all duration-500 min-w-[260px] md:min-w-[320px] relative overflow-hidden group ${
                   activeSpec?.id === spec.id
                     ? 'border-yellow-400 bg-card text-foreground shadow-[0_30px_60px_rgba(250,204,21,0.15)] scale-[1.03] z-10'

@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { adminService } from "@/lib/services"
 import { useAuth } from "@/context/AuthContext"
 import { authService } from "@/lib/auth-service"
@@ -20,6 +21,8 @@ import BrandManagementPanel from "@/components/admin/BrandManagementPanel"
 import AnnouncementManager from "@/components/admin/AnnouncementManager"
 import AdminSettings from "@/components/admin/AdminSettings"
 import ProductManager from "@/components/admin/ProductManager"
+import AdminProfile from "@/components/admin/AdminProfile"
+import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard"
 import { LogOut, LayoutDashboard, Users, Briefcase, Star, Settings, GraduationCap, BookOpen, FileText, BookMarked, MonitorPlay, Calendar, Image as ImageIcon, Layers, Bell, BarChart3, UserCircle, Shield, Package } from "lucide-react"
 import { motion } from "framer-motion"
 import PushPrompt from "@/components/common/PushPrompt"
@@ -27,10 +30,34 @@ import { UserDropdown } from "@/components/common/UserDropdown"
 import NotificationBell from "@/components/common/NotificationBell"
 
 export default function AdminDashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-background transition-colors">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-yellow-400" />
+      </div>
+    }>
+      <AdminDashboardContent />
+    </Suspense>
+  )
+}
+
+function AdminDashboardContent() {
   const { user, profile, loading, isAdmin, isSuperAdmin, isStudent, isBrand } = useAuth()
-  const [activeTab, setActiveTab] = useState('overview')
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  
+  const initialTab = searchParams.get('tab') || 'overview'
+  const [activeTab, setActiveTab] = useState(initialTab)
   const [stats, setStats] = useState<{ revenue: number; users: number; pending: number }>({ revenue: 0, users: 0, pending: 0 })
   const [loadingStats, setLoadingStats] = useState(true)
+
+  // Sync tab with URL
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId)
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('tab', tabId)
+    router.replace(`/admin?${params.toString()}`, { scroll: false })
+  }
 
   useEffect(() => {
     async function loadStats() {
@@ -140,8 +167,8 @@ export default function AdminDashboardPage() {
         <div className="flex items-center gap-6">
           <NotificationBell />
           <UserDropdown
-            onSettingsClick={() => setActiveTab('settings')}
-            onProfileClick={() => setActiveTab('profile')}
+            onSettingsClick={() => handleTabChange('settings')}
+            onProfileClick={() => handleTabChange('profile')}
           />
         </div>
       </header>
@@ -154,22 +181,22 @@ export default function AdminDashboardPage() {
             <p className="text-[12px] font-black tracking-[0.5em] text-white">Operational Menu</p>
           </div>
           <nav className="flex-1 space-y-2">
-            <NavItem active={activeTab === 'overview'} disabled={!hasAccess('overview')} icon={<LayoutDashboard className="h-5 w-5" />} label="Overview" onClick={() => setActiveTab('overview')} />
+            <NavItem active={activeTab === 'overview'} disabled={!hasAccess('overview')} icon={<LayoutDashboard className="h-5 w-5" />} label="Overview" onClick={() => handleTabChange('overview')} />
             {isStaff && (
               <>
-                <NavItem active={activeTab === 'users'} disabled={!hasAccess('users')} icon={<Users className="h-5 w-5" />} label="Manage Users" onClick={() => setActiveTab('users')} />
-                <NavItem active={activeTab === 'students'} disabled={!hasAccess('students')} icon={<Users className="h-5 w-5" />} label="Student Database" onClick={() => setActiveTab('students')} />
-                <NavItem active={activeTab === 'readiness'} disabled={!hasAccess('readiness')} icon={<Shield className="h-5 w-5" />} label="Nominate Ready" onClick={() => setActiveTab('readiness')} />
-                <NavItem active={activeTab === 'courses'} disabled={!hasAccess('courses')} icon={<BookMarked className="h-5 w-5" />} label="Manage Courses" onClick={() => setActiveTab('courses')} />
-                <NavItem active={activeTab === 'content'} disabled={!hasAccess('content')} icon={<Layers className="h-5 w-5" />} label="Media Library" onClick={() => setActiveTab('content')} />
-                <NavItem active={activeTab === 'assignments'} disabled={!hasAccess('assignments')} icon={<BookOpen className="h-5 w-5" />} label="Assignments" onClick={() => setActiveTab('assignments')} />
-                <NavItem active={activeTab === 'armory'} disabled={!['super_admin', 'director'].includes(profile?.role || '')} icon={<Package className="h-5 w-5" />} label="The Armory" onClick={() => setActiveTab('armory')} />
+                <NavItem active={activeTab === 'users'} disabled={!hasAccess('users')} icon={<Users className="h-5 w-5" />} label="Manage Users" onClick={() => handleTabChange('users')} />
+                <NavItem active={activeTab === 'students'} disabled={!hasAccess('students')} icon={<Users className="h-5 w-5" />} label="Student Database" onClick={() => handleTabChange('students')} />
+                <NavItem active={activeTab === 'readiness'} disabled={!hasAccess('readiness')} icon={<Shield className="h-5 w-5" />} label="Nominate Ready" onClick={() => handleTabChange('readiness')} />
+                <NavItem active={activeTab === 'courses'} disabled={!hasAccess('courses')} icon={<BookMarked className="h-5 w-5" />} label="Manage Courses" onClick={() => handleTabChange('courses')} />
+                <NavItem active={activeTab === 'content'} disabled={!hasAccess('content')} icon={<Layers className="h-5 w-5" />} label="Media Library" onClick={() => handleTabChange('content')} />
+                <NavItem active={activeTab === 'assignments'} disabled={!hasAccess('assignments')} icon={<BookOpen className="h-5 w-5" />} label="Assignments" onClick={() => handleTabChange('assignments')} />
+                <NavItem active={activeTab === 'armory'} disabled={!['super_admin', 'director'].includes(profile?.role || '')} icon={<Package className="h-5 w-5" />} label="The Armory" onClick={() => handleTabChange('armory')} />
               </>
             )}
-            <NavItem active={activeTab === 'analytics'} icon={<BarChart3 className="h-5 w-5" />} label="Portal Stats" onClick={() => setActiveTab('analytics')} />
-            <NavItem active={activeTab === 'broadcasts'} icon={<Bell className="h-5 w-5" />} label="Broadcasts" onClick={() => setActiveTab('broadcasts')} />
-            <NavItem active={activeTab === 'brands'} disabled={!hasAccess('manageBrands')} icon={<Briefcase className="h-5 w-5" />} label="Manage Brands" onClick={() => setActiveTab('brands')} />
-            {isBrand && <NavItem active={activeTab === 'requests'} icon={<Briefcase className="h-5 w-5" />} label="Talent Requests" onClick={() => setActiveTab('requests')} />}
+            <NavItem active={activeTab === 'analytics'} icon={<BarChart3 className="h-5 w-5" />} label="Portal Stats" onClick={() => handleTabChange('analytics')} />
+            <NavItem active={activeTab === 'broadcasts'} icon={<Bell className="h-5 w-5" />} label="Broadcasts" onClick={() => handleTabChange('broadcasts')} />
+            <NavItem active={activeTab === 'brands'} disabled={!hasAccess('manageBrands')} icon={<Briefcase className="h-5 w-5" />} label="Manage Brands" onClick={() => handleTabChange('brands')} />
+            {isBrand && <NavItem active={activeTab === 'requests'} icon={<Briefcase className="h-5 w-5" />} label="Talent Requests" onClick={() => handleTabChange('requests')} />}
           </nav>
 
         </aside>
@@ -291,7 +318,7 @@ export default function AdminDashboardPage() {
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => handleTabChange(tab.id)}
               className={`flex-1 min-w-[56px] flex flex-col items-center justify-center gap-0.5 py-2.5 transition-colors ${isActive ? 'text-yellow-400' : 'text-gray-500'}`}
             >
               <Icon className={`h-5 w-5 ${isActive ? 'stroke-[2.5]' : ''}`} />

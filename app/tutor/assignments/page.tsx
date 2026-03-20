@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -10,9 +11,36 @@ import { motion } from "framer-motion"
 import { Calendar, Users } from "lucide-react"
 
 export default function TutorAssignmentsPage() {
+  return (
+    <Suspense fallback={
+       <div className="min-h-screen flex items-center justify-center bg-[#FDFCF6]">
+         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-yellow-400"></div>
+       </div>
+    }>
+       <TutorAssignmentsContent />
+    </Suspense>
+  )
+}
+
+function TutorAssignmentsContent() {
   const [assignments, setAssignments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedAssignment, setSelectedAssignment] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  
+  const initialAssignment = searchParams.get('assignment')
+  const [selectedAssignment, setSelectedAssignment] = useState<string | null>(initialAssignment)
+
+  const handleSelectAssignment = (id: string | null) => {
+    setSelectedAssignment(id)
+    const params = new URLSearchParams(searchParams.toString())
+    if (id) {
+      params.set('assignment', id)
+    } else {
+      params.delete('assignment')
+    }
+    router.replace(`/tutor/assignments?${params.toString()}`, { scroll: false })
+  }
 
   useEffect(() => {
     loadAssignments()
@@ -44,7 +72,7 @@ export default function TutorAssignmentsPage() {
       <div className="min-h-screen bg-[#FDFCF6] p-8">
         <div className="max-w-6xl mx-auto space-y-6">
           <Button
-            onClick={() => setSelectedAssignment(null)}
+            onClick={() => handleSelectAssignment(null)}
             variant="outline"
             className="rounded-lg"
           >
@@ -111,7 +139,7 @@ export default function TutorAssignmentsPage() {
                         <p className="text-gray-600 mb-3">{assignment.description}</p>
                       </div>
                       <Button
-                        onClick={() => setSelectedAssignment(assignment.id)}
+                        onClick={() => handleSelectAssignment(assignment.id)}
                         className="bg-yellow-400 text-black font-bold h-12 px-6 rounded-xl whitespace-nowrap flex items-center gap-2"
                       >
                         <Users className="h-4 w-4" />

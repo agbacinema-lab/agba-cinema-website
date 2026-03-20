@@ -4,6 +4,9 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { PlayCircle, Mail, CheckCircle2 } from "lucide-react"
+import { db } from "@/lib/firebase"
+import { doc, getDoc } from "firebase/firestore"
+import { toast } from "sonner"
 
 const mistakes = [
   "Cutting on the wrong frame",
@@ -22,10 +25,46 @@ export default function LeadCapture() {
     e.preventDefault()
     if (!email) return
     setLoading(true)
-    // Simulate an API call — wire up to Mailchimp / ConvertKit / your preferred tool
-    await new Promise((res) => setTimeout(res, 1200))
-    setLoading(false)
-    setSubmitted(true)
+
+    try {
+      // 1. Fetch the custom message from Firestore
+      const snap = await getDoc(doc(db, "siteSettings", "leadMagnet"))
+      const config = snap.exists() ? snap.data() : {
+        subject: "Your Program Blueprint is Here! 🎬",
+        message: "Hi there!\n\nThank you for requesting the Program Blueprint.",
+        link: "https://agbacinema.com/blueprint",
+        buttonText: "Watch Free Training"
+      }
+
+      // 2. Trigger the real email API
+      const response = await fetch("/api/notifications/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: email,
+          subject: config.subject,
+          text: `${config.message}\n\nAccess it here: ${config.link}`,
+          html: `
+            <div style="font-family: sans-serif; padding: 40px; background: #f9f9f9;">
+              <div style="max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                <h1 style="font-size: 24px; font-weight: 900; color: #111; margin-bottom: 20px;">${config.subject}</h1>
+                <p style="font-size: 16px; color: #444; line-height: 1.6; margin-bottom: 30px; white-space: pre-wrap;">${config.message}</p>
+                <a href="${config.link}" style="display: inline-block; background: #fbbf24; color: black; font-weight: 900; padding: 20px 40px; border-radius: 12px; text-decoration: none; font-size: 18px;">${config.buttonText}</a>
+                <p style="margin-top: 40px; font-size: 12px; color: #999;">If you didn't request this, please ignore this email.</p>
+              </div>
+            </div>
+          `
+        })
+      })
+
+      if (!response.ok) throw new Error("Email dispatch failed")
+      
+      setSubmitted(true)
+    } catch (e) {
+      toast.error("Failed to collect blueprint. Please try again.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

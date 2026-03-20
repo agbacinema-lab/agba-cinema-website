@@ -5,22 +5,41 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { CheckCircle2, ArrowRight, Clapperboard } from "lucide-react"
 
-const features = [
-  "Structured video editing training (Premiere Pro + After Effects)",
-  "Real brand projects you can add to your portfolio",
-  "Internship placement with top Nigerian brands",
-  "1-on-1 mentorship from working professionals",
-  "Portfolio development & career guidance",
-]
-
-const steps = [
-  { step: "01", label: "Learn Editing" },
-  { step: "02", label: "Work on Real Brands" },
-  { step: "03", label: "Get Internship" },
-  { step: "04", label: "Build Portfolio" },
-]
+import { useState, useEffect } from "react"
+import { db } from "@/lib/firebase"
+import { doc, getDoc } from "firebase/firestore"
 
 export default function GoPro() {
+  const [features, setFeatures] = useState<string[]>([
+    "Structured video editing training (Premiere Pro + After Effects)",
+    "Real brand projects you can add to your portfolio",
+    "Internship placement with top Nigerian brands",
+    "1-on-1 mentorship from working professionals",
+    "Portfolio development & career guidance",
+  ])
+  const [steps, setSteps] = useState<{step: string, label: string}[]>([
+    { step: "01", label: "Learn Editing" },
+    { step: "02", label: "Work on Real Brands" },
+    { step: "03", label: "Get Internship" },
+    { step: "04", label: "Build Portfolio" },
+  ])
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const snap = await getDoc(doc(db, "siteSettings", "blueprint"))
+        if (snap.exists()) {
+          const data = snap.data()
+          if (data.features) setFeatures(data.features)
+          if (data.steps) setSteps(data.steps)
+        }
+      } catch (e) {
+        console.error("Blueprint sync failed:", e)
+      }
+    }
+    load()
+  }, [])
+
   return (
     <section className="py-24 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white relative overflow-hidden">
       {/* Background orbs */}
@@ -111,25 +130,25 @@ export default function GoPro() {
             className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm"
           >
             <div className="mb-2">
-              <span className="text-yellow-400 text-sm font-bold uppercase tracking-wider">Next Cohort — April 2026</span>
+              <span className="text-yellow-400 text-sm font-bold uppercase tracking-wider text-left block">Mission Pipeline — Open</span>
             </div>
-            <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-3 text-left">
               Ready to go from beginner to Pro?
             </h3>
-            <p className="text-gray-300 mb-6">
+            <p className="text-gray-300 mb-6 text-left">
               Limited spots available. Applications are reviewed on a first-come, first-served basis.
             </p>
             <div className="flex items-center gap-3 mb-8 bg-yellow-400/10 border border-yellow-400/20 rounded-lg px-4 py-3">
               <span className="text-yellow-400 font-bold text-lg">⚡</span>
-              <span className="text-yellow-300 font-semibold text-sm">Only <strong>3 slots</strong> remaining for this cohort</span>
+              <span className="text-yellow-300 font-semibold text-sm">Strategic enrollment pipeline activated</span>
             </div>
-            <Button size="lg" asChild className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-lg py-6 rounded-xl transition-all duration-300 hover:scale-[1.02] mb-4">
+            <Button size="lg" asChild className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-black text-lg py-6 rounded-xl transition-all duration-300 hover:scale-[1.02] mb-4">
               <a href="/portfolio">View Full Portfolio</a>
             </Button>
             <Button
               size="lg"
               asChild
-              className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-bold text-lg py-6 rounded-xl transition-all duration-300 hover:scale-[1.02]"
+              className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-black text-lg py-6 rounded-xl transition-all duration-300 hover:scale-[1.02]"
             >
               <a href="/academy">
                 Apply for the Next Cohort

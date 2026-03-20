@@ -50,11 +50,33 @@ function StatBubble({ label, value, sub }: { label: string; value: string; sub: 
   )
 }
 
+import { db } from "@/lib/firebase"
+import { doc, getDoc } from "firebase/firestore"
+
 export default function UrgencyCohort() {
-  const deadline = new Date("2026-04-30T23:59:59")
+  const [data, setData] = useState({
+    cohortTitle: "April 2026 Mentorship Cohort",
+    deadlineDate: "2026-04-30T23:59:59",
+    slotsLeft: 2,
+    totalSlots: 10,
+    applicationsCount: 147,
+    applicationsTrend: "43%"
+  })
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const snap = await getDoc(doc(db, "siteSettings", "urgency"))
+        if (snap.exists()) setData(snap.data() as any)
+      } catch (e) { console.error(e) }
+    }
+    load()
+  }, [])
+
+  const deadline = new Date(data.deadlineDate)
   const timeLeft = useCountdown(deadline)
-  const slotsLeft = 2
-  const totalSlots = 10
+  const slotsLeft = data.slotsLeft
+  const totalSlots = data.totalSlots
   const filled = totalSlots - slotsLeft
 
   return (
@@ -75,7 +97,7 @@ export default function UrgencyCohort() {
           </div>
 
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-3">
-            April 2026 Mentorship Cohort
+            {data.cohortTitle}
           </h2>
           <p className="text-gray-400 text-xl mb-10">
             Don't miss your chance to start your career in video editing this quarter.
@@ -83,9 +105,9 @@ export default function UrgencyCohort() {
 
           {/* Application social proof stats */}
           <div className="grid grid-cols-3 gap-4 mb-10 max-w-lg mx-auto">
-            <StatBubble value="147" label="Applications" sub="this month" />
-            <StatBubble value="10" label="Accepted" sub="per cohort" />
-            <StatBubble value="2" label="Slots Left" sub="out of 10" />
+            <StatBubble value={data.applicationsCount.toString()} label="Applications" sub="this month" />
+            <StatBubble value={totalSlots.toString()} label="Accepted" sub="per cohort" />
+            <StatBubble value={slotsLeft.toString()} label="Slots Left" sub={`out of ${totalSlots}`} />
           </div>
 
           {/* Slot bar */}
@@ -108,13 +130,13 @@ export default function UrgencyCohort() {
           {/* Trending */}
           <div className="flex items-center justify-center gap-2 text-yellow-400 text-sm font-semibold mb-8">
             <TrendingUp className="h-4 w-4" />
-            <span>Applications increased 43% this week</span>
+            <span>Applications increased {data.applicationsTrend} this week</span>
           </div>
 
           {/* Countdown */}
           <p className="text-gray-400 text-sm uppercase tracking-wider mb-4 flex items-center justify-center gap-2">
             <Clock className="h-4 w-4" />
-            Enrollment closes: April 30, 2026
+            Enrollment closes: {deadline.toLocaleDateString("en-US", { month: 'long', day: 'numeric', year: 'numeric' })}
           </p>
           <div className="flex items-center justify-center gap-4 mb-12">
             <TimeUnit value={timeLeft.days} label="Days" />
@@ -142,7 +164,7 @@ export default function UrgencyCohort() {
           {/* WhatsApp urgency */}
           <div className="mt-8">
             <a
-              href="https://wa.me/2349065230464?text=Hi%2C+I%27d+like+to+apply+for+the+April+2026+cohort!"
+              href={`https://wa.me/2349065230464?text=Hi%2C+I%27d+like+to+apply+for+the+${encodeURIComponent(data.cohortTitle)}!`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-green-400 hover:text-green-300 text-sm font-semibold transition-colors"
