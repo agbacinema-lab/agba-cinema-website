@@ -4,43 +4,44 @@ import { useState, useEffect } from "react"
 import { useAuth } from "@/context/AuthContext"
 import { useTheme } from "next-themes"
 import { AnimatePresence, motion } from "framer-motion"
-import { Save, Sun, Moon, CheckCircle, AlertCircle, User, Phone, FileText, Mail } from "lucide-react"
+import { Save, Sun, Moon, CheckCircle, AlertCircle, User, Phone, FileText, Mail, Bell } from "lucide-react"
 import { studentService as sService } from "@/lib/services"
+import { toast } from "sonner"
 
 export default function StudentSettings() {
   const { profile } = useAuth()
   const { theme, setTheme } = useTheme()
 
-  const [formData, setFormData] = useState({ 
-    name: "", 
-    phone: "", 
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
     bio: "",
     address: "",
     city: "",
     state: "Lagos",
     country: "Nigeria"
   })
-  const [saving, setSaving]     = useState(false)
-  const [saved, setSaved]       = useState(false)
-  const [error, setError]       = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const nigerianStates = [
-    "Lagos", "Abuja", "Port Harcourt", "Rivers", "Enugu", "Anambra", "Delta", "Kano", 
-    "Kaduna", "Oyo", "Ogun", "Edo", "Abia", "Adamawa", "Akwa Ibom", "Bauchi", 
-    "Bayelsa", "Benue", "Borno", "Cross River", "Ebonyi", "Ekiti", "Gombe", "Imo", 
-    "Jigawa", "Katsina", "Kebbi", "Kogi", "Kwara", "Nasarawa", "Niger", "Ondo", 
+    "Lagos", "Abuja", "Port Harcourt", "Rivers", "Enugu", "Anambra", "Delta", "Kano",
+    "Kaduna", "Oyo", "Ogun", "Edo", "Abia", "Adamawa", "Akwa Ibom", "Bauchi",
+    "Bayelsa", "Benue", "Borno", "Cross River", "Ebonyi", "Ekiti", "Gombe", "Imo",
+    "Jigawa", "Katsina", "Kebbi", "Kogi", "Kwara", "Nasarawa", "Niger", "Ondo",
     "Osun", "Plateau", "Sokoto", "Taraba", "Yobe", "Zamfara"
   ]
 
   useEffect(() => {
     if (profile && !formData.name) {
       setFormData({
-        name:  profile.name  || "",
+        name: profile.name || "",
         phone: profile.phone || "",
-        bio:   profile.bio   || "",
+        bio: profile.bio || "",
         address: profile.address || "",
-        city:    profile.city    || "",
-        state:   profile.state   || "Lagos",
+        city: profile.city || "",
+        state: profile.state || "Lagos",
         country: profile.country || "Nigeria"
       })
     }
@@ -65,6 +66,50 @@ export default function StudentSettings() {
       setError("Failed to save. Please try again.")
     } finally {
       setSaving(false)
+    }
+  }
+
+  const [notificationStatus, setNotificationStatus] = useState<'default' | 'granted' | 'denied'>('default')
+  const [requestingNotification, setRequestingNotification] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      setNotificationStatus(Notification.permission)
+    }
+  }, [])
+
+  const requestNotificationPermission = async () => {
+    if (typeof window === 'undefined' || !('Notification' in window)) return
+
+    setRequestingNotification(true)
+    try {
+      const permission = await Notification.requestPermission()
+      setNotificationStatus(permission)
+
+      if (permission === 'granted') {
+        const { messaging } = await import('@/lib/firebase')
+        const { getToken } = await import('firebase/messaging')
+
+        if (messaging) {
+          const token = await getToken(messaging, {
+            vapidKey: 'BGfTZ55acs0s1A1bBiFslFsOLBgY2fA9Vv0D3XP4KLkOWtFv8nkgYGkfmLeEPzymnrBu8PhhxiLkmfdk4FT64d8' // Placeholder VAPID key
+          })
+
+          if (token && profile?.uid) {
+            await sService.updateFullProfile(profile.uid, { fcmToken: token })
+            toast.success("Intelligence Link Established", {
+              description: "Your device is now synchronized with our command signals."
+            })
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Notification Error:", err)
+      toast.error("Protocol Failed", {
+        description: "Unable to establish intelligence link."
+      })
+    } finally {
+      setRequestingNotification(false)
     }
   }
 
@@ -100,21 +145,19 @@ export default function StudentSettings() {
           <div className="flex items-center bg-gray-100 dark:bg-zinc-800 rounded-xl p-1 gap-1">
             <button
               onClick={() => setTheme("light")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                theme === "light"
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${theme === "light"
                   ? "bg-white dark:bg-zinc-700 text-gray-900 dark:text-white shadow-sm"
                   : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-              }`}
+                }`}
             >
               <Sun className="h-4 w-4" /> Light
             </button>
             <button
               onClick={() => setTheme("dark")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                theme === "dark"
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${theme === "dark"
                   ? "bg-white dark:bg-zinc-700 text-gray-900 dark:text-white shadow-sm"
                   : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-              }`}
+                }`}
             >
               <Moon className="h-4 w-4" /> Dark
             </button>
@@ -191,7 +234,7 @@ export default function StudentSettings() {
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-gray-500">State Territory</label>
-              <select 
+              <select
                 value={formData.state}
                 onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                 className="w-full bg-gray-50 dark:bg-zinc-800 border-2 border-gray-100 dark:border-zinc-700 px-4 py-2.5 rounded-xl text-sm font-medium outline-none focus:border-yellow-400"
@@ -244,13 +287,13 @@ export default function StudentSettings() {
             <div className="flex flex-wrap gap-1.5 max-w-[60%] justify-end">
               {profile.enrolledSpecializations?.length
                 ? profile.enrolledSpecializations.map(s => (
-                    <span key={s.id} className="text-[11px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-semibold">
-                      {s.title || s.value}
-                    </span>
-                  ))
-                : <span className="text-[11px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-semibold capitalize">
-                    {String(profile.specialization).replace(/-/g, " ")}
+                  <span key={s.id} className="text-[11px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-semibold">
+                    {s.title || s.value}
                   </span>
+                ))
+                : <span className="text-[11px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-semibold capitalize">
+                  {String(profile.specialization).replace(/-/g, " ")}
+                </span>
               }
             </div>
           </div>

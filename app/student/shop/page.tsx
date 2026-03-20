@@ -13,7 +13,7 @@ import { getDirectDriveUrl } from "@/lib/utils"
 import { 
   ShoppingBag, ArrowRight, BookOpen, 
   CircleDollarSign, BadgeCheck, CheckCircle2, 
-  Loader2, X, Truck, Package, Trash2
+  Loader2, X, Truck, Package, Trash2, CreditCard
 } from "lucide-react"
 
 export default function StudentShop() {
@@ -37,6 +37,7 @@ export default function StudentShop() {
     state: profile?.state || "Lagos",
     country: "Nigeria"
   })
+  const [paymentType, setPaymentType] = useState<'online' | 'cash'>('online')
   const [shopSettings, setShopSettings] = useState<any>(null)
 
   const nigerianStates = [
@@ -100,39 +101,109 @@ export default function StudentShop() {
 
     setProcessingId("checkout")
     try {
-      const res = await fetch("/api/paystack/initialize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: finalTotal,
-          email: profile.email,
-          service: `Multi-Asset Order: ${cart.length} items`,
-          metadata: {
-            userId: profile.uid,
-            userName: profile.name,
-            items: cart.map(i => ({ productId: i.id, title: i.title, price: i.price, quantity: i.quantity, variantSelected: i.variantSelected })),
-            subtotal: subtotal,
-            deliveryFee: deliveryFee,
-            total: finalTotal,
-            ...delivery,
-          }
+      if (paymentType === 'online') {
+        const res = await fetch("/api/paystack/initialize", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: finalTotal,
+            email: profile.email,
+            service: `Multi-Asset Order: ${cart.length} items`,
+            metadata: {
+              userId: profile.uid,
+              userName: profile.name,
+              items: cart.map(i => ({ productId: i.id, title: i.title, price: i.price, quantity: i.quantity, variantSelected: i.variantSelected })),
+              subtotal: subtotal,
+              deliveryFee: deliveryFee,
+              total: finalTotal,
+              ...delivery,
+              paymentType: 'online'
+            }
+          })
         })
-      })
-      const data = await res.json()
-      if (!data.authorization_url) throw new Error("Payment protocol failure")
+        const data = await res.json()
+        if (!data.authorization_url) throw new Error("Payment protocol failure")
 
-      await shopService.placeOrder({
-        userId: profile.uid,
-        userName: profile.name,
-        userEmail: profile.email,
-        items: cart.map(i => ({ productId: i.id, title: i.title, price: i.price, quantity: i.quantity, variantSelected: i.variantSelected })),
-        subtotal: subtotal,
-        deliveryFee: deliveryFee,
-        total: finalTotal,
-        ...delivery,
-      })
+        await shopService.placeOrder({
+          userId: profile.uid,
+          userName: profile.name,
+          userEmail: profile.email,
+          items: cart.map(i => ({ productId: i.id, title: i.title, price: i.price, quantity: i.quantity, variantSelected: i.variantSelected })),
+          subtotal: subtotal,
+          deliveryFee: deliveryFee,
+          total: finalTotal,
+          ...delivery,
+          paymentType: 'online',
+          paymentStatus: 'pending', // Will be updated by webhook
+        })
 
-      window.location.href = data.authorization_url
+        // Send initial "Order Received" email for Online orders
+        await fetch("/api/notifications/email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to_email: profile.email,
+            to_name: profile.name,
+            subject: `ORDER RECEIVED #ACK-${Date.now().toString().slice(-6)}`,
+            message: `Your mission for ${cart.length} assets has been initialized. Payment confirmation is pending via Paystack.`,
+            template_params: {
+              order_type: 'Paystack Online',
+              assets: cart.map(i => i.title).join(", "),
+              total: `#${finalTotal.toLocaleString()}`
+            }
+          })
+        })
+
+        window.location.href = data.authorization_url
+      } else {
+        // --- Cash on Delivery Logic ---
+        const orderData: any = {
+          userId: profile.uid,
+          userName: profile.name,
+          userEmail: profile.email,
+          items: cart.map(i => ({ 
+            productId: i.id, 
+            title: i.title, 
+            price: i.price, 
+            quantity: i.quantity, 
+            variantSelected: i.variantSelected || {} 
+          })),
+          subtotal: subtotal,
+          deliveryFee: deliveryFee,
+          total: finalTotal,
+          ...delivery,
+          paymentType: 'cash',
+          paymentStatus: 'pending', // Cash on delivery is pending until collected
+          status: 'pending', // Initial status for cash orders
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+
+        await shopService.placeOrder(orderData)
+
+        // Send confirmation email for Cash orders
+        await fetch("/api/notifications/email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to_email: profile.email,
+            to_name: profile.name,
+            subject: `MISSION LOGGED: CASH ON DEPLOYMENT`,
+            message: `Your logistical request for ${cart.length} assets has been logged. Settlement will be required upon physical deployment.`,
+            template_params: {
+              order_type: 'Cash on Delivery',
+              assets: cart.map(i => i.title).join(", "),
+              total: `#${finalTotal.toLocaleString()}`,
+              deployment_address: `${delivery.address}, ${delivery.city}`
+            }
+          })
+        })
+
+        toast.success("Mission Logged! Payload will be authorized upon delivery.")
+        clearCart()
+        setCheckoutOpen(false)
+        loadUserOrders()
+      }
     } catch (err: any) {
       toast.error(err.message || "Checkout Protocol Failed")
     } finally {
@@ -191,7 +262,11 @@ export default function StudentShop() {
               className="group bg-card border border-white/5 rounded-3xl overflow-hidden cursor-pointer hover:border-yellow-400/50 transition-all flex flex-col h-full shadow-lg"
             >
               <div className="aspect-[4/5] overflow-hidden relative">
-                 <img src={getDirectDriveUrl(item.image)} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                 <img 
+                   src={item.image ? (item.image.startsWith('http') || item.image.startsWith('/') ? getDirectDriveUrl(item.image) : getDirectDriveUrl(`/${item.image}`)) : "/placeholder.svg"} 
+                   alt={item.title} 
+                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                 />
                  <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-md px-3 py-1 rounded-lg text-[8px] font-black text-yellow-500 uppercase tracking-widest border border-white/5">
                     {item.category}
                  </div>
@@ -221,7 +296,11 @@ export default function StudentShop() {
                 
                 <div className="md:w-1/2 p-6 md:p-12 flex flex-col bg-white/5 items-center justify-center">
                    <div className="w-full h-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-                      <img src={getDirectDriveUrl(selectedItem.image)} alt={selectedItem.title} className="w-full h-full object-cover" />
+                       <img 
+                         src={selectedItem.image ? (selectedItem.image.startsWith('http') || selectedItem.image.startsWith('/') ? getDirectDriveUrl(selectedItem.image) : getDirectDriveUrl(`/${selectedItem.image}`)) : "/placeholder.svg"} 
+                         alt={selectedItem.title} 
+                         className="w-full h-full object-cover" 
+                       />
                    </div>
                 </div>
 
@@ -264,7 +343,8 @@ export default function StudentShop() {
                         addToCart({ 
                           ...selectedItem, 
                           id: `${selectedItem.id}-${Object.values(selectedVariants).join('-')}`,
-                          variantSelected: selectedVariants 
+                          variantSelected: selectedVariants,
+                          quantity: 1
                         });
                         toast.success("Asset logged to cart protocol");
                         setSelectedItem(null);
@@ -391,6 +471,37 @@ export default function StudentShop() {
                        <p className="text-3xl font-black italic text-white">#{(finalTotal || 0).toLocaleString()}</p>
                     </div>
                  </div>
+
+                  {/* Payment Type Protocol */}
+                  <div className="space-y-6">
+                     <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 italic">Financial Authorization Portal</p>
+                     <div className="grid grid-cols-2 gap-4">
+                        <button 
+                          onClick={() => setPaymentType('online')}
+                          className={`p-6 rounded-3xl border transition-all flex flex-col items-center gap-2 group ${paymentType === 'online' ? 'bg-yellow-400/10 border-yellow-400 text-yellow-500' : 'bg-white/5 border-white/5 text-gray-500 hover:border-white/20'}`}
+                        >
+                           <CreditCard className={`h-6 w-6 ${paymentType === 'online' ? 'text-yellow-500' : 'text-gray-500 group-hover:text-white'}`} />
+                           <span className="text-[9px] font-black uppercase tracking-widest">Digital Auth</span>
+                           <p className="text-[7px] font-bold opacity-60">Card / Transfer / App</p>
+                        </button>
+                        <button 
+                          onClick={() => setPaymentType('cash')}
+                          className={`p-6 rounded-3xl border transition-all flex flex-col items-center gap-2 group ${paymentType === 'cash' ? 'bg-indigo-500/10 border-indigo-500 text-indigo-400' : 'bg-white/5 border-white/5 text-gray-500 hover:border-white/20'}`}
+                        >
+                           <Truck className={`h-6 w-6 ${paymentType === 'cash' ? 'text-indigo-400' : 'text-gray-500 group-hover:text-white'}`} />
+                           <span className="text-[9px] font-black uppercase tracking-widest">Physical Auth</span>
+                           <p className="text-[7px] font-bold opacity-60">Cash on Deployment</p>
+                        </button>
+                     </div>
+
+                     {paymentType === 'cash' && (
+                        <div className="p-4 bg-indigo-500/5 border border-indigo-500/10 rounded-2xl">
+                           <p className="text-[9px] text-indigo-300 font-bold leading-relaxed italic">
+                             * Note: Cash Authorization implies logistical settlement only upon successful physical deployment of assets.
+                           </p>
+                        </div>
+                     )}
+                  </div>
               </div>
 
               <div className="p-10 bg-white/5">

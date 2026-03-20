@@ -62,7 +62,7 @@ export default function FeaturedWork() {
                   ) : (
                     <>
                       <Image
-                        src={project.image || "/placeholder.svg"}
+                        src={project.image ? (project.image.startsWith('http') || project.image.startsWith('/') ? project.image : `/${project.image}`) : "/placeholder.svg"}
                         alt={project.title}
                         width={600}
                         height={400}

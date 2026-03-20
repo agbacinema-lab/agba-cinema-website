@@ -3,6 +3,8 @@ import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
+import { getMessaging } from "firebase/messaging";
+
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -18,6 +20,7 @@ const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
+const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
 const googleProvider = new GoogleAuthProvider();
 
-export { app, auth, db, storage, googleProvider };
+export { app, auth, db, storage, messaging, googleProvider };

@@ -33,7 +33,7 @@ export default function BlogCard({ post }: BlogCardProps) {
       {/* Editorial Cover */}
       <div className="relative aspect-[16/10] overflow-hidden">
         <Image
-          src={post.image || "/creative and legal crises.jpg"}
+          src={post.image ? (post.image.startsWith('http') || post.image.startsWith('/') ? post.image : `/${post.image}`) : "/creative and legal crises.jpg"}
           alt={post.title}
           fill
           className="object-cover group-hover:scale-110 transition-transform duration-1000 grayscale-[30%] group-hover:grayscale-0"

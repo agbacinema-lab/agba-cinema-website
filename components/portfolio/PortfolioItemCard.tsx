@@ -48,7 +48,7 @@ export default function PortfolioItemCard({ item }: PortfolioItemCardProps) {
         ) : (
           <>
             <Image
-              src={item.image || "/agba cinema black.jpg"}
+              src={item.image ? (item.image.startsWith('http') || item.image.startsWith('/') ? item.image : `/${item.image}`) : "/agba cinema black.jpg"}
               alt={item.title}
               fill
               className="object-cover group-hover:scale-110 group-hover:rotate-1 transition-all duration-1000 grayscale-[20%] group-hover:grayscale-0"

@@ -132,7 +132,9 @@ function EnrollModal({ userId, existingIds, profile, onClose }: {
           email: profile?.email,
           userId: userId,
           type: "academy_enrollment",
-          programType: programType
+          programType: programType,
+          service: serviceName,
+          fullName: profile?.fullName || profile?.name || "Student"
         })
       });
 

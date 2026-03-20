@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import crypto from "crypto"
 import sgMail from "@sendgrid/mail"
+import { db } from "@/lib/firebase"
+import { doc, updateDoc, arrayUnion, collection, query, where, getDocs, setDoc } from "firebase/firestore"
 
 export async function POST(request: NextRequest) {
     try {
@@ -35,8 +37,41 @@ export async function POST(request: NextRequest) {
             const service = data.metadata?.service || "Your booking"
             const fullName = data.metadata?.fullName || "Valued Customer"
 
-            // Send Email via SendGrid
+            const type = data.metadata?.type || "unknown"
+            const userId = data.metadata?.userId || ""
+            const serviceName = data.metadata?.service || data.metadata?.title || "Your booking"
+
+            // --- 🤖 DATABASE SYNCHRONIZATION 🤖 ---
+            if (type === "shop_order" && data.reference) {
+                // Update Order in Firestore
+                const ordersCol = collection(db, "orders")
+                const q = query(ordersCol, where("paymentRef", "==", data.reference))
+                const snap = await getDocs(q)
+                
+                if (!snap.empty) {
+                    await updateDoc(doc(db, "orders", snap.docs[0].id), {
+                        paymentStatus: "paid",
+                        status: "processing",
+                        updatedAt: new Date()
+                    })
+                }
+            } else if (type === "academy_enrollment" && userId && data.metadata?.service) {
+                // Add Specialization to Student Profile
+                const userRef = doc(db, "users", userId)
+                await updateDoc(userRef, {
+                    enrolledSpecializations: arrayUnion({
+                        id: `spec-${Date.now()}`,
+                        title: data.metadata.service,
+                        value: data.metadata.service.toLowerCase().replace(/\s+/g, '-'),
+                        programType: data.metadata.programType || "gopro"
+                    }),
+                    updatedAt: new Date()
+                })
+            }
+
+            // --- 📧 NOTIFICATION ENGINE 📧 ---
             try {
+                const isLMS = type === "academy_enrollment"
                 const html = `
                     <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
                         <div style="background-color: #000; color: #fbbf24; padding: 20px; text-align: center;">
@@ -50,14 +85,21 @@ export async function POST(request: NextRequest) {
                             <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #000;">
                                 <p style="font-weight: bold; margin-bottom: 15px; color: #000; text-transform: uppercase; font-size: 12px; letter-spacing: 1px;">Transaction Details:</p>
                                 <p style="margin: 5px 0;"><strong style="text-transform: uppercase; font-size: 10px; color: #666;">Reference:</strong> <span style="font-weight: bold;">${data.reference}</span></p>
-                                <p style="margin: 5px 0;"><strong style="text-transform: uppercase; font-size: 10px; color: #666;">Date:</strong> <span style="font-weight: bold;">${new Date(data.transaction_date || Date.now()).toLocaleDateString()}</span></p>
+                                <p style="margin: 5px 0;"><strong style="text-transform: uppercase; font-size: 10px; color: #666;">Objective:</strong> <span style="font-weight: bold;">${type.replace(/_/g, ' ').toUpperCase()}</span></p>
                             </div>
 
+                            ${isLMS ? `
                             <div style="margin-top: 30px; padding: 20px; background-color: #fffbeb; border: 1px dashed #fbbf24; border-radius: 8px; text-align: center;">
-                                <p style="font-weight: bold; color: #92400e; margin-bottom: 10px;">IMPORTANT NEXT STEP</p>
-                                <p style="margin-bottom: 15px;">Join the official WhatsApp group for your session to receive updates and materials:</p>
+                                <p style="font-weight: bold; color: #92400e; margin-bottom: 10px;">MISSION START</p>
+                                <p style="margin-bottom: 15px;">Your curriculum has been deployed. Join the official community to begin your training:</p>
                                 <a href="https://chat.whatsapp.com/Hu8ZRryOCkg96G90oELK6J" style="display: inline-block; background-color: #25d366; color: white; padding: 12px 25px; border-radius: 50px; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 14px;">Join WhatsApp Group</a>
                             </div>
+                            ` : `
+                            <div style="margin-top: 30px; padding: 20px; background-color: #f0fdf4; border: 1px dashed #22c55e; border-radius: 8px; text-align: center;">
+                                <p style="font-weight: bold; color: #166534; margin-bottom: 10px;">LOGISTICS IN MOTION</p>
+                                <p style="margin-bottom: 15px;">Our unit is now preparing your assets for deployment. Tracking details will be updated in your dashboard.</p>
+                            </div>
+                            `}
                         </div>
                         <div style="background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 12px; color: #888;">
                             <p style="margin: 0;">&copy; ${new Date().getFullYear()} ÀGBÀ CINEMA HQ. ALL RIGHTS RESERVED.</p>
