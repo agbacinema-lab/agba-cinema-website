@@ -96,9 +96,9 @@ export default function CurriculumSelector({
 
   if (curricula.length === 0) {
     return (
-      <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-12 text-center">
-        <BookOpen className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-        <p className="text-gray-500 font-medium">No curriculum (weeks) available</p>
+      <Card className="border-none shadow-premium rounded-[2.5rem] bg-card p-12 text-center">
+        <BookOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-20" />
+        <p className="text-muted-foreground font-medium">No curriculum (weeks) available</p>
       </Card>
     )
   }
@@ -107,15 +107,15 @@ export default function CurriculumSelector({
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {curricula.map((curriculum, index) => {
         const bgColorMap: Record<string, string> = {
-          blue: 'from-blue-50 to-blue-100',
-          purple: 'from-purple-50 to-purple-100',
-          green: 'from-green-50 to-green-100',
-          yellow: 'from-yellow-50 to-yellow-100',
-          red: 'from-red-50 to-red-100',
-          pink: 'from-pink-50 to-pink-100',
-          indigo: 'from-indigo-50 to-indigo-100',
+          blue: 'from-blue-500/10 to-transparent border-blue-500/20',
+          purple: 'from-purple-500/10 to-transparent border-purple-500/20',
+          green: 'from-green-500/10 to-transparent border-green-500/20',
+          yellow: 'from-yellow-500/10 to-transparent border-yellow-500/20',
+          red: 'from-red-500/10 to-transparent border-red-500/20',
+          pink: 'from-pink-500/10 to-transparent border-pink-500/20',
+          indigo: 'from-indigo-500/10 to-transparent border-indigo-500/20',
         }
-        const bgGradient = bgColorMap[curriculum.color] || 'from-gray-50 to-gray-100'
+        const bgGradient = bgColorMap[curriculum.color] || 'from-muted/50 to-transparent border-muted'
 
         return (
           <motion.div
@@ -124,56 +124,56 @@ export default function CurriculumSelector({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Card className={`border-none shadow-md rounded-[2rem] overflow-hidden hover:shadow-lg transition-all group bg-gradient-to-br ${bgGradient}`}>
-              <CardHeader className="pb-3">
+            <Card className={`border shadow-premium rounded-[2rem] overflow-hidden hover:scale-[1.02] transition-all group bg-card ${bgGradient}`}>
+              <CardHeader className="pb-3 text-left">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 flex-wrap">
                     {curriculum.programType === 'gopro' ? (
-                      <Badge className="bg-yellow-500 text-white border-0 flex items-center gap-1">
+                      <Badge className="bg-yellow-400 text-black border-0 flex items-center gap-1 font-black text-[10px] tracking-widest">
                         <Zap className="h-3 w-3" />
-                        Go Pro
+                        Go pro
                       </Badge>
                     ) : (
-                      <Badge className="bg-blue-500 text-white border-0 flex items-center gap-1">
+                      <Badge className="bg-blue-600 text-white border-0 flex items-center gap-1 font-black text-[10px] tracking-widest">
                         <Users className="h-3 w-3" />
                         Mentorship
                       </Badge>
                     )}
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-[10px] font-black border-muted-foreground/30">
                       {specializationMap[curriculum.specialization] || curriculum.specialization}
                     </Badge>
                   </div>
-                  <h3 className="text-lg font-black text-gray-900 leading-tight">
+                  <h3 className="text-xl font-black text-foreground leading-tight tracking-tighter">
                     {curriculum.title}
                   </h3>
-                  <p className="text-sm text-gray-600 line-clamp-2">
+                  <p className="text-sm text-muted-foreground line-clamp-2">
                     {curriculum.description}
                   </p>
                 </div>
               </CardHeader>
 
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 text-left">
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-white/60 rounded-lg p-3 text-center">
-                    <p className="text-xs text-gray-500 font-bold">Modules (Days)</p>
-                    <p className="text-2xl font-black text-gray-900">
+                  <div className="bg-muted/30 rounded-lg p-3 text-center border border-muted-foreground/10">
+                    <p className="text-xs text-muted-foreground font-black tracking-widest">Modules (days)</p>
+                    <p className="text-2xl font-black text-foreground tracking-tighter">
                       {curriculum.moduleCount || 0}
                     </p>
                   </div>
-                  <div className="bg-white/60 rounded-lg p-3 text-center">
-                    <p className="text-xs text-gray-500 font-bold">Program</p>
-                    <p className="text-sm font-bold text-gray-900 truncate">
+                  <div className="bg-muted/30 rounded-lg p-3 text-center border border-muted-foreground/10">
+                    <p className="text-xs text-muted-foreground font-black tracking-widest">Program</p>
+                    <p className="text-sm font-black text-foreground truncate uppercase tracking-tighter pt-1">
                       {curriculum.programType === 'gopro' ? 'Pro' : 'Mentor'}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex gap-2 pt-2">
-                  <Button
+                   <Button
                     onClick={() => onSelectCurriculum(curriculum.id)}
-                    className="flex-1 bg-yellow-400 text-black font-bold rounded-lg flex items-center justify-center gap-2 hover:bg-yellow-500"
+                    className="flex-1 bg-foreground text-background font-black text-[10px] tracking-widest rounded-xl flex items-center justify-center gap-2 hover:bg-yellow-400 hover:text-black transition-all"
                   >
-                    View
+                    View weeks
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                   <AlertDialog>

@@ -49,7 +49,7 @@ export default function AnalyticsDashboard() {
     loadData()
   }, [])
 
-  if (loading) return <div className="p-20 text-center font-black animate-pulse text-gray-400 uppercase tracking-widest">Loading Data...</div>
+  if (loading) return <div className="p-20 text-left font-black animate-pulse text-gray-400 uppercase tracking-widest pl-12">Loading Data...</div>
 
   // Prepare chart data (Mocking some time series if no data exists)
   const chartData = sales?.transactions?.slice(0, 10).reverse() || []
@@ -57,8 +57,8 @@ export default function AnalyticsDashboard() {
   return (
     <div className="space-y-10 selection:bg-yellow-400 selection:text-black">
       <header>
-        <h2 className="text-3xl font-black italic uppercase tracking-tighter text-foreground text-4xl">Portal Statistics</h2>
-        <p className="text-muted-foreground font-medium italic">View total revenue, active students, and overall platform growth.</p>
+        <h2 className="text-3xl font-black uppercase tracking-tighter text-foreground">Portal Statistics</h2>
+        <p className="text-muted-foreground font-medium">View total revenue, active students, and overall platform growth.</p>
       </header>
 
       {/* Primary KPI Grid */}
@@ -97,7 +97,7 @@ export default function AnalyticsDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
          <Card className="lg:col-span-2 border-none shadow-premium rounded-[3rem] bg-card p-10 transition-colors">
             <CardHeader className="p-0 mb-10">
-               <CardTitle className="text-xl font-black italic uppercase tracking-tight flex items-center justify-between text-foreground">
+               <CardTitle className="text-xl font-black uppercase tracking-tight flex items-center justify-between text-foreground">
                    Revenue Growth (Sales)
                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Last 10 Transactions</span>
                 </CardTitle>
@@ -151,7 +151,7 @@ export default function AnalyticsDashboard() {
 
          <Card className="border-none shadow-premium rounded-[3rem] bg-black text-white p-10 border border-white/5">
             <CardHeader className="p-0 mb-8">
-                <CardTitle className="text-xl font-black italic uppercase">User Engagement</CardTitle>
+                <CardTitle className="text-xl font-black uppercase">User Engagement</CardTitle>
             </CardHeader>
             <CardContent className="p-0 space-y-8">
                <EngagementRow label="Academy Enrollment" count={engagement?.students || 0} total={engagement?.totalUsers || 1} color="bg-yellow-400" />
@@ -161,7 +161,7 @@ export default function AnalyticsDashboard() {
                    <p className="text-[10px] font-black tracking-widest text-white/40 uppercase mb-4">System Status</p>
                    <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                      <span className="text-xs font-bold italic uppercase tracking-widest">All Systems Online</span>
+                      <span className="text-xs font-bold uppercase tracking-widest">All Systems Online</span>
                    </div>
                 </div>
             </CardContent>
@@ -171,7 +171,7 @@ export default function AnalyticsDashboard() {
       {/* Recent Activity Table */}
       <Card className="border-none shadow-premium rounded-[3rem] bg-card overflow-hidden transition-colors">
          <CardHeader className="p-10 border-b border-muted flex flex-row items-center justify-between">
-            <CardTitle className="text-xl font-black italic uppercase text-foreground">Recent Transactions</CardTitle>
+            <CardTitle className="text-xl font-black uppercase text-foreground">Recent Transactions</CardTitle>
             <CreditCard className="h-6 w-6 text-muted-foreground" />
          </CardHeader>
          <div className="overflow-x-auto">
@@ -188,11 +188,11 @@ export default function AnalyticsDashboard() {
                   {(sales?.transactions || []).slice(0, 5).map((t: any) => (
                     <tr key={t.id} className="hover:bg-muted/30 transition-colors">
                        <td className="px-10 py-6">
-                          <p className="font-black uppercase italic tracking-tighter text-foreground">{t.fullName || "Anonymous"}</p>
+                          <p className="font-black uppercase tracking-tighter text-foreground">{t.fullName || "Anonymous"}</p>
                           <p className="text-xs text-muted-foreground font-medium">{t.customerEmail || t.email}</p>
                        </td>
                        <td className="px-6 py-6 font-black text-foreground">₦{t.amount?.toLocaleString()}</td>
-                       <td className="px-6 py-6 font-bold uppercase text-[10px] text-indigo-500 italic tracking-widest">
+                       <td className="px-6 py-6 font-bold uppercase text-[10px] text-indigo-500 tracking-widest">
                           {t.category || "General"}
                        </td>
                        <td className="px-10 py-6 text-right font-mono text-[10px] text-muted-foreground">{t.reference}</td>
@@ -218,7 +218,7 @@ function StatsCard({ title, value, trend, icon, color }: any) {
           </span>
        </div>
        <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">{title}</p>
-       <h3 className="text-3xl font-black italic uppercase tracking-tighter">{value}</h3>
+       <h3 className="text-2xl font-black uppercase tracking-tighter">{value}</h3>
     </Card>
   )
 }
@@ -229,7 +229,7 @@ function EngagementRow({ label, count, total, color }: any) {
     <div className="space-y-2">
        <div className="flex justify-between items-end">
           <p className="text-[10px] font-black uppercase tracking-widest text-white/40">{label}</p>
-          <p className="text-lg font-black italic">{count}</p>
+          <p className="text-lg font-black">{count}</p>
        </div>
        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
           <motion.div 

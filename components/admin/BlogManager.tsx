@@ -157,8 +157,9 @@ export default function BlogManager() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-yellow-400"></div>
+      <div className="flex items-center justify-start h-96 pl-12 text-muted-foreground font-black uppercase tracking-widest text-sm animate-pulse">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-yellow-400 mr-6"></div>
+        Syncing Metadata...
       </div>
     )
   }
@@ -193,17 +194,13 @@ export default function BlogManager() {
 
       {/* Form */}
       {showForm && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-        >
-          <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-12">
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+          <Card className="border border-muted shadow-premium rounded-[2.5rem] bg-card p-12 text-left">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-black">{editingId ? "Edit Post" : "Create New Post"}</h3>
+              <h3 className="text-2xl font-black tracking-tighter">{editingId ? "Edit post" : "Create new post"}</h3>
               <button
                 onClick={resetForm}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-muted rounded-lg transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -219,7 +216,7 @@ export default function BlogManager() {
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     placeholder="Post title"
-                    className="h-12 rounded-xl border-gray-200"
+                    className="h-12 rounded-xl border-muted-foreground/30 bg-background"
                   />
                 </div>
 
@@ -230,8 +227,8 @@ export default function BlogManager() {
                   <Input
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    placeholder="e.g., Tutorial, News, Behind the Scenes"
-                    className="h-12 rounded-xl border-gray-200"
+                    placeholder="e.g., Tutorial, News, Behind the scenes"
+                    className="h-12 rounded-xl border-muted-foreground/30 bg-background"
                   />
                 </div>
               </div>
@@ -244,7 +241,7 @@ export default function BlogManager() {
                   value={formData.excerpt}
                   onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
                   placeholder="Brief summary of the post"
-                  className="min-h-24 rounded-xl border-gray-200"
+                  className="min-h-24 rounded-xl border-muted-foreground/30 bg-background"
                 />
               </div>
 
@@ -256,7 +253,7 @@ export default function BlogManager() {
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                   placeholder="Full post content. Use ## for subheadings and separate paragraphs with blank lines."
-                  className="min-h-64 rounded-xl border-gray-200 font-mono text-sm"
+                  className="min-h-64 rounded-xl border-muted-foreground/30 bg-background font-mono text-sm"
                 />
               </div>
 
@@ -334,8 +331,8 @@ export default function BlogManager() {
       {/* Posts List */}
       <div className="space-y-4">
         {posts.length === 0 ? (
-          <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-12 text-center">
-            <p className="text-gray-500 font-medium">No blog posts yet. Create your first post!</p>
+          <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-12 text-left">
+            <p className="text-gray-500 font-medium tracking-tight">No blog posts yet. Create your first post!</p>
           </Card>
         ) : (
           posts.map((post) => (
@@ -344,23 +341,23 @@ export default function BlogManager() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <Card className="border-none shadow-md rounded-[2rem] bg-white p-6 hover:shadow-lg transition-shadow">
-                <CardContent className="p-0">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div className="flex-grow">
+              <Card className="border border-muted shadow-premium rounded-[2rem] bg-card p-6 hover:shadow-lg transition-all text-left">
+                <CardContent className="p-0 text-left">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-left">
+                    <div className="flex-grow text-left">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="bg-yellow-400 text-black px-3 py-1 rounded-full text-xs font-black">
+                        <span className="bg-yellow-400 text-black px-4 py-1 rounded-full text-[10px] font-black tracking-widest uppercase">
                           {post.category}
                         </span>
-                        <span className="text-xs text-gray-400">{post.readTime}</span>
+                        <span className="text-[10px] text-muted-foreground font-black tracking-widest uppercase">{post.readTime}</span>
                       </div>
-                      <h3 className="text-lg font-black text-gray-900 mb-2">{post.title}</h3>
-                      <p className="text-sm text-gray-500 mb-3 line-clamp-2">{post.excerpt}</p>
+                      <h3 className="text-xl font-black text-foreground mb-2 tracking-tighter leading-tight">{post.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2 leading-relaxed">{post.excerpt}</p>
                       <div className="flex flex-wrap gap-2">
                         {post.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full"
+                            className="text-[9px] bg-muted text-muted-foreground px-3 py-1 rounded-full font-black tracking-widest uppercase border border-muted"
                           >
                             #{tag}
                           </span>

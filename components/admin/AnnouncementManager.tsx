@@ -107,13 +107,13 @@ export default function AnnouncementManager() {
     }
   }
 
-  if (loading) return <div className="p-12 text-center text-gray-500 font-bold animate-pulse">Scanning frequencies...</div>
+  if (loading) return <div className="p-12 text-left text-gray-400 font-bold animate-pulse pl-12">Scanning frequencies...</div>
 
   return (
     <div className="space-y-10">
       <header className="flex justify-between items-center">
         <div>
-           <h2 className="text-3xl font-black italic uppercase tracking-tighter text-foreground">Broadcast Hub</h2>
+           <h2 className="text-3xl font-black uppercase tracking-tighter text-foreground">Broadcast Hub</h2>
            <p className="text-muted-foreground font-medium">Manage vital announcements across the ÀGBÀ CINEMA ecosystem.</p>
         </div>
         <Button 
@@ -121,7 +121,7 @@ export default function AnnouncementManager() {
             setShowAddForm(!showAddForm)
             setEditingAnn(null)
           }}
-          className="bg-black text-white rounded-2xl h-14 px-8 font-black uppercase italic tracking-tighter hover:bg-yellow-400 hover:text-black transition-all shadow-xl shadow-black/10"
+          className="bg-black text-white rounded-2xl h-14 px-8 font-black uppercase tracking-tighter hover:bg-yellow-400 hover:text-black transition-all shadow-xl shadow-black/10"
         >
           {showAddForm ? "Cancel" : <><Plus className="h-5 w-5 mr-3" /> New Broadcast</>}
         </Button>
@@ -132,7 +132,7 @@ export default function AnnouncementManager() {
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
              <Card className="border border-muted rounded-[2.5rem] bg-card p-10 transition-colors">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-black italic uppercase tracking-tighter text-foreground">
+                  <h3 className="text-xl font-black uppercase tracking-tighter text-foreground">
                     {editingAnn ? "Edit Broadcast" : "New Broadcast"}
                   </h3>
                   {editingAnn && (
@@ -186,7 +186,7 @@ export default function AnnouncementManager() {
                             className="h-14 rounded-xl font-medium bg-background text-foreground border-muted"
                          />
                       </div>
-                      <Button onClick={editingAnn ? handleUpdate : handleCreate} className="w-full h-16 bg-yellow-400 text-black rounded-2xl font-black uppercase italic tracking-tighter text-lg shadow-lg shadow-yellow-400/20">
+                      <Button onClick={editingAnn ? handleUpdate : handleCreate} className="w-full h-16 bg-yellow-400 text-black rounded-2xl font-black uppercase tracking-tighter text-lg shadow-lg shadow-yellow-400/20">
                          {editingAnn ? "Save Changes" : "Initiate Broadcast"} <ArrowRight className="h-5 w-5 ml-4" />
                       </Button>
                    </div>
@@ -198,8 +198,8 @@ export default function AnnouncementManager() {
 
       <div className="space-y-6">
          {announcements.length === 0 ? (
-           <div className="bg-card p-20 rounded-[3rem] border border-dashed border-muted text-center">
-              <Megaphone className="h-12 w-12 text-muted mx-auto mb-4" />
+           <div className="bg-card p-20 rounded-[3rem] border border-dashed border-muted text-left">
+              <Megaphone className="h-12 w-12 text-muted mb-4" />
               <p className="text-sm font-black uppercase tracking-widest text-muted-foreground">The frequency is silent.</p>
            </div>
          ) : (
@@ -223,7 +223,7 @@ export default function AnnouncementManager() {
                                 Deployed {new Date(a.createdAt?.toMillis() || Date.now()).toLocaleDateString()}
                              </span>
                           </div>
-                          <h4 className="text-xl font-black italic uppercase tracking-tight text-foreground">{a.title}</h4>
+                          <h4 className="text-xl font-black uppercase tracking-tight text-foreground">{a.title}</h4>
                           <p className="text-muted-foreground font-medium text-sm mt-1">{a.content}</p>
                        </div>
                     </div>

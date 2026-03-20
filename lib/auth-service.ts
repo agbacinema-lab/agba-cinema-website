@@ -7,10 +7,11 @@ import {
   onAuthStateChanged,
   User as FirebaseUser,
   reauthenticateWithCredential,
-  EmailAuthProvider
+  EmailAuthProvider,
+  sendPasswordResetEmail
 } from "firebase/auth";
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
-import { adminService } from "./services";
+import { adminService, notificationService } from "./services";
 
 export type UserRole = 'super_admin' | 'director' | 'head_of_department' | 'admin' | 'tutor' | 'staff' | 'student' | 'brand';
 
@@ -69,6 +70,13 @@ export const authService = {
               })
             }).catch(e => console.error("Signal Broadcast Error:", e));
           }
+          // In-App Platform Notification
+          await notificationService.notifySuperAdmins(
+            `NEW ${role.toUpperCase()} ENROLLED`,
+            `${profile.name} (${profile.email}) has joined as a ${role}.`,
+            'new_registration',
+            { userId: profile.uid, role }
+          ).catch(e => console.error("Platform Broadcast Error:", e));
         } catch (e) {
           console.error("Critical Settings Access Failure:", e);
         }
@@ -148,6 +156,13 @@ export const authService = {
             })
           }).catch(e => console.error("Signal Broadcast Error:", e));
         }
+        // In-App Platform Notification
+        await notificationService.notifySuperAdmins(
+          `NEW ${role.toUpperCase()} ENROLLED`,
+          `${profile.name} (${profile.email}) has joined as a ${role}.`,
+          'new_registration',
+          { userId: profile.uid, role }
+        ).catch(e => console.error("Platform Broadcast Error:", e));
       } catch (e) {
         console.error("Critical Settings Access Failure:", e);
       }
@@ -213,5 +228,9 @@ export const authService = {
       console.error("Password verification failed", error);
       return false;
     }
+  },
+
+  async resetPassword(email: string) {
+    return sendPasswordResetEmail(auth, email);
   }
 };

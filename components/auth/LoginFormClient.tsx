@@ -58,6 +58,23 @@ export default function LoginFormClient() {
     }
   }
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error("Please enter your email address first")
+      return
+    }
+    
+    setLoading(true)
+    try {
+      await authService.resetPassword(email)
+      toast.success("Password reset link sent to your email!")
+    } catch (error: any) {
+      toast.error("Failed to send reset link: " + error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
       {/* Left side - Branding */}
@@ -115,9 +132,18 @@ export default function LoginFormClient() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">
-                    Password
-                  </label>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                      Password
+                    </label>
+                    <button 
+                      type="button" 
+                      onClick={handleForgotPassword}
+                      className="text-[10px] font-black uppercase tracking-widest text-yellow-600 hover:text-yellow-700 transition-colors"
+                    >
+                      Forgot Protocol?
+                    </button>
+                  </div>
                   <div className="relative">
                     <Input
                       type={showPassword ? "text" : "password"}

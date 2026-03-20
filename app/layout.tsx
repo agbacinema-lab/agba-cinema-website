@@ -6,6 +6,7 @@ import Header from "@/components/common/layout/Header"
 import Footer from "@/components/common/layout/Footer"
 import WhatsAppButton from "@/components/common/WhatsAppButton"
 import { AuthProvider } from "@/context/AuthContext"
+import { CartProvider } from "@/context/CartContext"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import Script from "next/script"
@@ -104,15 +105,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         </noscript>
         <AuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-            <Header />
-            <div className="relative min-h-screen">
-              {children}
-            </div>
-            <Footer />
-            <WhatsAppButton />
-            <Toaster />
-          </ThemeProvider>
+          <CartProvider>
+            <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+              <Header />
+              <div className="relative min-h-screen">
+                {children}
+              </div>
+              <Footer />
+              <WhatsAppButton />
+              <Toaster />
+            </ThemeProvider>
+          </CartProvider>
         </AuthProvider>
       </body>
 

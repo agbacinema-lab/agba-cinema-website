@@ -44,12 +44,12 @@ function InternalViewer({ url, onClose }: { url: string; onClose: () => void }) 
     >
       <div className="w-full px-8 h-24 flex justify-between items-center border-b border-white/10">
         <div className="flex items-center gap-6">
-          <button onClick={onClose} className="flex items-center gap-3 bg-foreground text-background px-8 h-14 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-yellow-400 hover:text-black transition-all shadow-2xl">
-            <ArrowLeft className="h-4 w-4" /> Exit Review
+          <button onClick={onClose} className="flex items-center gap-3 bg-foreground text-background px-8 h-14 rounded-2xl font-black tracking-[0.2em] text-[10px] hover:bg-yellow-400 hover:text-black transition-all shadow-2xl">
+            <ArrowLeft className="h-4 w-4" /> Exit review
           </button>
           <div>
-            <h3 className="text-foreground font-black italic uppercase tracking-widest text-[11px]">Tutor Evaluation Workspace</h3>
-            <p className="text-muted-foreground text-[9px] font-black uppercase tracking-[0.4em]">Protocol: A1-SECURE-VIEW</p>
+            <h3 className="text-foreground font-black tracking-widest text-[11px]">Tutor evaluation workspace</h3>
+            <p className="text-muted-foreground text-[9px] font-black tracking-[0.4em]">Protocol: A1-secure-view</p>
           </div>
         </div>
         <button onClick={onClose} className="group p-4 bg-red-500/10 hover:bg-red-500 rounded-2xl text-red-500 hover:text-white transition-all">
@@ -200,13 +200,13 @@ export default function AssignmentManagementPanel() {
     <div className="space-y-8 pb-32">
       <div className="flex justify-between items-end">
         <div className="space-y-4">
-          <h2 className="text-4xl font-black italic uppercase tracking-tighter text-foreground">Academic Evaluation</h2>
-          <p className="text-muted-foreground font-medium">A1 Excellence Protocol — 75%+ Required</p>
+          <h2 className="text-3xl font-black tracking-tighter text-foreground">Academic evaluation</h2>
+          <p className="text-muted-foreground font-medium">A1 Excellence protocol — 75%+ required</p>
           {!isSuperAdmin && (
             <div className="flex items-center gap-3 bg-indigo-500/10 border border-indigo-500/20 px-6 py-3 rounded-2xl w-fit">
               <ShieldCheck className="h-4 w-4 text-indigo-500" />
-              <p className="text-[10px] font-black uppercase tracking-widest text-indigo-400">
-                Scope: Your Assigned Students Only ({myStudentIds.size} enrolled)
+              <p className="text-[10px] font-black tracking-widest text-indigo-400">
+                Scope: your assigned students only ({myStudentIds.size} enrolled)
               </p>
             </div>
           )}
@@ -214,16 +214,16 @@ export default function AssignmentManagementPanel() {
         <Button 
           variant="ghost" 
           onClick={loadData} 
-          className="rounded-[1.5rem] flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] bg-muted/20 hover:bg-yellow-400 hover:text-black hover:scale-105 active:scale-95 transition-all h-14 px-8 border border-muted/50 text-foreground shadow-lg"
+          className="rounded-[1.5rem] flex items-center gap-3 text-[10px] font-black tracking-[0.3em] bg-muted/20 hover:bg-yellow-400 hover:text-black hover:scale-105 active:scale-95 transition-all h-14 px-8 border border-muted/50 text-foreground shadow-lg"
         >
-          <RefreshCw className="h-4 w-4" /> Nexus Refresh
+          <RefreshCw className="h-4 w-4" /> Nexus refresh
         </Button>
       </div>
 
       {assignments.length === 0 ? (
-        <Card className="border border-muted shadow-sm rounded-[3rem] bg-card p-20 text-center transition-colors">
-          <ClipboardList className="h-16 w-16 mx-auto mb-4 text-muted/20" />
-          <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">No assignments found.</p>
+        <Card className="border border-muted shadow-sm rounded-[3rem] bg-card p-20 text-left transition-colors">
+          <ClipboardList className="h-16 w-16 mb-4 text-muted/20" />
+          <p className="text-muted-foreground font-black tracking-widest text-xs">No assignments found.</p>
         </Card>
       ) : (
         <div className="space-y-6">
@@ -239,21 +239,21 @@ export default function AssignmentManagementPanel() {
                     <div className="flex justify-between items-start gap-10 relative z-10">
                       <div className="flex-1 space-y-6">
                         <div className="flex items-center gap-4">
-                          <span className={`px-5 py-2.5 rounded-full text-[9px] font-black uppercase tracking-widest border transition-all ${
+                          <span className={`px-5 py-2.5 rounded-full text-[9px] font-black tracking-widest border transition-all ${
                             assignment.programType === 'gopro' 
                               ? 'bg-yellow-400/10 text-yellow-500 border-yellow-400/20' 
                               : 'bg-indigo-600/10 text-indigo-400 border-indigo-600/20'
                           }`}>
-                            {assignment.programType === 'gopro' ? 'PRO TRACK' : 'ELITE MENTORSHIP'}
+                            {assignment.programType === 'gopro' ? 'Pro track' : 'Elite mentorship'}
                           </span>
                           {pendingCount > 0 && (
-                            <span className="bg-red-600 text-white px-5 py-2.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] animate-pulse shadow-lg shadow-red-600/20">
-                              {pendingCount} SIGNAL{pendingCount > 1 ? 'S' : ''} PENDING
+                            <span className="bg-red-600 text-white px-5 py-2.5 rounded-full text-[9px] font-black tracking-[0.2em] animate-pulse shadow-lg shadow-red-600/20">
+                              {pendingCount} Signal{pendingCount > 1 ? 's' : ''} pending
                             </span>
                           )}
                         </div>
-                        <h3 className="text-4xl lg:text-5xl font-black uppercase italic tracking-tighter leading-none text-foreground transition-colors">{assignment.title}</h3>
-                        <p className="text-muted-foreground text-base font-medium italic line-clamp-1 opacity-70 group-hover:opacity-100 transition-opacity">{assignment.description}</p>
+                        <h3 className="text-3xl lg:text-4xl font-black tracking-tighter leading-none text-foreground transition-colors">{assignment.title}</h3>
+                        <p className="text-muted-foreground text-base font-medium opacity-70 group-hover:opacity-100 transition-opacity">{assignment.description}</p>
                       </div>
                       <div className={`w-16 h-16 rounded-[1.8rem] flex items-center justify-center transition-all duration-500 shadow-xl border ${
                         isOpen 
@@ -273,14 +273,14 @@ export default function AssignmentManagementPanel() {
                           {loadingSubmissions[assignment.id] ? (
                             <div className="py-24 flex justify-center"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-yellow-400" /></div>
                           ) : subs.length === 0 ? (
-                            <div className="py-24 text-center space-y-6">
-                              <div className="w-20 h-20 bg-muted/10 rounded-[2rem] flex items-center justify-center mx-auto border border-muted/20 shadow-inner">
+                            <div className="py-24 text-left space-y-6">
+                              <div className="w-20 h-20 bg-muted/10 rounded-[2rem] flex items-center justify-center border border-muted/20 shadow-inner">
                                  <User className="h-10 w-10 text-muted-foreground/20" />
                               </div>
-                              <p className="text-muted-foreground font-black uppercase tracking-[0.3em] text-[10px] italic">
+                              <p className="text-muted-foreground font-black tracking-[0.3em] text-[10px]">
                                 {!isSuperAdmin && myStudentIds.size === 0
-                                  ? "Nexus Offline: No students are currently assigned to your evaluation unit."
-                                  : "Signal Clear: No submissions detected for your assigned personnel."
+                                  ? "Nexus offline: no students are currently assigned to your evaluation unit."
+                                  : "Signal clear: no submissions detected for your assigned personnel."
                                 }
                               </p>
                             </div>
@@ -296,25 +296,25 @@ export default function AssignmentManagementPanel() {
                                             <User className="h-10 w-10" />
                                           </div>
                                           <div>
-                                            <p className="text-2xl font-black uppercase tracking-tighter text-foreground italic">{submission.studentName || 'Academy Student'}</p>
-                                            <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.4em] mt-1">NEXUS ID: {submission.studentId?.slice(-10).toUpperCase()}</p>
+                                            <p className="text-xl font-black tracking-tighter text-foreground">{submission.studentName || 'Academy student'}</p>
+                                            <p className="text-[10px] text-muted-foreground font-black tracking-[0.4em] mt-1">Nexus id: {submission.studentId?.slice(-10).toUpperCase()}</p>
                                           </div>
                                         </div>
-                                        <span className={`px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl border ${statusColor(submission.status).replace('bg-', 'bg-').replace('text-', 'text-')}`}>
-                                          {submission.status?.replace('_', ' ')}
+                                        <span className={`px-6 py-3 rounded-full text-[10px] font-black tracking-widest shadow-xl border ${statusColor(submission.status).replace('bg-', 'bg-').replace('text-', 'text-')}`}>
+                                          {submission.status?.replace('_', ' ').charAt(0).toUpperCase() + submission.status?.replace('_', ' ').slice(1).toLowerCase()}
                                         </span>
                                       </div>
 
                                       <div className="flex flex-wrap gap-4">
                                         <button
                                           onClick={() => setViewingUrl(submission.submissionUrl)}
-                                          className="flex items-center gap-3 bg-foreground text-background px-10 h-16 rounded-[1.5rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all hover:bg-yellow-400 hover:text-black hover:scale-105 active:scale-95 shadow-2xl"
+                                          className="flex items-center gap-3 bg-foreground text-background px-10 h-16 rounded-[1.5rem] font-black text-[11px] tracking-[0.2em] transition-all hover:bg-yellow-400 hover:text-black hover:scale-105 active:scale-95 shadow-2xl"
                                         >
-                                          <Eye className="h-5 w-5" /> View Project
+                                          <Eye className="h-5 w-5" /> View project
                                         </button>
                                         <div className="px-8 h-16 rounded-[1.5rem] border-2 border-dashed border-muted flex items-center gap-3">
                                           <AlertCircle className="h-5 w-5 text-muted/30" />
-                                          <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Internal Secured Stream</p>
+                                          <p className="text-[10px] font-black text-muted-foreground tracking-widest">Internal secured stream</p>
                                         </div>
                                       </div>
 
@@ -323,7 +323,7 @@ export default function AssignmentManagementPanel() {
                                           <div className="flex items-center gap-5">
                                             <Award className={`h-8 w-8 ${getGradeCategory(submission.grade).color}`} />
                                             <div>
-                                              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Grade on Record</p>
+                                              <p className="text-[10px] font-black tracking-widest text-muted-foreground mb-1">Grade on record</p>
                                               <p className={`text-2xl font-black ${getGradeCategory(submission.grade).color}`}>
                                                 {submission.grade}% — {getGradeCategory(submission.grade).label}
                                               </p>
@@ -337,7 +337,7 @@ export default function AssignmentManagementPanel() {
                                       {gradingId === submission.id ? (
                                         <div className="space-y-8">
                                           <div className="space-y-3">
-                                            <label className="text-[11px] font-black uppercase tracking-widest text-muted-foreground ml-4">Score (%)</label>
+                                            <label className="text-[11px] font-black tracking-widest text-muted-foreground ml-4">Score (%)</label>
                                             <Input
                                               type="number"
                                               value={gradeData.grade}
@@ -347,7 +347,7 @@ export default function AssignmentManagementPanel() {
                                             />
                                           </div>
                                           <div className="space-y-3">
-                                            <label className="text-[11px] font-black uppercase tracking-widest text-muted-foreground ml-4">Evaluation Feedback</label>
+                                            <label className="text-[11px] font-black tracking-widest text-muted-foreground ml-4">Evaluation feedback</label>
                                             <Textarea
                                               value={gradeData.feedback}
                                               onChange={(e) => setGradeData(prev => ({ ...prev, feedback: e.target.value }))}
@@ -358,11 +358,11 @@ export default function AssignmentManagementPanel() {
                                           <div className="flex flex-col gap-4 pt-4">
                                             <Button
                                               onClick={() => handleGrade(assignment.id, submission.id, submission)}
-                                              className="w-full bg-foreground text-background font-black h-20 rounded-[1.5rem] hover:bg-yellow-400 hover:text-black transition-all shadow-2xl uppercase tracking-widest text-xs"
+                                              className="w-full bg-foreground text-background font-black h-20 rounded-[1.5rem] hover:bg-yellow-400 hover:text-black transition-all shadow-2xl tracking-widest text-xs"
                                             >
-                                              Commit Evaluation
+                                              Commit evaluation
                                             </Button>
-                                            <button onClick={() => setGradingId(null)} className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-red-500 transition-colors py-2 text-center">
+                                            <button onClick={() => setGradingId(null)} className="text-[11px] font-black tracking-[0.2em] text-muted-foreground hover:text-red-500 transition-colors py-2 text-center">
                                               Cancel
                                             </button>
                                           </div>
@@ -374,12 +374,12 @@ export default function AssignmentManagementPanel() {
                                               setGradingId(submission.id)
                                               setGradeData({ grade: String(submission.grade || ""), feedback: submission.feedback || "" })
                                             }}
-                                            className="w-full bg-foreground text-background font-black h-20 rounded-[1.5rem] shadow-xl hover:bg-yellow-400 hover:text-black transition-all uppercase tracking-widest text-[11px]"
+                                            className="w-full bg-foreground text-background font-black h-20 rounded-[1.5rem] shadow-xl hover:bg-yellow-400 hover:text-black transition-all tracking-widest text-[11px]"
                                           >
                                             <Award className="h-5 w-5 mr-4 text-yellow-400" />
-                                            {submission.status === 'submitted' ? 'Grade This Project' : 'Modify Grade'}
+                                            {submission.status === 'submitted' ? 'Grade this project' : 'Modify grade'}
                                           </Button>
-                                          <div className="p-6 bg-muted/50 rounded-[1.5rem] text-center border border-muted transition-colors">
+                                          <div className="p-6 bg-muted/50 rounded-[1.5rem] text-left border border-muted transition-colors">
                                             <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground">A1 = 75%+ | B2 = 70–74% | Redo = Below 70%</p>
                                           </div>
                                         </div>

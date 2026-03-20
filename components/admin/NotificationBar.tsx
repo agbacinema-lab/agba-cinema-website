@@ -42,12 +42,12 @@ export default function NotificationBar() {
 
         {isOpen && (
           <div className="absolute top-16 right-0 w-[400px] bg-card rounded-[2rem] shadow-3xl border border-muted overflow-hidden transform origin-top-right transition-all">
-            <div className="bg-black text-white p-6 border-b border-white/10">
-              <h3 className="text-lg font-black flex items-center gap-2 italic uppercase tracking-tighter">
+            <div className="bg-black text-white p-6 border-b border-white/10 text-left">
+              <h3 className="text-lg font-black flex items-center gap-2 tracking-tighter">
                 <ShieldCheck className="h-5 w-5 text-yellow-500" />
-                Pending Approvals
+                Pending approvals
               </h3>
-              <p className="text-[10px] text-gray-400 mt-1 font-black uppercase tracking-widest">Administrative Authorization Required</p>
+              <p className="text-[10px] text-gray-400 mt-1 font-black tracking-widest">Administrative authorization required</p>
             </div>
             
             <div className="max-h-[500px] overflow-y-auto p-4 space-y-4">
@@ -58,12 +58,12 @@ export default function NotificationBar() {
                       {req.type === 'role_change' ? <UserCog className="h-5 w-5" /> : <GraduationCap className="h-5 w-5" />}
                     </div>
                     <div>
-                      <h4 className="font-bold text-foreground text-sm uppercase italic tracking-tight">
+                      <h4 className="font-bold text-foreground text-sm tracking-tight text-left">
                         {req.type === 'role_change' 
-                          ? `Role Change for ${req.data.userName}` 
-                          : `Internship Readiness: ${req.data.userName}`}
+                          ? `Role change for ${req.data.userName}` 
+                          : `Internship readiness: ${req.data.userName}`}
                       </h4>
-                      <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest mt-0.5">Requested by: {req.requestBy.name}</p>
+                      <p className="text-[10px] text-muted-foreground font-black tracking-widest mt-0.5 text-left">Requested by: {req.requestBy.name}</p>
                       {req.type === 'role_change' && (
                         <div className="mt-2 flex items-center gap-2">
                           <span className="text-[9px] font-black bg-muted px-2 py-1 rounded text-muted-foreground uppercase tracking-widest">{req.data.currentRole}</span>
@@ -77,7 +77,7 @@ export default function NotificationBar() {
                   <div className="flex gap-2">
                     <Button 
                       onClick={() => handleProcess(req.id, true)}
-                      className="flex-1 bg-foreground text-background hover:bg-green-600 hover:text-white h-10 rounded-xl font-bold text-xs uppercase italic tracking-tighter"
+                      className="flex-1 bg-foreground text-background hover:bg-green-600 hover:text-white h-10 rounded-xl font-bold text-xs tracking-tighter"
                     >
                       <Check className="h-4 w-4 mr-1" /> Approve
                     </Button>

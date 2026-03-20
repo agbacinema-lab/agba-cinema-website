@@ -97,20 +97,20 @@ export default function StudentPortfolio() {
          {/* PROMINENT A1 PROJECTS - AUTOMATICALLY "MOVED" HERE */}
          <div className="lg:col-span-8 space-y-8">
             <div className="flex items-center justify-between">
-               <h4 className="text-xl font-black italic uppercase tracking-tight flex items-center gap-3 text-black">
+               <h4 className="text-xl font-black italic uppercase tracking-tight flex items-center gap-3 text-white">
                  <Award className="h-6 w-6 text-yellow-500" /> A1 Academy Submissions
                </h4>
-               <span className="px-4 py-2 bg-gray-100 text-[9px] font-black uppercase tracking-widest rounded-full opacity-60">Verified Credentials</span>
+               <span className="px-4 py-2 bg-white/5 text-[9px] font-black uppercase tracking-widest rounded-full opacity-60 text-gray-500">Verified Credentials</span>
             </div>
 
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[1, 2].map(i => <div key={i} className="h-64 bg-gray-50 rounded-[3rem] animate-pulse" />)}
+                {[1, 2].map(i => <div key={i} className="h-64 bg-white/5 rounded-[3rem] animate-pulse" />)}
               </div>
             ) : a1Projects.length === 0 ? (
-              <div className="bg-gray-50/50 p-20 rounded-[3rem] text-center border-2 border-dashed border-gray-100">
-                 <Star className="h-10 w-10 text-gray-200 mx-auto mb-4" />
-                 <p className="text-sm font-black uppercase tracking-widest text-gray-400">Your A1 projects will automatically manifest here.</p>
+              <div className="bg-white/5 p-20 rounded-[3rem] text-center border-2 border-dashed border-white/5">
+                 <Star className="h-10 w-10 text-gray-800 mx-auto mb-4" />
+                 <p className="text-sm font-black uppercase tracking-widest text-gray-500">Your A1 projects will automatically manifest here.</p>
                  <p className="text-[10px] text-gray-400 mt-2 uppercase font-bold">Strive for 75% excellence on your current modules.</p>
               </div>
             ) : (
@@ -158,7 +158,7 @@ export default function StudentPortfolio() {
          <div className="lg:col-span-4 space-y-10">
             <h4 className="text-xl font-black italic uppercase tracking-tight text-gray-400">Social Connectors</h4>
             
-            <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-sm space-y-10">
+            <div className="bg-card p-10 rounded-[3rem] border border-white/5 shadow-2xl space-y-10">
                <PortfolioField icon={Youtube} label="Showreel / Video Channel" placeholder="..." value={links.youtube} onChange={(v: string) => setLinks({...links, youtube: v})} />
                <PortfolioField icon={Layout} label="Behance Profile" placeholder="..." value={links.behance} onChange={(v: string) => setLinks({...links, behance: v})} />
                <PortfolioField icon={Share2} label="Direct Drive Vault" placeholder="..." value={links.drive} onChange={(v: string) => setLinks({...links, drive: v})} />
@@ -194,15 +194,15 @@ export default function StudentPortfolio() {
 function PortfolioField({ icon: Icon, label, placeholder, value, onChange }: any) {
   return (
     <div className="space-y-2 group/field">
-       <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1 group-focus-within/field:text-yellow-600 transition-colors uppercase">{label}</label>
+       <label className="text-[9px] font-black uppercase tracking-widest text-gray-500 ml-1 group-focus-within/field:text-yellow-400 transition-colors uppercase">{label}</label>
        <div className="relative">
-          <Icon className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within/field:text-black transition-colors" />
+          <Icon className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 group-focus-within/field:text-white transition-colors" />
           <input 
             type="text" 
             placeholder={placeholder}
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            className="w-full h-16 bg-gray-50 border border-gray-100 pl-16 pr-8 rounded-2xl text-[11px] font-black uppercase tracking-wider text-black focus:bg-white focus:ring-[12px] ring-yellow-400/10 transition-all outline-none"
+            className="w-full h-16 bg-[#0A0A0A] border border-white/5 pl-16 pr-8 rounded-2xl text-[11px] font-black uppercase tracking-wider text-white focus:bg-white/5 focus:ring-[12px] ring-yellow-400/10 transition-all outline-none"
           />
        </div>
     </div>

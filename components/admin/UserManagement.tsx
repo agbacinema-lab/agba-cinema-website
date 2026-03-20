@@ -5,7 +5,7 @@ import { adminService, studentService } from "@/lib/services"
 import { useAuth } from "@/context/AuthContext"
 import { UserProfile, UserRole } from "@/lib/types"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Shield, UserCheck, ChevronDown, Users, Search, RefreshCw, XCircle, ArrowRight } from "lucide-react"
+import { Shield, UserCheck, ChevronDown, Users, Search, RefreshCw, XCircle, ArrowRight, Globe } from "lucide-react"
 import PasswordVerifyDialog from "./PasswordVerifyDialog"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
@@ -45,7 +45,13 @@ export default function UserManagement() {
     try {
       const data = await adminService.getAllUsers()
       setUsers(data)
-      setTutors(data.filter(u => u.role === 'tutor' || u.role === 'admin' || u.role === 'director' || u.role === 'head_of_department'))
+      setTutors(data.filter(u => 
+        u.role === 'tutor' || 
+        u.role === 'admin' || 
+        u.role === 'super_admin' || 
+        u.role === 'director' || 
+        u.role === 'head_of_department'
+      ))
       
       const { specializationService } = await import("@/lib/services")
       const specsData = await specializationService.getAllSpecializations()
@@ -198,9 +204,9 @@ export default function UserManagement() {
   }
 
   if (loading) return (
-    <div className="p-24 text-center">
-       <div className="w-10 h-10 border-4 border-foreground border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-       <p className="text-muted-foreground font-black uppercase tracking-[0.3em] text-[10px]">Synchronizing Records...</p>
+    <div className="p-24 text-left">
+       <div className="w-10 h-10 border-4 border-foreground border-t-transparent rounded-full animate-spin mb-4" />
+       <p className="text-muted-foreground font-black tracking-[0.3em] text-[10px]">Synchronizing records...</p>
     </div>
   )
 
@@ -213,50 +219,44 @@ export default function UserManagement() {
     })
   
   const displayedStudents = limitView && searchQuery === "" ? students.slice(0, 5) : students
-  const staff = users.filter(u => u.role !== 'student')
+  const staff = users.filter(u => u.role !== 'student' && u.role !== 'brand')
+  const brands = users.filter(u => u.role === 'brand')
 
   return (
     <>
-      <div className="flex justify-between items-center mb-8 bg-muted/20 p-6 rounded-[2.5rem] border border-muted/50">
-        <div>
-          <h2 className="text-3xl font-black italic uppercase tracking-tighter text-foreground">Talent Command</h2>
-          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Synchronize and deploy your network assets.</p>
+      <div className="flex justify-between items-center mb-8 bg-muted/10 p-6 rounded-[2.5rem] border border-muted/30">
+        <div className="text-left">
+          <h2 className="text-2xl font-black tracking-tighter text-foreground">Talent command</h2>
+          <p className="text-[10px] font-black tracking-widest text-muted-foreground opacity-60">Synchronize and deploy your network assets.</p>
         </div>
         <div className="flex items-center gap-4">
           <button 
             onClick={() => setMassChangeMode(!massChangeMode)}
-            className={`h-14 px-6 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all border ${massChangeMode ? 'bg-red-500 text-white border-red-500' : 'bg-card text-foreground border-muted'}`}
+            className={`h-14 px-6 rounded-2xl font-black tracking-widest text-[10px] transition-all border ${massChangeMode ? 'bg-red-500 text-white border-red-500' : 'bg-card text-foreground border-muted'}`}
           >
-            {massChangeMode ? "CANCEL MASS CHANGE" : "REASSIGN TUTOR POOL"}
-          </button>
-          <button 
-            onClick={loadData}
-            disabled={loading}
-            className="h-14 px-8 bg-foreground text-background font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-yellow-400 hover:text-black transition-all shadow-xl active:scale-95 disabled:opacity-50 flex items-center gap-3"
-          >
-            {loading ? "..." : "REFRESH HUB"}
+            {massChangeMode ? "Cancel mass change" : "Reassign tutor pool"}
           </button>
         </div>
       </div>
 
       {massChangeMode && (
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-12 p-10 bg-black text-white rounded-[2.5rem] shadow-2xl border border-white/10 relative overflow-hidden">
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-12 p-10 bg-black text-white rounded-[2.5rem] shadow-2xl border border-white/10 relative overflow-hidden text-left">
            <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
               <RefreshCw className="w-32 h-32 animate-spin-[20s]" />
            </div>
-           <h3 className="text-2xl font-black italic uppercase italic tracking-tighter mb-2">Mass Reassignment Engine</h3>
-           <p className="text-white/50 text-[10px] uppercase font-black tracking-widest mb-8">Move all students from one tutor to another instantly.</p>
+           <h3 className="text-xl font-black tracking-tighter mb-2">Mass reassignment engine</h3>
+           <p className="text-white/50 text-[10px] font-black tracking-widest mb-8">Move all students from one tutor to another instantly.</p>
            
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-end">
               <div className="space-y-2">
-                 <label className="text-[10px] font-black uppercase text-white/40">From Existing Tutor</label>
+                 <label className="text-[10px] font-black text-white/40">From existing tutor</label>
                  <select 
                    value={massOldTutorId}
                    onChange={e => setMassOldTutorId(e.target.value)}
-                   className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-6 text-[10px] font-black outline-none focus:border-yellow-400 transition-all uppercase"
+                   className="w-full h-14 bg-background border border-muted-foreground/30 rounded-2xl px-6 text-[10px] font-black outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition-all appearance-none"
                  >
-                    <option value="" className="bg-black">— SELECT SOURCE TUTOR —</option>
-                    {tutors.map(t => <option key={t.uid} value={t.uid} className="bg-black">{t.name}</option>)}
+                    <option value="" className="bg-card text-foreground">— Select source tutor —</option>
+                    {tutors.map(t => <option key={t.uid} value={t.uid} className="bg-card text-foreground">{t.name}</option>)}
                  </select>
               </div>
 
@@ -265,23 +265,23 @@ export default function UserManagement() {
               </div>
 
               <div className="space-y-2">
-                 <label className="text-[10px] font-black uppercase text-white/40">To Deployment Successor</label>
+                 <label className="text-[10px] font-black text-white/40">To deployment successor</label>
                  <select 
                    value={massNewTutorId}
                    onChange={e => setMassNewTutorId(e.target.value)}
-                   className="w-full h-14 bg-white/5 border border-white/10 rounded-2xl px-6 text-[10px] font-black outline-none focus:border-yellow-400 transition-all uppercase"
+                   className="w-full h-14 bg-background border border-muted-foreground/30 rounded-2xl px-6 text-[10px] font-black outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 transition-all appearance-none"
                  >
-                    <option value="" className="bg-black">— SELECT SUCCESSOR —</option>
-                    {tutors.map(t => <option key={t.uid} value={t.uid} className="bg-black">{t.name}</option>)}
+                    <option value="" className="bg-card text-foreground">— Select successor —</option>
+                    {tutors.map(t => <option key={t.uid} value={t.uid} className="bg-card text-foreground">{t.name}</option>)}
                  </select>
               </div>
 
               <button 
                 onClick={handleMassChange}
                 disabled={massLoading}
-                className="lg:col-span-3 h-16 bg-yellow-400 text-black rounded-2xl font-black uppercase italic tracking-widest hover:scale-[1.02] active:scale-95 transition-all mt-4 disabled:opacity-50"
+                className="lg:col-span-3 h-16 bg-yellow-400 text-black rounded-2xl font-black tracking-widest hover:scale-[1.02] active:scale-95 transition-all mt-4 disabled:opacity-50"
               >
-                 {massLoading ? "PROCESSING BATCH DEPLOYMENT..." : "EXECUTE TOTAL MIGRATION"}
+                 {massLoading ? "Processing batch deployment..." : "Execute total migration"}
               </button>
            </div>
         </motion.div>
@@ -290,14 +290,14 @@ export default function UserManagement() {
       {/* ─── Tutor Assignment Table (Students) ─── */}
       <Card className="border border-muted shadow-premium rounded-[3rem] bg-card overflow-hidden transition-colors relative group">
         <CardHeader className="p-10 lg:p-14 border-b border-muted bg-muted/20 transition-colors flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-          <div className="space-y-4 max-w-lg">
-            <CardTitle className="flex items-center gap-5 text-3xl font-black italic uppercase tracking-tighter text-foreground transition-colors">
-              <div className="w-14 h-14 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-xl">
-                <UserCheck className="h-7 w-7 text-black" />
+          <div className="space-y-4 max-w-lg text-left">
+            <CardTitle className="flex items-center gap-5 text-2xl font-black tracking-tighter text-foreground transition-colors">
+              <div className="w-14 h-14 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-xl text-black">
+                <UserCheck className="h-7 w-7" />
               </div>
-              Assign Tutors
+              Assign tutors
             </CardTitle>
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground transition-colors opacity-60 leading-relaxed">
+            <p className="text-[10px] font-black tracking-[0.4em] text-muted-foreground transition-colors opacity-60 leading-relaxed">
               Tactical student-to-tutor deployment. Search or filter for rapid assignment.
             </p>
           </div>
@@ -308,10 +308,10 @@ export default function UserManagement() {
              </div>
              <input 
                type="text" 
-               placeholder="SEARCH TALENT..." 
+               placeholder="Search talent..." 
                value={searchQuery}
                onChange={e => setSearchQuery(e.target.value)}
-               className="w-full h-14 pl-14 pr-6 bg-card border border-muted rounded-2xl text-[10px] font-black uppercase tracking-widest outline-none focus:border-yellow-400 transition-all shadow-sm"
+               className="w-full h-14 pl-14 pr-6 bg-card border border-muted rounded-2xl text-[10px] font-black tracking-widest outline-none focus:border-yellow-400 transition-all shadow-sm"
              />
           </div>
         </CardHeader>
@@ -319,18 +319,17 @@ export default function UserManagement() {
           <div className="overflow-x-auto relative z-10">
             <table className="w-full text-left">
               <thead>
-                <tr className="bg-muted/50 text-[10px] font-black uppercase tracking-[0.5em] text-muted-foreground border-b border-muted transition-colors text-center">
+                <tr className="bg-muted/50 text-[10px] font-black tracking-[0.5em] text-muted-foreground border-b border-muted transition-colors text-left">
                   <th className="px-10 py-6">
-                    <button onClick={() => setSortAsc(!sortAsc)} className="flex items-center justify-center gap-2 hover:text-foreground transition-colors uppercase w-full">
-                       Talent Roster Name
-                       <RefreshCw className={`h-3 w-3 ${sortAsc ? '' : 'rotate-180'} transition-transform`} />
-                    </button>
+                      <button onClick={() => setSortAsc(!sortAsc)} className="flex items-center justify-start gap-2 hover:text-foreground transition-colors w-full uppercase">
+                         Talent roster name
+                      </button>
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-muted transition-colors">
                 {displayedStudents.length === 0 ? (
-                  <tr><td className="py-24 text-center text-muted-foreground/30 font-black uppercase text-[12px] tracking-[0.5em] italic">No students found.</td></tr>
+                  <tr><td className="py-24 text-left px-10 text-muted-foreground/30 font-black text-[12px] tracking-[0.5em]">No students found.</td></tr>
                 ) : displayedStudents.map(u => {
                   const isExpanded = expandedId === u.uid
                   return (
@@ -339,9 +338,9 @@ export default function UserManagement() {
                       <td className="py-6 px-10 flex items-center justify-between">
                          <div className="flex items-center gap-6">
                             <div className={`w-3 h-3 rounded-full ${isExpanded ? 'bg-yellow-400' : 'bg-muted'} transition-all shadow-[0_0_10px_rgba(250,204,21,0.5)]`} />
-                            <div>
-                              <p className="font-black text-foreground uppercase italic tracking-tighter text-xl transition-colors">{u.name}</p>
-                              <p className="text-[9px] text-muted-foreground font-black uppercase tracking-widest mt-1 opacity-40">{u.email}</p>
+                            <div className="text-left">
+                              <p className="font-black text-foreground tracking-tighter text-xl transition-colors">{u.name}</p>
+                              <p className="text-[9px] text-muted-foreground font-black tracking-widest mt-1 opacity-40">{u.email}</p>
                             </div>
                          </div>
                          <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-500 ${isExpanded ? 'rotate-180 text-yellow-500' : ''}`} />
@@ -353,14 +352,14 @@ export default function UserManagement() {
                         <td className="p-0 border-b border-muted bg-muted/5">
                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="overflow-hidden">
                               <div className="p-10 lg:p-14 space-y-10">
-                                 <div className="flex items-center gap-4 border-b border-muted pb-6">
-                                    <div className="w-10 h-10 bg-foreground/10 rounded-xl flex items-center justify-center text-foreground font-black uppercase text-[10px]">
+                               <div className="flex items-center gap-4 border-b border-muted pb-6 text-left">
+                                    <div className="w-10 h-10 bg-foreground/10 rounded-xl flex items-center justify-center text-foreground font-black text-[10px]">
                                        {u.name[0]}
                                     </div>
-                                    <div>
-                                       <h4 className="text-sm font-black uppercase tracking-widest text-foreground">Operational Track Engagement</h4>
-                                       <p className="text-[10px] text-muted-foreground font-medium italic">Enrolled specializations and assigned tutorial personnel.</p>
-                                    </div>
+                                     <div>
+                                        <h4 className="text-sm font-black tracking-widest text-foreground">Operational track engagement</h4>
+                                        <p className="text-[10px] text-muted-foreground font-medium">Enrolled specializations and assigned tutorial personnel.</p>
+                                     </div>
                                  </div>
 
                                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -370,9 +369,9 @@ export default function UserManagement() {
                                        const specLabel = specs.find(s => s.value === specId)?.label || specId
                                        
                                        return (
-                                         <div key={specId} className="p-8 bg-card rounded-[2rem] border border-muted shadow-xl space-y-6 group/spec hover:border-yellow-400/50 transition-colors">
+                                         <div key={specId} className="p-8 bg-card rounded-[2rem] border border-muted shadow-xl space-y-6 group/spec hover:border-yellow-400/50 transition-colors text-left">
                                            <div className="flex justify-between items-start">
-                                              <p className="text-[10px] font-black uppercase text-yellow-500 tracking-[0.2em]">{specLabel}</p>
+                                              <p className="text-[10px] font-black text-yellow-500 tracking-[0.2em]">{specLabel}</p>
                                               <div className="h-1.5 w-1.5 rounded-full bg-yellow-400 animate-pulse" />
                                            </div>
                                            
@@ -382,21 +381,21 @@ export default function UserManagement() {
                                                    value={assigningTutorId}
                                                    autoFocus
                                                    onChange={e => setAssigningTutorId(e.target.value)}
-                                                   className="h-14 w-full px-6 rounded-2xl border-2 border-muted text-[10px] font-black bg-muted/30 text-foreground outline-none uppercase shadow-inner focus:border-yellow-400 transition-all"
+                                                   className="h-14 w-full px-6 rounded-2xl border-2 border-muted-foreground/40 text-[10px] font-black bg-background text-foreground outline-none shadow-xl focus:border-yellow-400 transition-all appearance-none"
                                                  >
-                                                    <option value="">— SELECT TUTOR —</option>
+                                                    <option value="" className="bg-card text-foreground">— Select tutor —</option>
                                                     {tutors.filter(t => {
                                                       const tSpecs = (t as any).specializations || []
                                                       return tSpecs.length === 0 || tSpecs.includes(specId)
                                                     }).map(t => (
-                                                      <option key={t.uid} value={t.uid}>{t.name}</option>
+                                                      <option key={t.uid} value={t.uid} className="bg-card text-foreground">{t.name}</option>
                                                     ))}
                                                  </select>
                                                  <div className="flex gap-3">
-                                                    <button onClick={() => handleAssignTutor(u.uid, specId, u.name)} disabled={assignLoading} className="flex-1 h-12 bg-foreground text-background rounded-xl font-black text-[10px] uppercase hover:bg-yellow-400 hover:text-black transition-all shadow-lg active:scale-95">
-                                                      {assignLoading ? "..." : "DEPLOY"}
+                                                    <button onClick={() => handleAssignTutor(u.uid, specId, u.name)} disabled={assignLoading} className="flex-1 h-12 bg-foreground text-background rounded-xl font-black text-[10px] hover:bg-yellow-400 hover:text-black transition-all shadow-lg active:scale-95">
+                                                      {assignLoading ? "..." : "Deploy"}
                                                     </button>
-                                                    <button onClick={() => setAssigningTo(null)} className="px-6 h-12 bg-muted text-muted-foreground rounded-xl font-black text-[10px] uppercase hover:bg-black hover:text-white transition-all">CLOSE</button>
+                                                    <button onClick={() => setAssigningTo(null)} className="px-6 h-12 bg-muted text-muted-foreground rounded-xl font-black text-[10px] hover:bg-black hover:text-white transition-all">Close</button>
                                                  </div>
                                               </div>
                                            ) : (
@@ -405,17 +404,17 @@ export default function UserManagement() {
                                                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-2xl ${assignment ? 'bg-yellow-400 text-black' : 'bg-muted/20 text-muted-foreground opacity-20'}`}>
                                                     {assignment ? (assignment.tutorName[0]) : "?"}
                                                   </div>
-                                                  <div>
-                                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Assigned Support</p>
-                                                    <h5 className="font-black text-lg uppercase italic text-foreground tracking-tighter leading-none">
-                                                      {assignment?.tutorName || "AWAITING UNIT"}
-                                                    </h5>
-                                                  </div>
+                                                    <div>
+                                                      <p className="text-[10px] font-black tracking-widest text-muted-foreground mb-1">Assigned support</p>
+                                                      <h5 className="font-black text-lg text-foreground tracking-tighter leading-none">
+                                                        {assignment?.tutorName || "Awaiting unit"}
+                                                      </h5>
+                                                    </div>
                                                </div>
                                                
                                                {isSuperAdmin && (
-                                                 <button onClick={(e) => { e.stopPropagation(); setAssigningTo(`${u.uid}_${specId}`) }} className="w-full h-12 bg-muted/30 hover:bg-foreground hover:text-background border-2 border-transparent hover:border-black rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">
-                                                   {assignment ? "MODIFY DEPLOYMENT" : "INITIALIZE TUTOR"}
+                                                 <button onClick={(e) => { e.stopPropagation(); setAssigningTo(`${u.uid}_${specId}`) }} className="w-full h-12 bg-muted/30 hover:bg-foreground hover:text-background border-2 border-transparent hover:border-black rounded-xl text-[9px] font-black tracking-widest transition-all">
+                                                   {assignment ? "Modify deployment" : "Initialize tutor"}
                                                  </button>
                                                )}
                                              </div>
@@ -436,12 +435,12 @@ export default function UserManagement() {
           </div>
 
           {!searchQuery && students.length > 5 && (
-            <div className="p-10 border-t border-muted bg-muted/5 flex justify-center">
+            <div className="p-10 border-t border-muted bg-muted/5 flex justify-start">
                <button 
                 onClick={() => setLimitView(!limitView)}
-                className="px-10 h-14 rounded-2xl border-2 border-foreground text-foreground font-black uppercase tracking-widest text-[10px] hover:bg-foreground hover:text-background transition-all shadow-lg active:scale-95"
+                className="px-10 h-14 rounded-2xl border-2 border-foreground text-foreground font-black tracking-widest text-[10px] hover:bg-foreground hover:text-background transition-all shadow-lg active:scale-95"
                >
-                 {limitView ? `VIEW ALL ${students.length} STUDENTS` : "COLLAPSE STUDENT POOL"}
+                 {limitView ? `View all ${students.length} students` : "Collapse student pool"}
                </button>
             </div>
           )}
@@ -450,14 +449,14 @@ export default function UserManagement() {
 
       {/* ─── Role Control Table (All Staff/Admins) ─── */}
       <Card className="border border-muted shadow-premium rounded-[3rem] bg-card overflow-hidden mt-12 transition-colors relative group">
-        <CardHeader className="p-10 lg:p-14 border-b border-muted bg-muted/20 transition-colors">
-          <CardTitle className="flex items-center gap-5 text-3xl font-black italic uppercase tracking-tighter text-foreground">
-            <div className="w-14 h-14 bg-foreground rounded-2xl flex items-center justify-center border border-white/10 shadow-2xl transition-colors group-hover:bg-yellow-400 group-hover:text-black">
+        <CardHeader className="p-10 lg:p-14 border-b border-muted bg-muted/20 transition-colors text-left">
+          <CardTitle className="flex items-center gap-5 text-2xl font-black tracking-tighter text-foreground">
+            <div className="w-14 h-14 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-xl text-black">
               <Shield className="h-7 w-7 transition-colors" />
             </div>
-            Access & Role Control
+            Access & role control
           </CardTitle>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground mt-4 transition-colors opacity-60">
+          <p className="text-[10px] font-black tracking-[0.4em] text-muted-foreground mt-4 transition-colors opacity-60">
             Define system capabilities and course track restrictions for your team.
           </p>
         </CardHeader>
@@ -465,22 +464,22 @@ export default function UserManagement() {
           <div className="overflow-x-auto relative z-10 transition-colors">
             <table className="w-full text-left">
               <thead>
-                <tr className="bg-muted/50 text-[10px] font-black uppercase tracking-[0.5em] text-muted-foreground border-b border-muted transition-colors">
-                  <th className="px-10 py-6">Staff Name</th>
+                <tr className="bg-muted/50 text-[10px] font-black tracking-[0.5em] text-muted-foreground border-b border-muted transition-colors">
+                  <th className="px-10 py-6">Staff name</th>
                   <th className="px-10 py-6">Identity</th>
-                  <th className="px-10 py-6">Authorized Specializations</th>
-                  <th className="px-10 py-6 text-right">Privilege Control</th>
+                  <th className="px-10 py-6">Authorized specializations</th>
+                  <th className="px-10 py-6 text-right">Privilege control</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-muted transition-colors">
                 {staff.map(u => (
-                  <tr key={u.uid} className="hover:bg-muted/30 transition-colors group">
+                  <tr key={u.uid} className="hover:bg-muted/30 transition-colors group text-left">
                     <td className="py-6 px-10">
-                      <p className="font-black text-foreground uppercase italic tracking-tighter">{u.name}</p>
+                      <p className="font-black text-foreground tracking-tighter">{u.name}</p>
                       <p className="text-xs text-muted-foreground font-medium mt-1">{u.email}</p>
                     </td>
                     <td className="px-6 py-6">
-                      <span className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                      <span className={`px-4 py-2 rounded-full text-[10px] font-black tracking-widest ${
                         u.role === 'super_admin' ? 'bg-purple-500 text-white' :
                         u.role === 'director' ? 'bg-red-500 text-white' :
                         u.role === 'head_of_department' ? 'bg-indigo-500/20 text-indigo-500' :
@@ -494,55 +493,62 @@ export default function UserManagement() {
                       </span>
                     </td>
                     <td className="px-6 py-6 min-w-[250px]">
-                      {(u.role === 'tutor' || u.role === 'staff') && (currentAdmin?.role === 'super_admin' || currentAdmin?.role === 'director') ? (
+                      {(u.role !== 'student' && u.role !== 'staff' && u.role !== 'brand') && (currentAdmin?.role === 'super_admin' || currentAdmin?.role === 'director') ? (
                         <div className="space-y-3">
                           <select 
                             value=""
                             onChange={(e) => handleUpdateStaffSpec(u.uid, e.target.value)}
-                            className="w-full px-4 py-2 bg-muted/20 border border-muted rounded-xl text-[10px] font-black uppercase text-foreground outline-none hover:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all cursor-pointer"
+                            className="w-full px-4 py-2 bg-card border border-muted-foreground/30 rounded-xl text-[10px] font-black text-foreground outline-none hover:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all cursor-pointer appearance-none"
                           >
-                            <option value="">Toggle Specialization...</option>
-                            {specs.map(s => <option key={s.value} value={s.value}>{s.label} {(u as any).specializations?.includes(s.value) ? '✓' : ''}</option>)}
+                            <option value="" className="bg-card text-foreground">Toggle specialization...</option>
+                            {specs.map(s => <option key={s.value} value={s.value} className="bg-card text-foreground">{s.label} {(u as any).specializations?.includes(s.value) ? '✓' : ''}</option>)}
                           </select>
                           <div className="flex flex-wrap gap-1.5">
                              {((u as any).specializations || []).map((sId: string) => (
-                               <span key={sId} className="px-2 py-1 bg-yellow-400/10 text-yellow-500 rounded-md text-[8px] font-black uppercase border border-yellow-400/20">
+                               <span key={sId} className="px-2 py-1 bg-yellow-400/10 text-yellow-500 rounded-md text-[8px] font-black border border-yellow-400/20">
                                  {specs.find(s => s.value === sId)?.label || sId}
                                </span>
                              ))}
                              {((u as any).specializations || []).length === 0 && (
-                               <span className="text-[8px] font-black text-muted-foreground/40 italic uppercase">Global Access</span>
+                               <span className="text-[8px] font-black text-muted-foreground/40">Global access</span>
                              )}
                           </div>
                         </div>
                       ) : (
                         <div className="flex flex-wrap gap-1.5">
                            {((u as any).specializations || []).map((sId: string) => (
-                               <span key={sId} className="px-2 py-1 bg-muted rounded-md text-[8px] font-black uppercase border border-muted">
+                               <span key={sId} className="px-2 py-1 bg-muted rounded-md text-[8px] font-black border border-muted">
                                  {specs.find(s => s.value === sId)?.label || sId}
                                </span>
                              ))}
                            {((u as any).specializations || []).length === 0 && (
-                             <span className="text-[10px] font-black uppercase text-muted-foreground/50 tracking-widest italic pt-2 block">
-                               Global Access
+                             <span className="text-[10px] font-black text-muted-foreground/50 tracking-widest pt-2 block">
+                               Global access
                              </span>
                            )}
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-6 text-right">
-                      <div className="flex flex-wrap justify-end gap-2">
+                      <div className="flex justify-end">
                         {u.role !== 'super_admin' && (
-                          <>
-                            <RoleButton onClick={() => initiateRoleChange(u.uid, 'director', u.name, u.role)} label="DIR" variant="red" />
-                            <RoleButton onClick={() => initiateRoleChange(u.uid, 'head_of_department', u.name, u.role)} label="HOD" variant="indigo" />
-                            <RoleButton onClick={() => initiateRoleChange(u.uid, 'admin', u.name, u.role)} label="ADM" variant="blue" />
-                            <RoleButton onClick={() => initiateRoleChange(u.uid, 'tutor', u.name, u.role)} label="TUT" variant="yellow" />
-                            <RoleButton onClick={() => initiateRoleChange(u.uid, 'staff', u.name, u.role)} label="STAFF" variant="orange" />
-                            {u.role !== 'student' && (
-                              <RoleButton onClick={() => initiateRoleChange(u.uid, 'student', u.name, u.role)} label="DEACT" variant="gray" />
-                            )}
-                          </>
+                          <select 
+                            value=""
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                initiateRoleChange(u.uid, e.target.value as UserRole, u.name, u.role)
+                              }
+                            }}
+                            className="h-10 px-4 rounded-xl border border-muted-foreground/30 bg-card text-[10px] font-black text-foreground outline-none hover:border-yellow-400 transition-all cursor-pointer appearance-none"
+                          >
+                            <option value="" className="bg-card text-foreground">Change role...</option>
+                            <option value="director" className="bg-card text-foreground">Director</option>
+                            <option value="head_of_department" className="bg-card text-foreground">Head of Department</option>
+                            <option value="admin" className="bg-card text-foreground">Admin</option>
+                            <option value="tutor" className="bg-card text-foreground">Tutor</option>
+                            <option value="staff" className="bg-card text-foreground">Staff</option>
+                            {u.role !== 'student' && <option value="student" className="bg-card text-foreground">Deactivate</option>}
+                          </select>
                         )}
                       </div>
                     </td>
@@ -553,12 +559,87 @@ export default function UserManagement() {
           </div>
         </CardContent>
       </Card>
+      
+      {/* ─── Brand Control Table (Corporate Entities) ─── */}
+      <Card className="border border-muted shadow-premium rounded-[3rem] bg-card overflow-hidden mt-12 transition-colors relative group">
+        <CardHeader className="p-10 lg:p-14 border-b border-muted bg-muted/20 transition-colors text-left">
+          <CardTitle className="flex items-center gap-5 text-2xl font-black tracking-tighter text-foreground">
+            <div className="w-14 h-14 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-xl text-black">
+              <Globe className="h-7 w-7 transition-colors" />
+            </div>
+            Brand assets and corporate control
+          </CardTitle>
+          <p className="text-[10px] font-black tracking-[0.4em] text-muted-foreground mt-4 transition-colors opacity-60">
+            Manage industry partners, recruitment agencies, and corporate collaborators.
+          </p>
+        </CardHeader>
+        <CardContent className="p-0 transition-colors">
+          <div className="overflow-x-auto relative z-10 transition-colors">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-muted/50 text-[10px] font-black tracking-[0.5em] text-muted-foreground border-b border-muted transition-colors">
+                  <th className="px-10 py-6">Company / client name</th>
+                  <th className="px-10 py-6">Identity</th>
+                  <th className="px-10 py-6">Access status</th>
+                  <th className="px-10 py-6 text-right">Privilege control</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-muted transition-colors">
+                {brands.length === 0 ? (
+                  <tr><td colSpan={4} className="py-12 text-center text-muted-foreground text-[10px] font-black tracking-widest opacity-40">No brand accounts registered.</td></tr>
+                ) : (
+                  brands.map(u => (
+                    <tr key={u.uid} className="hover:bg-muted/30 transition-colors group text-left">
+                      <td className="py-6 px-10">
+                        <p className="font-black text-foreground tracking-tighter">{u.name}</p>
+                        <p className="text-xs text-muted-foreground font-medium mt-1">{u.email}</p>
+                      </td>
+                      <td className="px-6 py-6 font-black text-yellow-500 text-[10px] tracking-widest">
+                        Brand partner
+                      </td>
+                      <td className="px-6 py-6">
+                        <span className={`px-4 py-2 rounded-full text-[10px] font-black tracking-widest ${
+                          u.hasPaidAccess ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'
+                        }`}>
+                          {u.hasPaidAccess ? 'Paid access' : 'No access'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-6 text-right">
+                        <div className="flex justify-end">
+                           <select 
+                              value=""
+                              onChange={(e) => {
+                                if (e.target.value) {
+                                  initiateRoleChange(u.uid, e.target.value as UserRole, u.name, u.role)
+                                }
+                              }}
+                              className="h-10 px-4 rounded-xl border border-muted-foreground/30 bg-card text-[10px] font-black text-foreground outline-none hover:border-yellow-400 transition-all cursor-pointer appearance-none"
+                            >
+                              <option value="" className="bg-card text-foreground">Change role...</option>
+                              <option value="director" className="bg-card text-foreground">Director</option>
+                              <option value="head_of_department" className="bg-card text-foreground">Head of department</option>
+                              <option value="admin" className="bg-card text-foreground">Admin</option>
+                              <option value="tutor" className="bg-card text-foreground">Tutor</option>
+                              <option value="staff" className="bg-card text-foreground">Staff</option>
+                              <option value="student" className="bg-card text-foreground">Deactivate</option>
+                              <option value="brand" className="bg-card text-foreground">Keep as brand</option>
+                            </select>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
 
       <PasswordVerifyDialog 
         isOpen={verifyOpen}
         onClose={() => setVerifyOpen(false)}
         onVerified={handleVerifiedAction}
-        title={`Authorize Change for ${pendingAction?.userName}`}
+        title={`Authorize change for ${pendingAction?.userName}`}
       />
     </>
   )

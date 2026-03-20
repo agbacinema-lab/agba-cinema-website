@@ -121,6 +121,18 @@ export default function StudentProfile() {
             </div>
           </div>
         )}
+
+        {/* Mission Logistics */}
+        <div className="p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-700">
+          <div className="flex items-center gap-3 mb-3">
+            <Smartphone className="h-5 w-5 text-green-500" />
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Mission Logistics</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-gray-900 dark:text-white">{profile.address || "No address protocol established"}</p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-indigo-400">{profile.city || "City Location"}, {profile.state || "Territory"}</p>
+          </div>
+        </div>
       </div>
 
     </div>

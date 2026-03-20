@@ -107,12 +107,12 @@ export default function CurriculumCreator({
 
       {showForm && (
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-          <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-12">
+          <Card className="border-none shadow-premium rounded-[2.5rem] bg-card p-12 text-left">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-black">Add Curriculum (Week)</h3>
+              <h3 className="text-2xl font-black">Add curriculum (week)</h3>
               <button
                 onClick={resetForm}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-muted rounded-lg transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -132,14 +132,14 @@ export default function CurriculumCreator({
                       setProgramType('gopro')
                       setFormData({ ...formData, specialization: '' })
                     }}
-                    className={`p-4 rounded-2xl border-2 transition-all font-bold flex items-center gap-2 ${
+                    className={`p-4 rounded-2xl border-2 transition-all font-black text-[10px] uppercase tracking-widest flex items-center gap-2 ${
                       programType === 'gopro'
-                        ? 'border-yellow-400 bg-yellow-50 text-black'
-                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                        ? 'border-yellow-400 bg-yellow-400 text-black shadow-lg shadow-yellow-400/20'
+                        : 'border-muted bg-background text-muted-foreground'
                     }`}
                   >
                     <Zap className="h-5 w-5" />
-                    Go Pro
+                    Go pro
                   </button>
                   <button
                     type="button"
@@ -147,10 +147,10 @@ export default function CurriculumCreator({
                       setProgramType('mentorship')
                       setFormData({ ...formData, specialization: '' })
                     }}
-                    className={`p-4 rounded-2xl border-2 transition-all font-bold flex items-center gap-2 ${
+                    className={`p-4 rounded-2xl border-2 transition-all font-black text-[10px] uppercase tracking-widest flex items-center gap-2 ${
                       programType === 'mentorship'
-                        ? 'border-yellow-400 bg-yellow-50 text-black'
-                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                        ? 'border-yellow-400 bg-yellow-400 text-black shadow-lg shadow-yellow-400/20'
+                        : 'border-muted bg-background text-muted-foreground'
                     }`}
                   >
                     <Users className="h-5 w-5" />
@@ -169,11 +169,11 @@ export default function CurriculumCreator({
                   <select
                     value={formData.specialization}
                     onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
-                    className="w-full h-12 px-4 rounded-xl border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-yellow-400 focus:outline-none"
+                    className="w-full h-12 px-4 rounded-xl border border-muted-foreground/30 bg-background text-foreground focus:ring-2 focus:ring-yellow-400 focus:outline-none appearance-none"
                   >
-                    <option value="">Select specialization</option>
+                    <option value="" className="bg-card text-foreground">Select specialization</option>
                     {currentSpecializations.map((spec) => (
-                      <option key={spec.value} value={spec.value}>
+                      <option key={spec.value} value={spec.value} className="bg-card text-foreground">
                         {spec.label}
                       </option>
                     ))}

@@ -86,12 +86,12 @@ export default function CurriculumAdminPanel() {
     <div className="space-y-8">
       {/* Header logic adjusts based on depth */}
       <div>
-        <h2 className="text-3xl font-black mb-2">Course Builder</h2>
+        <h2 className="text-2xl font-black mb-2">Course builder</h2>
         <p className="text-gray-500 font-medium">
           {view === 'programs' && "Select a program to manage"}
-          {view === 'specializations' && "Manage Specializations"}
-          {view === 'curricula' && `Managing Curriculum Weeks for ${selectedSpecialization?.label}`}
-          {view === 'modules' && `Managing Daily Modules for ${curriculumData?.title}`}
+          {view === 'specializations' && "Manage specializations"}
+          {view === 'curricula' && `Managing curriculum weeks for ${selectedSpecialization?.label}`}
+          {view === 'modules' && `Managing daily modules for ${curriculumData?.title}`}
         </p>
       </div>
 
@@ -105,28 +105,28 @@ export default function CurriculumAdminPanel() {
             exit={{ opacity: 0, x: 20 }}
             className="grid grid-cols-1 md:grid-cols-2 gap-6"
           >
-            <Card className="border-none shadow-premium bg-white hover:scale-[1.02] transition-transform cursor-pointer" onClick={() => handleSelectProgram('gopro')}>
-              <CardContent className="p-12 text-center space-y-4 flex flex-col items-center">
-                <div className="bg-yellow-100 p-6 rounded-3xl">
-                  <Zap className="h-12 w-12 text-yellow-600" />
+            <Card className="border-none shadow-premium bg-card hover:scale-[1.02] transition-transform cursor-pointer" onClick={() => handleSelectProgram('gopro')}>
+              <CardContent className="p-12 text-left space-y-4 flex flex-col items-start">
+                <div className="bg-yellow-500/10 p-6 rounded-3xl">
+                  <Zap className="h-12 w-12 text-yellow-500" />
                 </div>
-                <h3 className="text-2xl font-black text-gray-900">Go Pro Program</h3>
-                <p className="text-gray-500">Manage laptops, mobile, and specific technical tools specializations.</p>
-                <Button className="mt-4 bg-yellow-400 text-black font-bold h-12 px-8 rounded-full">
-                  Edit Content
+                <h3 className="text-xl font-black text-foreground">Go pro program</h3>
+                <p className="text-muted-foreground">Manage laptops, mobile, and specific technical tools specializations.</p>
+                <Button className="mt-4 bg-yellow-400 text-black font-black h-12 px-8 rounded-full">
+                  Edit content
                 </Button>
               </CardContent>
             </Card>
             
-            <Card className="border-none shadow-premium bg-white hover:scale-[1.02] transition-transform cursor-pointer" onClick={() => handleSelectProgram('mentorship')}>
-              <CardContent className="p-12 text-center space-y-4 flex flex-col items-center">
-                <div className="bg-blue-100 p-6 rounded-3xl">
-                  <Users className="h-12 w-12 text-blue-600" />
+            <Card className="border-none shadow-premium bg-card hover:scale-[1.02] transition-transform cursor-pointer" onClick={() => handleSelectProgram('mentorship')}>
+              <CardContent className="p-12 text-left space-y-4 flex flex-col items-start">
+                <div className="bg-blue-500/10 p-6 rounded-3xl">
+                  <Users className="h-12 w-12 text-blue-500" />
                 </div>
-                <h3 className="text-2xl font-black text-gray-900">Mentorship Program</h3>
-                <p className="text-gray-500">Manage storytelling, script writing, and cinematic strategy.</p>
-                <Button className="mt-4 bg-blue-600 text-white font-bold h-12 px-8 rounded-full hover:bg-blue-700">
-                  Edit Content
+                <h3 className="text-xl font-black text-foreground">Mentorship program</h3>
+                <p className="text-muted-foreground">Manage storytelling, script writing, and cinematic strategy.</p>
+                <Button className="mt-4 bg-blue-600 text-white font-black h-12 px-8 rounded-full hover:bg-blue-700">
+                  Edit content
                 </Button>
               </CardContent>
             </Card>
@@ -143,9 +143,9 @@ export default function CurriculumAdminPanel() {
             className="space-y-6"
           >
             <Button onClick={goBackFromSpecializations} variant="outline" className="rounded-lg">
-              ← Back to Programs
+              ← Back to programs
             </Button>
-            <div className="bg-white p-8 rounded-[2.5rem] shadow-premium">
+            <div className="bg-card p-8 rounded-[2.5rem] shadow-premium text-left">
               <SpecializationManager 
                 programFilter={selectedProgram as 'gopro' | 'mentorship'} 
                 onManageSpecialization={handleManageSpecialization}
@@ -165,7 +165,7 @@ export default function CurriculumAdminPanel() {
           >
             <div className="flex justify-between items-center">
               <Button onClick={goBackFromCurricula} variant="outline" className="rounded-lg">
-                ← Back to Specializations
+                ← Back to specializations
               </Button>
               <CurriculumCreator 
                 onCurriculumCreated={handleCurriculumCreated} 
@@ -195,7 +195,7 @@ export default function CurriculumAdminPanel() {
             exit={{ opacity: 0, x: -20 }}
           >
             <Button onClick={goBackFromModules} variant="outline" className="mb-6 rounded-lg">
-              ← Back to Curriculum Weeks
+              ← Back to curriculum weeks
             </Button>
             <CurriculumManager
               curriculumId={selectedCurriculumId}

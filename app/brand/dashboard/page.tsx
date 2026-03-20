@@ -138,7 +138,7 @@ export default function BrandDashboard() {
       <header className="fixed top-0 inset-x-0 z-50 h-16 bg-black text-white flex items-center justify-between px-4 md:px-6 shadow-2xl">
         <div>
           <p className="text-[9px] text-yellow-400 font-black uppercase tracking-[0.3em]">Partner Portal</p>
-          <h1 className="text-base font-black italic tracking-tighter leading-none uppercase">
+          <h1 className="text-base font-black tracking-tighter leading-none uppercase">
             {brandData?.companyName || "Your Brand"}
           </h1>
         </div>
@@ -188,8 +188,8 @@ export default function BrandDashboard() {
           <div className="p-4 md:p-12 pb-24 md:pb-12">
             <div className="hidden md:flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
               <div>
-                <h2 className="text-4xl font-black text-foreground mb-2 italic uppercase tracking-tighter">Your Dashboard</h2>
-                <p className="text-muted-foreground font-medium italic">Welcome back, {brandData?.contactPerson?.split(' ')[0] || "Partner"}.</p>
+                <h2 className="text-3xl font-black text-foreground mb-2 uppercase tracking-tighter">Your Dashboard</h2>
+                <p className="text-muted-foreground font-medium">Welcome back, {brandData?.contactPerson?.split(' ')[0] || "Partner"}.</p>
               </div>
               <div className="flex items-center gap-4 bg-card p-4 rounded-3xl shadow-sm border border-muted transition-colors">
                 <div className="w-12 h-12 bg-yellow-400 rounded-2xl flex items-center justify-center font-black text-xl text-black">{brandData?.companyName?.[0] || "B"}</div>
@@ -259,13 +259,13 @@ function OverviewTab({ brandData, stats, onUpdateBrief }: any) {
       <div className="bg-card p-10 md:p-14 rounded-[3.5rem] shadow-premium space-y-10 border border-muted transition-colors">
          <div className="flex flex-col md:flex-row justify-between items-start gap-6">
             <div>
-               <h3 className="text-3xl font-black italic uppercase tracking-tighter text-foreground">Active Requirements Brief</h3>
+               <h3 className="text-2xl font-black uppercase tracking-tighter text-foreground">Active Requirements Brief</h3>
                <p className="text-sm font-medium text-muted-foreground mt-1">Our HODs use this brief to match specialists to your needs.</p>
             </div>
             <Button onClick={onUpdateBrief} variant="outline" className="rounded-2xl h-14 px-8 font-black text-[10px] uppercase tracking-widest border-2 border-muted hover:bg-foreground hover:text-background transition-all">Update Dispatch Brief</Button>
          </div>
          <div className="bg-muted/30 p-10 rounded-[2.5rem] border border-dashed border-muted transition-colors">
-            <p className="text-muted-foreground font-medium italic text-lg leading-relaxed">
+            <p className="text-muted-foreground font-medium text-lg leading-relaxed">
               {brandData?.requirements || "No specific requirements submitted yet. Update your brief to help us find the perfect match."}
             </p>
          </div>
@@ -279,7 +279,7 @@ function RosterTab({ talents, hasPaidAccess, onRefresh, onRecruit, isRecruiting 
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-10">
       <div className="flex justify-between items-end">
         <div>
-           <h3 className="text-3xl font-black italic uppercase tracking-tighter text-foreground">Scout Talent</h3>
+           <h3 className="text-2xl font-black uppercase tracking-tighter text-foreground">Scout Talent</h3>
            <p className="text-muted-foreground font-medium mt-1 uppercase text-[10px] tracking-[0.2em]">Deployment-ready specialists</p>
         </div>
         {!hasPaidAccess && (
@@ -292,8 +292,8 @@ function RosterTab({ talents, hasPaidAccess, onRefresh, onRecruit, isRecruiting 
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {(talents || []).length === 0 ? (
-          <div className="col-span-full bg-card p-20 rounded-[2.5rem] border border-dashed border-muted text-center transition-colors">
-             <Search className="h-12 w-12 text-muted/30 mx-auto mb-4" />
+          <div className="col-span-full bg-card p-20 rounded-[2.5rem] border border-dashed border-muted text-left transition-colors">
+             <Search className="h-12 w-12 text-muted/30 mb-4" />
              <p className="text-sm font-black uppercase tracking-widest text-muted-foreground">Searching for available specialists...</p>
           </div>
         ) : (
@@ -307,10 +307,10 @@ function RosterTab({ talents, hasPaidAccess, onRefresh, onRecruit, isRecruiting 
                     ))}
                   </div>
               </div>
-              <h4 className="text-2xl font-black italic uppercase tracking-tighter mb-2 text-foreground">
+              <h4 className="text-xl font-black uppercase tracking-tighter mb-2 text-foreground">
                 {hasPaidAccess ? (t.fullName || "NAME_REDACTED") : `SC_AGENT_${(t.studentId || t.userId || "").slice(-4)}`}
               </h4>
-              <p className="text-xs text-muted-foreground font-medium italic line-clamp-2 mb-8">
+              <p className="text-xs text-muted-foreground font-medium line-clamp-2 mb-8">
                 {hasPaidAccess ? (t.bio || "No biography provided.") : "Classified creative profile. Unlock full access to view complete portfolio and contact details."}
               </p>
               
@@ -342,11 +342,11 @@ function RosterTab({ talents, hasPaidAccess, onRefresh, onRecruit, isRecruiting 
 function RequestsTab({ requests }: any) {
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
-      <h3 className="text-3xl font-black italic uppercase tracking-tighter text-foreground">Hire Requests</h3>
+      <h3 className="text-2xl font-black uppercase tracking-tighter text-foreground">Hire Requests</h3>
       <div className="space-y-4">
          {(requests || []).length === 0 ? (
-           <div className="bg-card p-20 rounded-[2.5rem] border border-dashed border-muted text-center transition-colors">
-              <ClipboardList className="h-12 w-12 text-muted/30 mx-auto mb-4" />
+           <div className="bg-card p-20 rounded-[2.5rem] border border-dashed border-muted text-left transition-colors">
+              <ClipboardList className="h-12 w-12 text-muted/30 mb-4" />
               <p className="text-sm font-black uppercase tracking-widest text-muted-foreground">No active hire requests</p>
            </div>
          ) : (
@@ -357,7 +357,7 @@ function RequestsTab({ requests }: any) {
                       <CheckCircle2 className="h-6 w-6" />
                    </div>
                    <div>
-                      <p className="font-black italic uppercase tracking-tight text-lg text-foreground">{r.studentName || `Agent ${(r.studentId || "").slice(-4)}`}</p>
+                      <p className="font-black uppercase tracking-tight text-lg text-foreground">{r.studentName || `Agent ${(r.studentId || "").slice(-4)}`}</p>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Requested on {r.requestedAt ? new Date(r.requestedAt.toMillis()).toLocaleDateString() : "Pending"}</p>
                    </div>
                 </div>
@@ -394,11 +394,11 @@ function InternsTab({ interns, onRefresh }: any) {
  
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-      <h3 className="text-3xl font-black italic uppercase tracking-tighter text-foreground">Active Internships</h3>
+      <h3 className="text-2xl font-black uppercase tracking-tighter text-foreground">Active Internships</h3>
       <div className="grid grid-cols-1 gap-6">
          {(interns || []).length === 0 ? (
-           <div className="bg-card p-20 rounded-[2.5rem] border border-dashed border-muted text-center transition-colors">
-              <Clock className="h-12 w-12 text-muted/30 mx-auto mb-4" />
+           <div className="bg-card p-20 rounded-[2.5rem] border border-dashed border-muted text-left transition-colors">
+              <Clock className="h-12 w-12 text-muted/30 mb-4" />
               <p className="text-sm font-black uppercase tracking-widest text-muted-foreground">No interns currently deployed</p>
            </div>
          ) : (
@@ -410,7 +410,7 @@ function InternsTab({ interns, onRefresh }: any) {
                          {i.studentName?.[0] || "S"}
                       </div>
                       <div>
-                         <h4 className="text-2xl font-black italic uppercase tracking-tighter text-foreground">{i.studentName || "Classified Intern"}</h4>
+                         <h4 className="text-xl font-black uppercase tracking-tighter text-foreground">{i.studentName || "Classified Intern"}</h4>
                          <div className="flex items-center gap-3 mt-1">
                             <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                             <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Deployment Duration: {i.duration || "Variable"}</span>
@@ -477,8 +477,8 @@ function MeetingTab({ brandName, brandId }: any) {
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl space-y-12">
       <div className="space-y-4">
-        <h3 className="text-3xl font-black italic uppercase tracking-tighter text-foreground">Book Strategy Meeting</h3>
-        <p className="text-muted-foreground font-medium italic leading-relaxed">Schedule a direct session with our administrative team to discuss custom rosters, project scaling, or long-term partnership strategy.</p>
+        <h3 className="text-2xl font-black uppercase tracking-tighter text-foreground">Book Strategy Meeting</h3>
+        <p className="text-muted-foreground font-medium leading-relaxed">Schedule a direct session with our administrative team to discuss custom rosters, project scaling, or long-term partnership strategy.</p>
       </div>
  
       <div className="bg-card p-10 rounded-[2.5rem] shadow-premium space-y-8 border border-muted transition-colors">
@@ -486,7 +486,7 @@ function MeetingTab({ brandName, brandId }: any) {
            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Meeting Agenda / Topic</label>
            <Input placeholder="Hire 3 Senior Motion Designers for Q4 Campaign" value={topic} onChange={e => setTopic(e.target.value)} className="h-16 rounded-2xl border-muted bg-muted/30 text-lg font-bold text-foreground" />
         </div>
-        <Button onClick={handleBook} disabled={submitting || !topic} className="w-full bg-yellow-400 text-black rounded-2xl h-16 font-black uppercase italic tracking-[0.2em] text-sm hover:bg-foreground hover:text-background transition-all shadow-xl shadow-yellow-400/20">
+        <Button onClick={handleBook} disabled={submitting || !topic} className="w-full bg-yellow-400 text-black rounded-2xl h-16 font-black uppercase tracking-[0.2em] text-sm hover:bg-foreground hover:text-background transition-all shadow-xl shadow-yellow-400/20">
           {submitting ? "Connecting..." : "Initiate Meeting Request"}
         </Button>
         <div className="flex items-center justify-center gap-3">
@@ -505,8 +505,8 @@ function StatCard({ label, value, subtext, color }: any) {
         {value.toString()[0]}
       </div>
       <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">{label}</p>
-      <h3 className="text-4xl font-black text-foreground mb-2">{value}</h3>
-      <p className="text-xs text-muted-foreground font-medium italic">{subtext}</p>
+      <h3 className="text-3xl font-black text-foreground mb-2">{value}</h3>
+      <p className="text-xs text-muted-foreground font-medium">{subtext}</p>
     </Card>
   )
 }

@@ -11,7 +11,8 @@ import {
   ShoppingBag, 
   LogOut, 
   Star,
-  Bell
+  Bell,
+  Clock
 } from "lucide-react"
 import { authService } from "@/lib/auth-service"
 import PushPrompt from "@/components/common/PushPrompt"
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
   { id: "lms",         label: "Academy",    icon: BookOpen,        href: "/student/learning" },
   { id: "assignments", label: "Tasks",      icon: FileText,        href: "/student/assignments" },
   { id: "portfolio",   label: "Portfolio",  icon: Star,            href: "/student/portfolio" },
+  { id: "orders",      label: "Orders",     icon: Clock,           href: "/student/orders" },
   { id: "shop",        label: "Shop",       icon: ShoppingBag,     href: "/student/shop" },
 ]
 
@@ -77,7 +79,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
           <span className="hidden md:block text-[10px] font-black uppercase tracking-widest text-gray-400 mr-2">{currentPage}</span>
 
           <NotificationBell />
-          <UserDropdown onSettingsClick={() => router.push('/student/profile')} />
+          <UserDropdown onSettingsClick={() => router.push('/student/settings')} />
         </div>
       </header>
 

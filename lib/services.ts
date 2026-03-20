@@ -12,7 +12,8 @@ import {
   updateDoc, 
   addDoc, 
   serverTimestamp,
-  deleteDoc
+  deleteDoc,
+  writeBatch
 } from "firebase/firestore";
 import { 
   PortfolioItem, 
@@ -25,8 +26,35 @@ import {
   ApprovalRequest,
   BrandMeeting,
   PerformanceFeedback,
-  Announcement
+  Announcement,
+  ShopProduct,
+  Order
 } from "./types";
+
+// NOTIFICATION UTILITY (Defined first to avoid TDZ errors)
+export const notifySuperAdmins = async (title: string, message: string, type: string, metadata?: any): Promise<void> => {
+  const usersCol = collection(db, "users");
+  const q = query(usersCol, where("role", "==", "super_admin"));
+  const snap = await getDocs(q);
+  
+  const batch = (await import('firebase/firestore')).writeBatch(db);
+  const notificationsCol = collection(db, "notifications");
+  
+  snap.docs.forEach(adminDoc => {
+    const newRef = doc(notificationsCol);
+    batch.set(newRef, {
+      recipientId: adminDoc.id,
+      title,
+      message,
+      type,
+      metadata,
+      read: false,
+      createdAt: serverTimestamp()
+    });
+  });
+  
+  await batch.commit();
+}
 
 // BLOG SERVICE
 export const blogService = {
@@ -156,11 +184,28 @@ export const adminService = {
 
   createApprovalRequest: async (request: Omit<ApprovalRequest, 'id' | 'status' | 'createdAt'>): Promise<void> => {
     const approvalsCol = collection(db, "approvals");
-    await addDoc(approvalsCol, {
+    const docRef = await addDoc(approvalsCol, {
       ...request,
       status: 'pending',
       createdAt: serverTimestamp()
     });
+    
+    const usersCol = collection(db, "users");
+    const q = query(usersCol, where("role", "==", "super_admin"));
+    const adminSnap = await getDocs(q);
+    
+    for (const d of adminSnap.docs) {
+      await notifySuperAdmins(
+        "New Approval Request",
+        `${request.requestBy.name} has submitted a request: ${request.type === 'internship_ready' ? 'Internship Readiness' : 'Role Change'}.`,
+        'approval_request',
+        {
+          requestId: docRef.id,
+          type: request.type,
+          studentUID: request.data.userId
+        }
+      )
+    }
   },
 
   getPendingApprovals: async (): Promise<ApprovalRequest[]> => {
@@ -170,7 +215,7 @@ export const adminService = {
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ApprovalRequest));
   },
 
-  processApproval: async (id: string, approved: boolean): Promise<void> => {
+  processApproval: async (id: string, approved: boolean, processedBy: any, reason?: string): Promise<void> => {
     const approvalRef = doc(db, "approvals", id);
     const snap = await getDoc(approvalRef);
     if (!snap.exists()) return;
@@ -181,16 +226,31 @@ export const adminService = {
       if (request.type === 'role_change') {
         await updateDoc(doc(db, "users", request.data.userId), { role: request.data.targetRole });
       } else if (request.type === 'internship_ready') {
-        const studentRef = collection(db, "students");
-        const q = query(studentRef, where("studentUID", "==", request.data.userId));
-        const sSnap = await getDocs(q);
-        if (!sSnap.empty) {
-          await updateDoc(sSnap.docs[0].ref, { status: 'internship_ready' });
-        }
+        await adminService.setInternshipStatus(request.data.userId, 'internship_ready', request.data.userName);
+      } else if (request.type === 'revoke_internship') {
+        await adminService.setInternshipStatus(request.data.userId, 'active', request.data.userName);
       }
-      await updateDoc(approvalRef, { status: 'approved' });
+      await updateDoc(approvalRef, { status: 'approved', processedBy, processedAt: serverTimestamp() });
+      
+      // Notify requester
+      const verb = request.type === 'revoke_internship' ? 'Revoke' : 'Readiness';
+      await notificationService.sendNotification({
+        recipientId: request.requestBy.uid,
+        title: "Request Approved",
+        message: `Your ${verb} request for ${request.data.userName} has been approved.`,
+        type: 'approval_result'
+      } as any)
     } else {
-      await updateDoc(approvalRef, { status: 'rejected' });
+      await updateDoc(approvalRef, { status: 'rejected', reason, processedBy, processedAt: serverTimestamp() });
+      
+      // Notify requester with reason
+      const verb = request.type === 'revoke_internship' ? 'Revoke' : 'Readiness';
+      await notificationService.sendNotification({
+        recipientId: request.requestBy.uid,
+        title: "Request Rejected",
+        message: `Your ${verb} request for ${request.data.userName} was rejected: ${reason || 'No reason provided.'}`,
+        type: 'approval_result'
+      } as any)
     }
   },
 
@@ -259,6 +319,34 @@ export const adminService = {
     };
   },
 
+   setInternshipStatus: async (userId: string, status: 'active' | 'internship_ready', userName?: string): Promise<void> => {
+    await updateDoc(doc(db, "users", userId), { status: status });
+    
+    // Also update student collection if exists
+    const studentRef = collection(db, "students");
+    const q = query(studentRef, where("studentUID", "==", userId));
+    const sSnap = await getDocs(q);
+    if (!sSnap.empty) {
+      await updateDoc(sSnap.docs[0].ref, { status: status });
+    }
+
+    // Send Notification to Student
+    const title = status === 'internship_ready' ? "Mission Clearance: Approved" : "Mission Alert: Status Update";
+    const message = status === 'internship_ready' 
+      ? `Congratulations ${userName || 'Agent'}, you have been approved for internship! Speak to your tutor immediately for deployment protocol.`
+      : "Your internship status has been updated/revoked. Speak to your tutor immediately for further instructions.";
+
+    await notificationService.sendNotification({
+      recipientId: userId,
+      title: title,
+      message: message,
+      type: 'internship_update'
+    } as any);
+  },
+
+  revokeInternshipReadiness: async (userId: string): Promise<void> => {
+    await adminService.setInternshipStatus(userId, 'active');
+  },
   getSettings: async () => {
      const snap = await getDoc(doc(db, "system", "settings"));
      if (!snap.exists()) {
@@ -414,16 +502,7 @@ export const lmsService = {
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   },
 
-  // Assignments
-  createAssignment: async (assignment: Omit<any, 'id' | 'createdAt'>): Promise<void> => {
-    const assignmentsCol = collection(db, "assignments");
-    await addDoc(assignmentsCol, {
-      ...assignment,
-      createdAt: serverTimestamp()
-    });
-  },
-
-  getAssignments: async (subject?: string): Promise<{}[]> => {
+  getAssignments: async (subject?: string): Promise<any[]> => {
     const assignmentsCol = collection(db, "assignments");
     let q = query(assignmentsCol, orderBy("createdAt", "desc"));
     if (subject) q = query(assignmentsCol, where("subject", "==", subject), orderBy("createdAt", "desc"));
@@ -534,12 +613,24 @@ export const curriculumService = {
     await deleteDoc(doc(db, "curricula", curriculumId));
   },
 
-  // Get curriculum modules for a specific curriculum
+  // Get curriculum modules for a specific curriculum with materials included
   getModulesByCurriculum: async (curriculumId: string): Promise<any[]> => {
     const modulesCol = collection(db, "curricula", curriculumId, "modules");
     const q = query(modulesCol, orderBy("order", "asc"));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const modules = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // Fetch materials for each module
+    const modulesWithMaterials = await Promise.all(modules.map(async (m) => {
+      const matsCol = collection(db, "curricula", curriculumId, "modules", m.id, "materials");
+      const matsSnap = await getDocs(query(matsCol, orderBy("uploadedAt", "desc")));
+      return {
+        ...m,
+        learningMaterials: matsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      };
+    }));
+
+    return modulesWithMaterials;
   },
 
   // Create a new module inside a curriculum
@@ -577,16 +668,38 @@ export const curriculumService = {
     // Optional: decrement moduleCount but for simplicity we ignore it
   },
 
-  // Get curriculum modules for a specific specialization (legacy support)
+  // Get curriculum modules for a specific specialization with materials included
   getModulesBySpecialization: async (specialization: string): Promise<any[]> => {
-    const modulesCol = collection(db, "curriculumModules");
-    const q = query(
-      modulesCol,
-      where("specialization", "==", specialization),
-      orderBy("order", "asc")
-    );
+    // 1. Find the curriculum ID for this specialization
+    const curriculaCol = collection(db, "curricula");
+    const specQuery = query(curriculaCol, where("specialization", "==", specialization), limit(1));
+    const specSnap = await getDocs(specQuery);
+    
+    if (specSnap.empty) {
+      // Fallback to legacy path if no curriculum found
+      const modulesCol = collection(db, "curriculumModules");
+      const q = query(modulesCol, where("specialization", "==", specialization), orderBy("order", "asc"));
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+
+    const curriculumId = specSnap.docs[0].id;
+    const modulesCol = collection(db, "curricula", curriculumId, "modules");
+    const q = query(modulesCol, orderBy("order", "asc"));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const modules = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // 2. Attach materials
+    const modulesWithMaterials = await Promise.all(modules.map(async (m) => {
+      const matsCol = collection(db, "curricula", curriculumId, "modules", m.id, "materials");
+      const matsSnap = await getDocs(query(matsCol, orderBy("uploadedAt", "desc")));
+      return {
+        ...m,
+        learningMaterials: matsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      };
+    }));
+
+    return modulesWithMaterials;
   },
 
   // Get a single module with all materials
@@ -686,6 +799,14 @@ export const assignmentService = {
     return { id: assignmentDoc.id, ...assignmentDoc.data() };
   },
 
+  getAssignmentByModule: async (moduleId: string): Promise<any | null> => {
+    const assignmentsCol = collection(db, "assignments");
+    const q = query(assignmentsCol, where("moduleId", "==", moduleId), limit(1));
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) return null;
+    return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+  },
+
   // Create assignment
   createAssignment: async (assignmentData: any): Promise<string> => {
     const assignmentsCol = collection(db, "assignments");
@@ -749,6 +870,42 @@ export const assignmentService = {
       gradedAt: serverTimestamp()
     });
   },
+
+  // Dynamic Activation logic
+  activateAssignment: async (studentId: string, assignmentId: string, durationDays?: number): Promise<void> => {
+    const activationRef = doc(db, "assignmentActivations", `${studentId}_${assignmentId}`);
+    const snap = await getDoc(activationRef).catch(() => null);
+    if (snap?.exists()) return;
+
+    let finalDuration = durationDays;
+    if (!finalDuration) {
+      const assDoc = await getDoc(doc(db, "assignments", assignmentId));
+      if (assDoc.exists()) {
+        finalDuration = assDoc.data().durationDays || 3;
+      } else {
+        finalDuration = 3;
+      }
+    }
+
+    const activatedAt = new Date();
+    const dueDate = new Date(activatedAt.getTime() + (finalDuration || 3) * 24 * 60 * 60 * 1000);
+
+    const { setDoc } = await import('firebase/firestore');
+    await setDoc(activationRef, {
+      studentId,
+      assignmentId,
+      activatedAt,
+      dueDate,
+      createdAt: serverTimestamp()
+    });
+  },
+
+  getActivation: async (studentId: string, assignmentId: string): Promise<any | null> => {
+    const activationRef = doc(db, "assignmentActivations", `${studentId}_${assignmentId}`);
+    const snap = await getDoc(activationRef).catch(() => null);
+    return snap?.exists() ? snap.data() : null;
+  },
+
   // Get all A1 (Excellent) submissions for a student across ALL assignments
   getA1SubmissionsByStudent: async (studentId: string): Promise<any[]> => {
     const assignmentsCol = collection(db, "assignments");
@@ -821,12 +978,33 @@ export const specializationService = {
 export const notificationService = {
   getUserNotifications: async (userId: string): Promise<any[]> => {
     const col = collection(db, "notifications");
-    // Radical fix: Get whole collection and filter in JS to definitely avoid index issues
     const snap = await getDocs(col);
-    const allDocs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const allDocs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+    const now = Date.now();
+    const oneDay = 24 * 60 * 60 * 1000;
     
+    // Asynchronously delete read notifications older than 24 hours
+    allDocs.forEach(async (n: any) => {
+       if (n.read) {
+          const createdAt = n.createdAt?.toMillis?.() ?? (n.createdAt?.seconds ? n.createdAt.seconds * 1000 : 0);
+          if (now - createdAt > oneDay) {
+             try { await deleteDoc(doc(db, "notifications", n.id)); } catch(e) {}
+          }
+       }
+    });
+
     return allDocs
-      .filter((n: any) => n.recipientId === userId || n.recipientId === "all")
+      .filter((n: any) => {
+        const isRecipient = n.recipientId === userId || n.recipientId === "all";
+        if (!isRecipient) return false;
+        
+        // Don't show read notifications older than 24 hours in the view anyway
+        if (n.read) {
+          const createdAt = n.createdAt?.toMillis?.() ?? (n.createdAt?.seconds ? n.createdAt.seconds * 1000 : 0);
+          if (now - createdAt > oneDay) return false;
+        }
+        return true;
+      })
       .sort((a: any, b: any) => {
         const timeA = a.createdAt?.toMillis?.() ?? (a.createdAt?.seconds ? a.createdAt.seconds * 1000 : 0);
         const timeB = b.createdAt?.toMillis?.() ?? (b.createdAt?.seconds ? b.createdAt.seconds * 1000 : 0);
@@ -839,7 +1017,28 @@ export const notificationService = {
     await updateDoc(doc(db, "notifications", notificationId), { read: true });
   },
 
-  sendNotification: async (data: { recipientId: string, title: string, message: string, type: string }): Promise<string> => {
+  clearAllNotifications: async (userId: string): Promise<void> => {
+    const col = collection(db, "notifications");
+    const snap = await getDocs(col);
+    const batch = writeBatch(db);
+    let count = 0;
+    
+    snap.docs.forEach(d => {
+      const data = d.data();
+      if ((data.recipientId === userId || data.recipientId === "all")) {
+        // If it's already read, we delete it to "keep it not long"
+        // If it's unread, we also delete it because user requested to "clear all"
+        batch.delete(d.ref);
+        count++;
+      }
+    });
+    
+    if (count > 0) {
+      await batch.commit();
+    }
+  },
+
+  sendNotification: async (data: { recipientId: string, title: string, message: string, type: string, metadata?: any }): Promise<string> => {
     const col = collection(db, "notifications");
     const docRef = await addDoc(col, {
       ...data,
@@ -847,6 +1046,88 @@ export const notificationService = {
       createdAt: serverTimestamp()
     });
     return docRef.id;
+  }
+};
+
+// SHOP SERVICE
+export const shopService = {
+  getProducts: async (): Promise<ShopProduct[]> => {
+    const col = collection(db, "shop_products");
+    const snap = await getDocs(query(col, orderBy("createdAt", "desc")));
+    return snap.docs.map(d => ({ id: d.id, ...d.data() } as ShopProduct));
+  },
+
+  addProduct: async (product: Omit<ShopProduct, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> => {
+    const col = collection(db, "shop_products");
+    const docRef = await addDoc(col, {
+      ...product,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    return docRef.id;
+  },
+
+  updateProduct: async (id: string, data: Partial<ShopProduct>): Promise<void> => {
+    await updateDoc(doc(db, "shop_products", id), {
+      ...data,
+      updatedAt: serverTimestamp()
+    });
+  },
+
+  deleteProduct: async (id: string): Promise<void> => {
+    await deleteDoc(doc(db, "shop_products", id));
+  },
+
+
+  placeOrder: async (order: Omit<Order, 'id' | 'createdAt' | 'status'>): Promise<string> => {
+    const col = collection(db, "orders");
+    const docRef = await addDoc(col, {
+      ...order,
+      status: 'pending',
+      createdAt: serverTimestamp()
+    });
+
+    // Notify Admins
+    await notifySuperAdmins(
+      "New Item Acquired",
+      `${order.userName} has placed an order for assets totalling ${order.total}. Check Order Portal.`,
+      "new_order",
+      { orderId: docRef.id }
+    );
+
+    return docRef.id;
+  },
+
+  getOrders: async (): Promise<Order[]> => {
+    const col = collection(db, "orders");
+    const snap = await getDocs(query(col, orderBy("createdAt", "desc")));
+    return snap.docs.map(d => ({ id: d.id, ...d.data() } as Order));
+  },
+
+  updateOrderStatus: async (id: string, status: Order['status']): Promise<void> => {
+    await updateDoc(doc(db, "orders", id), { status });
+  },
+
+  getSettings: async () => {
+    const snap = await getDoc(doc(db, "system_settings", "shop"));
+    if (snap.exists()) return snap.data();
+    return {
+      deliveryRates: { "Lagos": 2500, "Abuja": 5000, "Port Harcourt": 5000, "Rivers": 5000, "Enugu": 4500, "Anambra": 4500, "default": 6500 }
+    };
+  },
+
+  updateSettings: async (settings: any) => {
+    await setDoc(doc(db, "system_settings", "shop"), settings, { merge: true });
+  },
+
+  calculateDeliveryFee: (state: string, settings?: any): number => {
+    if (!state) return 0;
+    const rates = settings?.deliveryRates || { "Lagos": 2500, "Abuja": 5000, "Port Harcourt": 5000, "Rivers": 5000, "Enugu": 4500, "Anambra": 4500, "default": 6500 };
+    return rates[state] || rates["default"] || 6500;
+  },
+
+  cancelOrder: async (id: string): Promise<void> => {
+    await updateDoc(doc(db, "orders", id), { status: 'cancelled' });
   }
 };
 

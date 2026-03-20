@@ -11,10 +11,26 @@ export default function StudentSettings() {
   const { profile } = useAuth()
   const { theme, setTheme } = useTheme()
 
-  const [formData, setFormData] = useState({ name: "", phone: "", bio: "" })
+  const [formData, setFormData] = useState({ 
+    name: "", 
+    phone: "", 
+    bio: "",
+    address: "",
+    city: "",
+    state: "Lagos",
+    country: "Nigeria"
+  })
   const [saving, setSaving]     = useState(false)
   const [saved, setSaved]       = useState(false)
   const [error, setError]       = useState<string | null>(null)
+
+  const nigerianStates = [
+    "Lagos", "Abuja", "Port Harcourt", "Rivers", "Enugu", "Anambra", "Delta", "Kano", 
+    "Kaduna", "Oyo", "Ogun", "Edo", "Abia", "Adamawa", "Akwa Ibom", "Bauchi", 
+    "Bayelsa", "Benue", "Borno", "Cross River", "Ebonyi", "Ekiti", "Gombe", "Imo", 
+    "Jigawa", "Katsina", "Kebbi", "Kogi", "Kwara", "Nasarawa", "Niger", "Ondo", 
+    "Osun", "Plateau", "Sokoto", "Taraba", "Yobe", "Zamfara"
+  ]
 
   useEffect(() => {
     if (profile && !formData.name) {
@@ -22,6 +38,10 @@ export default function StudentSettings() {
         name:  profile.name  || "",
         phone: profile.phone || "",
         bio:   profile.bio   || "",
+        address: profile.address || "",
+        city:    profile.city    || "",
+        state:   profile.state   || "Lagos",
+        country: profile.country || "Nigeria"
       })
     }
   }, [profile])
@@ -131,7 +151,7 @@ export default function StudentSettings() {
           />
         </div>
 
-        {/* Phone – only show if already set or user wants to add */}
+        {/* Phone */}
         <div className="space-y-1.5">
           <label className="flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
             <Phone className="h-3.5 w-3.5" /> Phone Number
@@ -143,6 +163,43 @@ export default function StudentSettings() {
             placeholder="+234 000 000 0000"
             className="w-full bg-gray-50 dark:bg-zinc-800 border-2 border-gray-200 dark:border-zinc-700 focus:border-yellow-400 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-900 dark:text-white outline-none transition-all"
           />
+        </div>
+
+        {/* Mission Logistics */}
+        <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-zinc-800">
+          <p className="text-[10px] font-black uppercase tracking-widest text-yellow-500">Mission Logistics (Address)</p>
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-gray-500">Street Address</label>
+            <input
+              type="text"
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              placeholder="123 AGBA Avenue"
+              className="w-full bg-gray-50 dark:bg-zinc-800 border-2 border-gray-100 dark:border-zinc-700 px-4 py-2.5 rounded-xl text-sm font-medium"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-500">City</label>
+              <input
+                type="text"
+                value={formData.city}
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                placeholder="e.g. Lagos"
+                className="w-full bg-gray-50 dark:bg-zinc-800 border-2 border-gray-100 dark:border-zinc-700 px-4 py-2.5 rounded-xl text-sm font-medium"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-gray-500">State Territory</label>
+              <select 
+                value={formData.state}
+                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                className="w-full bg-gray-50 dark:bg-zinc-800 border-2 border-gray-100 dark:border-zinc-700 px-4 py-2.5 rounded-xl text-sm font-medium outline-none focus:border-yellow-400"
+              >
+                {nigerianStates.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+          </div>
         </div>
 
         {/* Bio */}

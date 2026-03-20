@@ -8,6 +8,8 @@ import { FileText, PlayCircle, Link as LinkIcon, Check, Lock, ChevronDown, Downl
 import { curriculumService } from "@/lib/services"
 import { motion } from "framer-motion"
 import PDFViewer from "@/components/curriculum/PDFViewer"
+import { db } from "@/lib/firebase"
+import { collection, query, where, getDocs } from "firebase/firestore"
 
 interface StudentCurriculumViewProps {
   specialization: string
@@ -20,11 +22,13 @@ export default function StudentCurriculumView({
   studentUID,
   title
 }: StudentCurriculumViewProps) {
-  const [modules, setModules] = useState<any[]>([])
+  const [activations, setActivations] = useState<Record<string, any>>({})
+  const [submissions, setSubmissions] = useState<Record<string, any>>({})
   const [loading, setLoading] = useState(true)
-  const [expandedModule, setExpandedModule] = useState<string | null>(null)
+  const [modules, setModules] = useState<any[]>([])
   const [progress, setProgress] = useState<any>(null)
-  const [selectedMaterial, setSelectedMaterial] = useState<any>(null)
+  const [expandedModule, setExpandedModule] = useState<string | null>(null)
+  const [selectedMaterial, setSelectedMaterial] = useState<any | null>(null)
 
   useEffect(() => {
     loadCurriculum()
@@ -33,17 +37,87 @@ export default function StudentCurriculumView({
   const loadCurriculum = async () => {
     try {
       setLoading(true)
-      const [modulesData, progressData] = await Promise.all([
+      const { assignmentService } = await import("@/lib/services")
+      const [modulesData, progressData, allSubmissions] = await Promise.all([
         curriculumService.getModulesBySpecialization(specialization),
-        curriculumService.getStudentProgress(studentUID, specialization)
+        curriculumService.getStudentProgress(studentUID, specialization),
+        getDocs(query(collection(db, "submissions"), where("studentUID", "==", studentUID)))
       ])
+      
+      const subMap: Record<string, any> = {}
+      allSubmissions.docs.forEach(d => {
+        const data = d.data()
+        subMap[data.assignmentId || data.assignmentRef] = data
+      })
+      
+      setSubmissions(subMap)
       setModules(modulesData)
       setProgress(progressData)
+
+      // Get activations
+      const activeMap: Record<string, any> = {}
+      for (const m of modulesData) {
+        if (m.hasAssignment) {
+          // We need assignment ID. Usually it's in the module or we lookup.
+          // For simplicity we use moduleId as a proxy if assignmentId isn't on module.
+          const act = await assignmentService.getActivation(studentUID, m.id)
+          if (act) activeMap[m.id] = act
+        }
+      }
+      setActivations(activeMap)
+
     } catch (error) {
       console.error("Error loading curriculum:", error)
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleToggleModule = async (moduleId: string) => {
+    const isOpening = expandedModule !== moduleId
+    setExpandedModule(isOpening ? moduleId : null)
+
+    if (isOpening) {
+      const module = modules.find(m => m.id === moduleId)
+      if (module?.hasAssignment && !activations[moduleId]) {
+        try {
+          const { assignmentService } = await import("@/lib/services")
+          // Use the assignment's own duration logic in activateAssignment
+          await assignmentService.activateAssignment(studentUID, moduleId)
+          const newAct = await assignmentService.getActivation(studentUID, moduleId)
+          if (newAct) setActivations(prev => ({ ...prev, [moduleId]: newAct }))
+        } catch (err) {
+          console.error("Activation error:", err)
+        }
+      }
+    }
+  }
+
+  const isModuleLocked = (index: number) => {
+    if (index === 0) return false
+    const prevModule = modules[index - 1]
+    if (!prevModule.hasAssignment) {
+       return !progress?.completedModules?.includes(prevModule.id)
+    }
+    // Fixed: Must be APPROVED to unlock next
+    const sub = submissions[prevModule.id]
+    return sub?.status !== 'approved'
+  }
+
+  const getDynamicLateStatus = (moduleId: string) => {
+    const act = activations[moduleId]
+    const sub = submissions[moduleId]
+    if (!act?.dueDate || sub?.status === 'approved') return null
+    
+    const now = new Date().getTime()
+    const due = act.dueDate?.toMillis?.() || new Date(act.dueDate).getTime()
+    
+    if (now > due) {
+      const diff = now - due
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+      return `${days}d late`
+    }
+    return null
   }
 
   const isModuleCompleted = (moduleId: string) => {
@@ -120,6 +194,8 @@ export default function StudentCurriculumView({
           modules.map((module, index) => {
             const isCompleted = isModuleCompleted(module.id)
             const isExpanded = expandedModule === module.id
+            const isLocked = isModuleLocked(index)
+            const lateValue = getDynamicLateStatus(module.id)
 
             return (
               <motion.div
@@ -128,111 +204,92 @@ export default function StudentCurriculumView({
                 animate={{ opacity: 1, y: 0 }}
               >
                 <Card
-                  className={`border-none shadow-md rounded-[2rem] overflow-hidden transition-all cursor-pointer hover:shadow-lg ${
-                    isExpanded ? 'ring-2 ring-yellow-400' : ''
-                  }`}
+                  className={`border-none shadow-md rounded-[2.5rem] overflow-hidden transition-all ${
+                    isLocked ? 'opacity-60 grayscale-[0.5]' : 'hover:shadow-xl cursor-pointer'
+                  } ${isExpanded ? 'ring-2 ring-yellow-400' : ''}`}
                 >
                   <CardHeader
-                    className="bg-gradient-to-r from-gray-50 to-white p-6"
-                    onClick={() =>
-                      setExpandedModule(isExpanded ? null : module.id)
-                    }
+                    className="bg-gradient-to-r from-gray-50 to-white p-8"
+                    onClick={() => !isLocked && handleToggleModule(module.id)}
                   >
                     <div className="flex items-start justify-between gap-4">
-                      <div className="flex-grow">
+                      <div className="flex-grow text-left">
                         <div className="flex items-center gap-3 mb-3">
-                          <span className="bg-yellow-400 text-black px-3 py-1 rounded-full text-xs font-black">
+                          <span className="bg-yellow-400 text-black px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase">
                             MODULE {module.moduleNumber || index + 1}
                           </span>
                           {isCompleted && (
-                            <Badge className="bg-green-100 text-green-700 border-0">
+                            <Badge className="bg-green-100 text-green-700 border-0 text-[10px] font-black px-3">
                               <Check className="h-3 w-3 mr-1" />
-                              Completed
+                              COMPLETED
                             </Badge>
                           )}
-                          {module.isBonusModule && (
-                            <Badge className="bg-purple-100 text-purple-700 border-0">
-                              Bonus
+                          {lateValue && (
+                            <Badge className="bg-red-100 text-red-600 border-0 text-[10px] font-black px-3 animate-pulse">
+                              {lateValue.toUpperCase()}
+                            </Badge>
+                          )}
+                          {isLocked && (
+                            <Badge className="bg-gray-100 text-gray-500 border-0 text-[10px] font-black px-3">
+                              <Lock className="h-3 w-3 mr-1" />
+                              LOCKED
                             </Badge>
                           )}
                         </div>
-                        <h3 className="text-xl font-black text-gray-900 mb-2">
+                        <h3 className="text-2xl font-black text-gray-900 mb-2 tracking-tighter">
                           {module.title}
                         </h3>
                         <div className="flex flex-wrap gap-2">
                           {module.topics?.slice(0, 3).map((topic: string) => (
                             <span
                               key={topic}
-                              className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full"
+                              className="text-[10px] font-bold bg-blue-50 text-blue-700 px-3 py-1 rounded-full uppercase"
                             >
                               {topic}
                             </span>
                           ))}
-                          {module.topics?.length > 3 && (
-                            <span className="text-xs text-gray-400 px-2 py-1">
-                              +{module.topics.length - 3} more
-                            </span>
-                          )}
                         </div>
                       </div>
                       <motion.div
                         animate={{ rotate: isExpanded ? 180 : 0 }}
                         className="text-gray-400 mt-2"
                       >
-                        <ChevronDown className="h-6 w-6" />
+                        {isLocked ? <Lock className="h-6 w-6" /> : <ChevronDown className="h-6 w-6" />}
                       </motion.div>
                     </div>
                   </CardHeader>
 
-                  {isExpanded && (
-                    <CardContent className="p-8 space-y-8 border-t border-gray-200">
+                  {isExpanded && !isLocked && (
+                    <CardContent className="p-10 space-y-10 border-t border-gray-100 bg-white text-left">
                       {/* Module Description */}
                       {module.description && (
-                        <div>
-                          <h4 className="font-bold text-gray-900 mb-2">About This Module</h4>
-                          <p className="text-gray-600">{module.description}</p>
+                        <div className="space-y-2">
+                          <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Strategic Overview</h4>
+                          <p className="text-gray-600 font-medium leading-relaxed">{module.description}</p>
                         </div>
                       )}
 
                       {/* Learning Materials */}
                       {module.learningMaterials && module.learningMaterials.length > 0 && (
-                        <div>
-                          <h4 className="font-bold text-gray-900 mb-4">Learning Materials</h4>
-                          <div className="space-y-3">
+                        <div className="space-y-4">
+                          <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Class Intelligence</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {module.learningMaterials.map((material: any) => (
                               <motion.div
                                 key={material.id}
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
+                                whileHover={{ scale: 1.02 }}
                                 onClick={() => openMaterial(material)}
-                                className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+                                className="flex items-start gap-4 p-5 bg-gray-50 rounded-2xl border border-gray-100 hover:bg-white hover:shadow-lg transition-all cursor-pointer group"
                               >
-                                <div className="text-gray-400 mt-1">
+                                <div className="p-3 bg-white rounded-xl shadow-sm group-hover:bg-yellow-400 group-hover:text-black transition-colors">
                                   {getFileIcon(material.type)}
                                 </div>
                                 <div className="flex-grow">
-                                  <h5 className="font-bold text-gray-900">{material.title}</h5>
-                                  <p className="text-sm text-gray-600 mb-2">
-                                    {material.description}
+                                  <h5 className="font-black text-gray-900 text-sm">{material.title}</h5>
+                                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">
+                                    {material.type} • {material.fileSize ? (material.fileSize / 1024 / 1024).toFixed(1) + 'MB' : 'Protocol Link'}
                                   </p>
-                                  <div className="flex items-center gap-2">
-                                    <Badge variant="outline" className="text-xs">
-                                      {material.type}
-                                    </Badge>
-                                    {material.fileSize && (
-                                      <span className="text-xs text-gray-400">
-                                        {(material.fileSize / 1024 / 1024).toFixed(2)} MB
-                                      </span>
-                                    )}
-                                  </div>
                                 </div>
-                                <Button
-                                  size="sm"
-                                  className="bg-yellow-400 text-black font-bold rounded-lg flex items-center gap-2"
-                                >
-                                  View
-                                  <ChevronDown className="h-3 w-3 rotate-90" />
-                                </Button>
                               </motion.div>
                             ))}
                           </div>
@@ -241,39 +298,56 @@ export default function StudentCurriculumView({
 
                       {/* Assignment Section */}
                       {module.hasAssignment && (
-                        <div className="border-t pt-6">
-                          <h4 className="font-bold text-gray-900 mb-4">Module Assignment</h4>
-                          <Card className="border-2 border-green-200 bg-green-50 p-4">
-                            <p className="text-sm text-green-700 font-medium">
-                              📝 An assignment is available for this module. Check the Assignments section to submit your work.
-                            </p>
-                            <Button className="mt-4 bg-green-500 text-white font-bold rounded-lg">
-                              View Assignment
-                            </Button>
+                        <div className="pt-6 border-t border-gray-100">
+                          <div className="flex justify-between items-center mb-4">
+                             <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Tactical Assignment</h4>
+                             {activations[module.id] && (
+                               <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full uppercase">
+                                 Due: {new Date(activations[module.id].dueDate?.toMillis?.() || activations[module.id].dueDate).toLocaleDateString()}
+                               </span>
+                             )}
+                          </div>
+                          <Card className={`border-2 p-8 rounded-[2rem] transition-all ${submissions[module.id]?.status === 'approved' ? 'border-green-200 bg-green-50' : 'border-yellow-200 bg-yellow-50'}`}>
+                            <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
+                               <div className="text-left">
+                                  <p className={`text-xs font-black uppercase tracking-widest mb-2 ${submissions[module.id]?.status === 'approved' ? 'text-green-600' : 'text-yellow-700'}`}>
+                                     {submissions[module.id]?.status === 'approved' ? 'Mission Success' : 'Deployment Ready'}
+                                  </p>
+                                  <p className="text-sm font-medium text-gray-700">
+                                     {submissions[module.id]?.status === 'approved' 
+                                       ? "This project has been validated. You have been cleared for the next module."
+                                       : "An assignment is active for this module. You must be approved by a tutor to unlock subsequent modules."}
+                                  </p>
+                               </div>
+                               <Button 
+                                 onClick={() => window.location.href = '/student/assignments'}
+                                 className={`${submissions[module.id]?.status === 'approved' ? 'bg-green-600' : 'bg-black'} text-white font-black px-8 h-12 rounded-xl text-[10px] tracking-widest uppercase hover:scale-105 transition-all`}
+                               >
+                                 {submissions[module.id]?.status === 'approved' ? 'View Result' : 'Access Assignment'}
+                               </Button>
+                            </div>
                           </Card>
                         </div>
                       )}
 
                       {/* Mark Complete Button */}
-                      <div className="border-t pt-6">
-                        <Button
-                          onClick={() => curriculumService.updateModuleProgress(studentUID, specialization, module.id)}
-                          className={`w-full font-bold h-12 rounded-xl transition-all ${
-                            isCompleted
-                              ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                              : 'bg-yellow-400 text-black hover:bg-yellow-500'
-                          }`}
-                        >
-                          {isCompleted ? (
-                            <>
-                              <Check className="h-4 w-4 mr-2" />
-                              Module Completed
-                            </>
-                          ) : (
-                            'Mark as Complete'
-                          )}
-                        </Button>
-                      </div>
+                      {!module.hasAssignment && (
+                        <div className="pt-6 border-t border-gray-100">
+                          <Button
+                            onClick={() => {
+                              curriculumService.updateModuleProgress(studentUID, specialization, module.id)
+                              loadCurriculum()
+                            }}
+                            className={`w-full font-black h-14 rounded-2xl text-[10px] tracking-widest uppercase transition-all ${
+                              isCompleted
+                                ? 'bg-green-100 text-green-700 border border-green-200'
+                                : 'bg-yellow-400 text-black hover:bg-black hover:text-white'
+                            }`}
+                          >
+                            {isCompleted ? 'Module Clearance Granted' : 'Request Module Completion'}
+                          </Button>
+                        </div>
+                      )}
                     </CardContent>
                   )}
                 </Card>

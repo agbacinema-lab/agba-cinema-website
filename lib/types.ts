@@ -49,6 +49,11 @@ export interface UserProfile {
     value: string;
     programType: string;
   }>;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string;
 }
 
 export interface AdminPermissions {
@@ -79,6 +84,54 @@ export interface StudentProfile {
     website?: string;
   };
   status: 'active' | 'graduated' | 'internship_ready';
+  createdAt: any;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string;
+}
+
+export interface ProductVariant {
+  name: string; // e.g. "Size", "Color"
+  options: string[]; // e.g. ["XL", "L", "M"] or ["Black", "Silver"]
+}
+
+export interface ShopProduct {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  category: string;
+  image?: string;
+  stock: number;
+  specs: string[];
+  variants?: ProductVariant[];
+  createdAt: any;
+  updatedAt: any;
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  items: Array<{
+    productId: string;
+    title: string;
+    price: number;
+    quantity: number;
+    variantSelected?: { [key: string]: string }; // e.g. { Color: "Black", Size: "XL" }
+  }>;
+  subtotal: number;
+  deliveryFee: number;
+  total: number;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  paymentId?: string;
   createdAt: any;
 }
 
@@ -265,7 +318,7 @@ export interface Submission {
 
 export interface ApprovalRequest {
   id: string;
-  type: 'role_change' | 'internship_ready';
+  type: 'role_change' | 'internship_ready' | 'revoke_internship';
   requestBy: { uid: string; name: string; email: string };
   data: any; // { userId: string, targetRole: string } or { studentId: string }
   status: 'pending' | 'approved' | 'rejected';

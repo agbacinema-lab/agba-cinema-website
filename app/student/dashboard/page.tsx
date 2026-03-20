@@ -84,11 +84,11 @@ export default function StudentDashboard() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-3xl p-8 md:p-12 shadow-sm relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8"
+        className="bg-card border border-white/5 rounded-[2.5rem] p-8 md:p-12 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8"
       >
         <div className="space-y-4 relative z-10">
-          <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+          <div className="inline-flex items-center gap-2 bg-green-500/10 text-green-400 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-green-500/20">
+            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
             Active Student
           </div>
           
@@ -108,7 +108,7 @@ export default function StudentDashboard() {
           </div>
         </div>
 
-        <div className="relative z-10 bg-gray-50 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 p-8 rounded-3xl text-center md:min-w-[200px]">
+        <div className="relative z-10 bg-white/5 border border-white/5 p-8 rounded-[2rem] text-center md:min-w-[200px] shadow-2xl">
           <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">Excellent Passes</p>
           <p className="text-6xl font-black text-yellow-500 tracking-tighter">{a1Projects.length}</p>
           <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mt-2">Verified A1 Grades</p>
@@ -161,10 +161,10 @@ export default function StudentDashboard() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {loading ? (
-              [1, 2].map(i => <div key={i} className="h-32 bg-gray-50 dark:bg-zinc-800 rounded-3xl animate-pulse" />)
+              [1, 2].map(i => <div key={i} className="h-32 bg-white/5 rounded-3xl animate-pulse" />)
             ) : submissions.filter(s => s.status !== 'graded').length > 0 ? (
                submissions.filter(s => s.status !== 'graded').slice(0, 2).map((sub, i) => (
-                <div key={i} className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-6 rounded-3xl shadow-sm hover:border-yellow-400 transition-colors">
+                <div key={i} className="bg-card border border-white/5 p-6 rounded-[2rem] shadow-2xl hover:border-yellow-400/50 transition-all group">
                   <span className="inline-block bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-500 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md mb-3">
                     Submitted
                   </span>
@@ -175,10 +175,10 @@ export default function StudentDashboard() {
                 </div>
                ))
             ) : (
-               <div className="col-span-2 bg-gray-50 dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 py-12 px-6 rounded-3xl text-center">
-                  <CheckCircle2 className="h-10 w-10 text-gray-300 dark:text-zinc-700 mx-auto mb-4" />
-                  <p className="text-sm font-bold text-gray-900 dark:text-white">You're all caught up!</p>
-                  <p className="text-xs text-gray-500 mt-1">No pending assignments waiting for a grade.</p>
+               <div className="col-span-2 bg-white/5 border border-white/5 py-16 px-6 rounded-[2.5rem] text-center italic">
+                  <CheckCircle2 className="h-10 w-10 text-gray-800 mx-auto mb-4" />
+                  <p className="text-sm font-black uppercase tracking-widest text-gray-500">You're all caught up!</p>
+                  <p className="text-[10px] text-gray-600 mt-1 uppercase font-bold">No pending assignments waiting for a grade.</p>
                </div>
             )}
           </div>
@@ -217,30 +217,30 @@ export default function StudentDashboard() {
           
           <div className="space-y-4">
             {latestFeedback.length === 0 ? (
-               <div className="bg-gray-50 dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 p-8 rounded-3xl text-center flex flex-col items-center">
-                  <AlertCircle className="h-8 w-8 text-gray-300 dark:text-zinc-700 mb-3" />
-                  <p className="text-sm font-medium text-gray-500">No feedback received yet. Submit an assignment to get graded.</p>
+               <div className="bg-white/5 border border-white/5 p-10 rounded-[2rem] text-center flex flex-col items-center italic">
+                  <AlertCircle className="h-8 w-8 text-gray-800 mb-3" />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">No feedback received yet. Submit an assignment to get graded.</p>
                </div>
             ) : (
-              latestFeedback.map((sub, i) => (
+               latestFeedback.map((sub, i) => (
                 <motion.div 
                   key={i} 
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1 * i }}
-                  className="bg-white dark:bg-zinc-900 p-5 rounded-3xl border border-gray-200 dark:border-zinc-800 shadow-sm"
+                  className="bg-card p-6 rounded-2xl border border-white/5 shadow-2xl"
                 >
-                   <div className="flex justify-between items-center mb-3">
-                      <div className={`px-2.5 py-1 rounded-md text-[9px] font-bold uppercase tracking-widest ${
+                   <div className="flex justify-between items-center mb-4">
+                      <div className={`px-2.5 py-1 rounded-md text-[8px] font-black uppercase tracking-widest ${
                         sub.grade >= 75 
-                          ? 'bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400' 
-                          : 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400'
+                          ? 'bg-green-500/10 text-green-500' 
+                          : 'bg-red-500/10 text-red-500'
                       }`}>
                          {sub.grade >= 75 ? 'A1 Excellent' : 'Needs Work'}
                       </div>
                    </div>
-                   <p className="font-bold text-gray-900 dark:text-white text-sm leading-tight mb-2 truncate">{sub.assignmentTitle}</p>
-                   <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">"{sub.feedback}"</p>
+                   <p className="font-black text-white italic uppercase text-sm leading-tight mb-2 truncate">{sub.assignmentTitle}</p>
+                   <p className="text-[11px] text-gray-400 font-medium italic line-clamp-2 leading-relaxed">"{sub.feedback}"</p>
                 </motion.div>
               ))
             )}
@@ -263,11 +263,11 @@ function LiveStatCard({ label, value, icon: Icon, color, sub, delay }: any) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
-      className="bg-white dark:bg-zinc-900 p-6 rounded-3xl border border-gray-200 dark:border-zinc-800 shadow-sm flex flex-col justify-between relative overflow-hidden"
+      className="bg-card p-6 rounded-[2rem] border border-white/5 shadow-2xl flex flex-col justify-between relative overflow-hidden group hover:border-yellow-400/30 transition-all"
     >
-      <div className="flex justify-between items-start mb-4">
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
-          <Icon className="h-6 w-6" />
+      <div className="flex justify-between items-start mb-6">
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center border border-white/5 opacity-80 group-hover:scale-110 transition-transform ${color.replace('dark:', '')}`}>
+          <Icon className="h-5 w-5" />
         </div>
       </div>
       <div>

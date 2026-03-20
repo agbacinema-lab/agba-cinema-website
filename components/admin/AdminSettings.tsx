@@ -56,25 +56,25 @@ export default function AdminSettings() {
 
   return (
     <div className="space-y-8 max-w-4xl">
-      <header>
-        <h2 className="text-4xl font-black italic uppercase tracking-tighter text-foreground">System Configuration</h2>
+      <header className="text-left">
+        <h2 className="text-4xl font-black tracking-tighter text-foreground">System configuration</h2>
         <p className="text-muted-foreground font-medium">Control the ÀGBÀ CINEMA administrative environment and preferences.</p>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Appearance Section */}
         <Card className="border-none shadow-premium rounded-[2rem] bg-card overflow-hidden transition-colors">
-          <CardHeader className="bg-black text-white p-8">
+          <CardHeader className="bg-black text-white p-8 text-left">
             <div className="flex items-center gap-3">
               <Palette className="h-5 w-5 text-yellow-400" />
-              <CardTitle className="text-xl font-black italic uppercase tracking-tighter">Appearance</CardTitle>
+              <CardTitle className="text-xl font-black tracking-tighter">Appearance</CardTitle>
             </div>
             <CardDescription className="text-gray-400">Manage the visual interface of the portal.</CardDescription>
           </CardHeader>
           <CardContent className="p-8 space-y-6">
-            <div className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl border border-muted transition-colors">
+            <div className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl border border-muted transition-colors text-left">
               <div className="space-y-0.5">
-                <Label className="text-sm font-black uppercase tracking-widest text-foreground">Dark Mode</Label>
+                <Label className="text-sm font-black tracking-widest text-foreground">Dark mode</Label>
                 <p className="text-xs text-muted-foreground">Enable cinematic dark theme across the portal.</p>
               </div>
                <Switch 
@@ -83,8 +83,8 @@ export default function AdminSettings() {
               />
             </div>
 
-            <div className="space-y-3">
-               <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Interface Color</Label>
+            <div className="space-y-3 text-left">
+               <Label className="text-xs font-black tracking-widest text-muted-foreground">Interface color</Label>
                <div className="flex gap-2">
                  {["#EAB308", "#3B82F6", "#EF4444", "#10B981"].map(c => (
                    <button 
@@ -100,58 +100,58 @@ export default function AdminSettings() {
 
         {/* Security Section */}
         <Card className="border-none shadow-premium rounded-[2rem] bg-card overflow-hidden transition-colors">
-          <CardHeader className="bg-black text-white p-8">
+          <CardHeader className="bg-black text-white p-8 text-left">
             <div className="flex items-center gap-3">
               <Shield className="h-5 w-5 text-yellow-400" />
-              <CardTitle className="text-xl font-black italic uppercase tracking-tighter">Security</CardTitle>
+              <CardTitle className="text-xl font-black tracking-tighter">Security</CardTitle>
             </div>
             <CardDescription className="text-gray-400">Strict access and authentication protocols.</CardDescription>
           </CardHeader>
           <CardContent className="p-8 space-y-6">
-            <div className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl border border-muted transition-colors">
+            <div className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl border border-muted transition-colors text-left">
               <div className="space-y-0.5">
-                <Label className="text-sm font-black uppercase tracking-widest text-foreground">2FA Enforcement</Label>
+                <Label className="text-sm font-black tracking-widest text-foreground">2FA enforcement</Label>
                 <p className="text-xs text-muted-foreground">Require MFA for all administrative roles.</p>
               </div>
               <Switch checked={true} />
             </div>
             <Button variant="outline" className="w-full h-12 rounded-xl border-2 font-bold flex gap-2">
               <Lock className="h-4 w-4" />
-              Reset Security Keys
+              Reset security keys
             </Button>
           </CardContent>
         </Card>
 
         {/* Notifications Section */}
         <Card className="border-none shadow-premium rounded-[2rem] bg-card overflow-hidden md:col-span-2 transition-colors">
-          <CardHeader className="bg-black text-white p-8 flex flex-row items-center justify-between">
+          <CardHeader className="bg-black text-white p-8 flex flex-row items-center justify-between text-left">
             <div className="space-y-1">
               <div className="flex items-center gap-3">
                 <Bell className="h-5 w-5 text-yellow-400" />
-                <CardTitle className="text-xl font-black italic uppercase tracking-tighter">Notification Protocols</CardTitle>
+                <CardTitle className="text-xl font-black tracking-tighter">Notification protocols</CardTitle>
               </div>
               <CardDescription className="text-gray-400">Configure how the system communicates with you.</CardDescription>
             </div>
             <Button onClick={handleSave} className="bg-yellow-400 text-black hover:bg-yellow-500 font-bold px-8 rounded-xl h-12">
-              Save Changes
+              Save changes
             </Button>
           </CardHeader>
           <CardContent className="p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <NotificationToggle 
-                title="Email Alerts" 
+                title="Email alerts" 
                 desc="Receive crucial updates via your registered email."
                 checked={notifications.email}
                 onChange={(v: boolean) => setNotifications({...notifications, email: v})}
               />
               <NotificationToggle 
-                title="Payment Triggers" 
+                title="Payment triggers" 
                 desc="Real-time alerts for all Paystack transactions."
                 checked={notifications.payments}
                 onChange={(v: boolean) => setNotifications({...notifications, payments: v})}
               />
               <NotificationToggle 
-                title="Browser Push" 
+                title="Browser push" 
                 desc="Direct tactical alerts for immediate deployment action."
                 checked={notifications.browser}
                 onChange={async (v: boolean) => {
@@ -166,7 +166,7 @@ export default function AdminSettings() {
                 }}
               />
               <NotificationToggle 
-                title="New Student Enrollment" 
+                title="New student enrollment" 
                 desc="Get notified when a new creative joins the academy."
                 checked={notifications.newUsers}
                 onChange={(v: boolean) => setNotifications({...notifications, newUsers: v})}
@@ -178,12 +178,12 @@ export default function AdminSettings() {
         {/* Critical Actions */}
         <Card className="border-2 border-red-100 dark:border-red-900/30 shadow-premium rounded-[2rem] bg-card md:col-span-2 overflow-hidden transition-colors">
           <CardContent className="p-8 flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 text-left">
               <div className="w-12 h-12 bg-red-50 dark:bg-red-950/30 rounded-2xl flex items-center justify-center">
                 <Zap className="h-6 w-6 text-red-600" />
               </div>
               <div>
-                <h4 className="font-black uppercase tracking-widest text-red-600">Maintenance Mode</h4>
+                <h4 className="font-black tracking-widest text-red-600">Maintenance mode</h4>
                 <p className="text-sm text-muted-foreground">Temporarily disable public access to the portal.</p>
               </div>
             </div>
@@ -197,9 +197,9 @@ export default function AdminSettings() {
 
 function NotificationToggle({ title, desc, checked, onChange }: any) {
   return (
-    <div className="flex items-center justify-between p-6 bg-muted/30 rounded-[2rem] border border-muted hover:border-muted/50 transition-all">
+    <div className="flex items-center justify-between p-6 bg-muted/30 rounded-[2rem] border border-muted hover:border-muted/50 transition-all text-left">
       <div className="space-y-1">
-        <Label className="text-sm font-black uppercase tracking-widest text-foreground">{title}</Label>
+        <Label className="text-sm font-black tracking-widest text-foreground">{title}</Label>
         <p className="text-xs text-muted-foreground font-medium max-w-[200px]">{desc}</p>
       </div>
       <Switch checked={checked} onCheckedChange={onChange} className="data-[state=checked]:bg-yellow-400" />

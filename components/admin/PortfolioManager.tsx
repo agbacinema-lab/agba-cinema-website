@@ -142,7 +142,7 @@ export default function PortfolioManager() {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-black">Portfolio Manager</h2>
+        <h2 className="text-2xl font-black">Portfolio manager</h2>
         <Button
           onClick={() => {
             resetForm()
@@ -151,22 +151,18 @@ export default function PortfolioManager() {
           className="bg-yellow-400 text-black font-bold h-14 px-6 rounded-2xl flex items-center gap-2"
         >
           <Plus className="h-5 w-5" />
-          New Item
+          New item
         </Button>
       </div>
 
       {showForm && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-        >
-          <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-12">
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+          <Card className="border border-muted shadow-premium rounded-[2.5rem] bg-card p-12 text-left">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-black">{editingId ? "Edit Item" : "Create New Item"}</h3>
+              <h3 className="text-2xl font-black tracking-tighter">{editingId ? "Edit item" : "Create new item"}</h3>
               <button
                 onClick={resetForm}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-muted rounded-lg transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -175,102 +171,102 @@ export default function PortfolioManager() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Title *</label>
+                  <label className="text-xs font-black tracking-widest text-gray-400">Title *</label>
                   <Input
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="Project Title"
-                    className="h-12 rounded-xl border-gray-200"
+                    placeholder="Project title"
+                    className="h-12 rounded-xl border-muted-foreground/30 bg-background"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Category *</label>
+                  <label className="text-xs font-black tracking-widest text-gray-400">Category *</label>
                   <Input
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    placeholder="e.g., Documentary, Sport, Brand Promo"
-                    className="h-12 rounded-xl border-gray-200"
+                    placeholder="e.g., Documentary, sport, brand promo"
+                    className="h-12 rounded-xl border-muted-foreground/30 bg-background"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Client</label>
+                  <label className="text-xs font-black tracking-widest text-gray-400">Client</label>
                   <Input
                     value={formData.client}
                     onChange={(e) => setFormData({ ...formData, client: e.target.value })}
-                    placeholder="Client Name"
-                    className="h-12 rounded-xl border-gray-200"
+                    placeholder="Client name"
+                    className="h-12 rounded-xl border-muted-foreground/30 bg-background"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">YouTube Embed URL *</label>
+                  <label className="text-xs font-black tracking-widest text-gray-400">YouTube embed URL *</label>
                   <Input
                     value={formData.youtubeEmbedUrl}
                     onChange={(e) => setFormData({ ...formData, youtubeEmbedUrl: e.target.value })}
                     placeholder="https://www.youtube.com/embed/..."
-                    className="h-12 rounded-xl border-gray-200"
+                    className="h-12 rounded-xl border-muted-foreground/30 bg-background"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400">Description</label>
+                <label className="text-xs font-black tracking-widest text-gray-400">Description</label>
                 <Textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Project Description"
-                  className="min-h-24 rounded-xl border-gray-200"
+                  placeholder="Project description"
+                  className="min-h-24 rounded-xl border-muted bg-background"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Image URL</label>
+                  <label className="text-xs font-black tracking-widest text-gray-400">Image URL</label>
                   <Input
                     value={formData.image}
                     onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    placeholder="/image.jpg Or https://..."
-                    className="h-12 rounded-xl border-gray-200"
+                    placeholder="/image.jpg or https://..."
+                    className="h-12 rounded-xl border-muted bg-background"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Tags (comma-separated)</label>
+                  <label className="text-xs font-black tracking-widest text-gray-400">Tags (comma-separated)</label>
                   <Input
                     value={formData.tags}
                     onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                    placeholder="e.g., History, Marketing"
-                    className="h-12 rounded-xl border-gray-200"
+                    placeholder="e.g., history, marketing"
+                    className="h-12 rounded-xl border-muted bg-background"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Duration</label>
+                  <label className="text-xs font-black tracking-widest text-gray-400">Duration</label>
                   <Input
                     value={formData.duration}
                     onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
                     placeholder="e.g., 3:40"
-                    className="h-12 rounded-xl border-gray-200"
+                    className="h-12 rounded-xl border-muted bg-background"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Year</label>
+                  <label className="text-xs font-black tracking-widest text-gray-400">Year</label>
                   <Input
                     value={formData.year}
                     type="number"
                     onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
                     placeholder="2024"
-                    className="h-12 rounded-xl border-gray-200"
+                    className="h-12 rounded-xl border-muted bg-background"
                   />
                 </div>
               </div>
 
-              <div className="flex gap-4 pt-6">
+              <div className="flex gap-4 pt-6 text-left">
                 <Button type="submit" className="bg-yellow-400 text-black font-black h-14 px-8 rounded-2xl flex-1">
-                  {editingId ? "Update Item" : "Create Item"}
+                  {editingId ? "Update item" : "Create item"}
                 </Button>
                 <Button type="button" onClick={resetForm} variant="outline" className="h-14 px-8 rounded-2xl flex-1">
                   Cancel
@@ -283,23 +279,23 @@ export default function PortfolioManager() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {items.length === 0 ? (
-          <Card className="col-span-full border-none shadow-premium rounded-[2.5rem] bg-white p-12 text-center">
-            <p className="text-gray-500 font-medium">No portfolio items yet.</p>
+          <Card className="col-span-full border border-muted shadow-premium rounded-[2.5rem] bg-card p-12 text-center">
+            <p className="text-muted-foreground font-medium">No portfolio items yet.</p>
           </Card>
         ) : (
           items.map((item) => (
             <motion.div key={item.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <Card className="border-none shadow-md rounded-[2rem] bg-white p-6 hover:shadow-lg transition-shadow">
-                <CardContent className="p-0 flex flex-col gap-4">
-                  <div>
-                    <span className="bg-yellow-400 text-black px-3 py-1 rounded-full text-xs font-black mb-2 inline-block">
+              <Card className="border border-muted shadow-premium rounded-[2rem] bg-card p-6 hover:shadow-lg transition-all text-left">
+                <CardContent className="p-0 flex flex-col gap-4 text-left">
+                  <div className="text-left">
+                    <span className="bg-yellow-400 text-black px-4 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-3 inline-block">
                       {item.category}
                     </span>
-                    <h3 className="text-lg font-black text-gray-900 mb-1">{item.title}</h3>
-                    <p className="text-sm text-gray-500 line-clamp-2">{item.description}</p>
+                    <h3 className="text-xl font-black text-foreground mb-1 tracking-tighter leading-tight">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{item.description}</p>
                   </div>
-                  <div className="flex gap-2 mt-auto pt-2 border-t border-gray-50">
-                    <Button onClick={() => handleEdit(item)} size="sm" variant="outline" className="flex-1 rounded-xl">
+                  <div className="flex gap-2 mt-auto pt-4 border-t border-muted">
+                    <Button onClick={() => handleEdit(item)} size="sm" variant="outline" className="flex-1 rounded-xl font-black h-10 uppercase tracking-widest text-[9px] border-muted hover:bg-muted">
                       <Edit2 className="h-4 w-4 mr-2" /> Edit
                     </Button>
                     <AlertDialog>
@@ -308,8 +304,8 @@ export default function PortfolioManager() {
                           <Trash2 className="h-4 w-4 mr-2" /> Delete
                         </Button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogTitle>Delete Item</AlertDialogTitle>
+                      <AlertDialogContent className="text-left">
+                        <AlertDialogTitle>Delete item</AlertDialogTitle>
                         <AlertDialogDescription>
                           Are you sure you want to delete "{item.title}"?
                         </AlertDialogDescription>

@@ -136,7 +136,7 @@ export default function EventManager() {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-black">Event Manager</h2>
+        <h2 className="text-2xl font-black">Event manager</h2>
         <Button
           onClick={() => {
             resetForm()
@@ -145,22 +145,18 @@ export default function EventManager() {
           className="bg-yellow-400 text-black font-bold h-14 px-6 rounded-2xl flex items-center gap-2"
         >
           <Plus className="h-5 w-5" />
-          New Event
+          New event
         </Button>
       </div>
 
       {showForm && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-        >
-          <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-12">
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+          <Card className="border border-muted shadow-premium rounded-[2.5rem] bg-card p-12 text-left transition-colors">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-black">{editingId ? "Edit Event" : "Create New Event"}</h3>
+              <h3 className="text-2xl font-black tracking-tighter text-foreground">{editingId ? "Edit event" : "Create new event"}</h3>
               <button
                 onClick={resetForm}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-muted rounded-lg transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -169,48 +165,48 @@ export default function EventManager() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Title *</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Title *</label>
                   <Input
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="Event Title"
-                    className="h-12 rounded-xl border-gray-200"
+                    placeholder="Event title"
+                    className="h-12 rounded-xl border-muted bg-muted/20 text-foreground"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Price</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Price</label>
                   <Input
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                     placeholder="e.g. #25,000"
-                    className="h-12 rounded-xl border-gray-200"
+                    className="h-12 rounded-xl border-muted bg-muted/20 text-foreground"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Date *</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Date *</label>
                   <Input
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                     placeholder="e.g. April 26, 2026"
-                    className="h-12 rounded-xl border-gray-200"
+                    className="h-12 rounded-xl border-muted bg-muted/20 text-foreground"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Location *</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">Location *</label>
                   <Input
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                     placeholder="e.g. Lagos, Nigeria"
-                    className="h-12 rounded-xl border-gray-200"
+                    className="h-12 rounded-xl border-muted bg-muted/20 text-foreground"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400">Description</label>
+                <label className="text-xs font-black tracking-widest text-gray-400">Description</label>
                 <Textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -221,7 +217,7 @@ export default function EventManager() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Link URL (href)</label>
+                  <label className="text-xs font-black tracking-widest text-gray-400">Link URL (href)</label>
                   <Input
                     value={formData.href}
                     onChange={(e) => setFormData({ ...formData, href: e.target.value })}
@@ -230,7 +226,7 @@ export default function EventManager() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">Luma URL</label>
+                  <label className="text-xs font-black tracking-widest text-gray-400">Luma URL</label>
                   <Input
                     value={formData.lumaUrl}
                     onChange={(e) => setFormData({ ...formData, lumaUrl: e.target.value })}
@@ -241,7 +237,7 @@ export default function EventManager() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400">Features (comma-separated)</label>
+                <label className="text-xs font-black tracking-widest text-gray-400">Features (comma-separated)</label>
                 <Input
                   value={formData.features}
                   onChange={(e) => setFormData({ ...formData, features: e.target.value })}
@@ -251,7 +247,7 @@ export default function EventManager() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-400">Image URL / Flyer</label>
+                <label className="text-xs font-black tracking-widest text-gray-400">Image URL / flyer</label>
                 <Input
                   value={formData.image}
                   onChange={(e) => setFormData({ ...formData, image: e.target.value })}
@@ -260,9 +256,9 @@ export default function EventManager() {
                 />
               </div>
 
-              <div className="flex gap-4 pt-6">
+              <div className="flex gap-4 pt-6 text-left">
                 <Button type="submit" className="bg-yellow-400 text-black font-black h-14 px-8 rounded-2xl flex-1">
-                  {editingId ? "Update Event" : "Create Event"}
+                  {editingId ? "Update event" : "Create event"}
                 </Button>
                 <Button type="button" onClick={resetForm} variant="outline" className="h-14 px-8 rounded-2xl flex-1">
                   Cancel
@@ -275,18 +271,18 @@ export default function EventManager() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {items.length === 0 ? (
-          <Card className="col-span-full border-none shadow-premium rounded-[2.5rem] bg-white p-12 text-center">
-            <p className="text-gray-500 font-medium">No events yet.</p>
+          <Card className="col-span-full border border-muted shadow-premium rounded-[2.5rem] bg-card p-12 text-center transition-colors">
+            <p className="text-muted-foreground font-medium">No events yet.</p>
           </Card>
         ) : (
           items.map((item) => (
             <motion.div key={item.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <Card className="border-none shadow-md rounded-[2rem] bg-white p-6 hover:shadow-lg transition-shadow">
-                <CardContent className="p-0 flex flex-col gap-4">
-                  <div>
-                    <h3 className="text-lg font-black text-gray-900 mb-1">{item.title}</h3>
-                    <p className="text-sm text-gray-500 mb-1">{item.date} | {item.location}</p>
-                    <p className="text-sm text-gray-500 line-clamp-2">{item.description}</p>
+              <Card className="border border-muted shadow-premium rounded-[2rem] bg-card p-6 hover:shadow-lg transition-all text-left">
+                <CardContent className="p-0 flex flex-col gap-4 text-left">
+                  <div className="text-left">
+                    <h3 className="text-xl font-black text-foreground mb-1 tracking-tighter leading-tight">{item.title}</h3>
+                    <p className="text-sm text-yellow-500 mb-2 font-black tracking-widest uppercase">{item.date} | {item.location}</p>
+                    <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed font-medium">{item.description}</p>
                   </div>
                   <div className="flex gap-2 mt-auto pt-2 border-t border-gray-50">
                     <Button onClick={() => handleEdit(item)} size="sm" variant="outline" className="flex-1 rounded-xl">
@@ -298,8 +294,8 @@ export default function EventManager() {
                           <Trash2 className="h-4 w-4 mr-2" /> Delete
                         </Button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogTitle>Delete Event</AlertDialogTitle>
+                      <AlertDialogContent className="text-left">
+                        <AlertDialogTitle>Delete event</AlertDialogTitle>
                         <AlertDialogDescription>
                           Are you sure you want to delete "{item.title}"?
                         </AlertDialogDescription>

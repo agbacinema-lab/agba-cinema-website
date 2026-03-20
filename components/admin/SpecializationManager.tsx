@@ -154,14 +154,14 @@ export default function SpecializationManager({
       {/* Form */}
       {showForm && (
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-          <Card className="border-none shadow-premium rounded-[2.5rem] bg-white p-12">
+          <Card className="border-none shadow-premium rounded-[2.5rem] bg-card p-12 text-left">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-black">
-                {editingId ? "Edit Specialization" : "Add New Specialization"}
+                {editingId ? "Edit specialization" : "Add new specialization"}
               </h3>
               <button
                 onClick={resetForm}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-muted rounded-lg transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -177,10 +177,10 @@ export default function SpecializationManager({
                   <button
                     type="button"
                     onClick={() => setProgramType('gopro')}
-                    className={`p-4 rounded-2xl border-2 transition-all font-bold flex items-center gap-2 ${
+                    className={`p-4 rounded-2xl border-2 transition-all font-black uppercase tracking-widest text-[10px] flex items-center gap-2 ${
                       programType === 'gopro'
-                        ? 'border-yellow-400 bg-yellow-50 text-black'
-                        : 'border-gray-200 bg-white text-gray-600'
+                        ? 'border-yellow-400 bg-yellow-400 text-black shadow-lg shadow-yellow-400/20'
+                        : 'border-muted bg-background text-muted-foreground'
                     }`}
                   >
                     <Zap className="h-5 w-5" />
@@ -189,10 +189,10 @@ export default function SpecializationManager({
                   <button
                     type="button"
                     onClick={() => setProgramType('mentorship')}
-                    className={`p-4 rounded-2xl border-2 transition-all font-bold flex items-center gap-2 ${
+                    className={`p-4 rounded-2xl border-2 transition-all font-black uppercase tracking-widest text-[10px] flex items-center gap-2 ${
                       programType === 'mentorship'
-                        ? 'border-yellow-400 bg-yellow-50 text-black'
-                        : 'border-gray-200 bg-white text-gray-600'
+                        ? 'border-yellow-400 bg-yellow-400 text-black shadow-lg shadow-yellow-400/20'
+                        : 'border-muted bg-background text-muted-foreground'
                     }`}
                   >
                     <Users className="h-5 w-5" />
@@ -290,14 +290,14 @@ export default function SpecializationManager({
         </h3>
         <div className="space-y-3">
           {goproSpecs.length === 0 ? (
-            <Card className="border-none shadow-sm rounded-xl bg-gray-50 p-6 text-center">
-              <p className="text-gray-500 font-medium">No Go Pro specializations added</p>
+            <Card className="border-none shadow-sm rounded-xl bg-muted/20 p-6 text-center border border-muted/30">
+              <p className="text-muted-foreground font-medium">No Go Pro specializations added</p>
             </Card>
           ) : (
             goproSpecs.map((spec) => (
               <motion.div key={spec.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-                <Card className="border-none shadow-sm rounded-xl hover:shadow-md transition-shadow p-4">
-                  <CardContent className="p-0 flex justify-between items-center">
+                <Card className="border border-muted shadow-sm rounded-xl hover:shadow-md hover:border-yellow-400/50 transition-all p-4 bg-card text-left">
+                  <CardContent className="p-0 flex justify-between items-center text-left">
                     <div className="flex items-center gap-4">
                       <div
                         className="w-6 h-6 rounded-full flex-shrink-0"
@@ -365,14 +365,14 @@ export default function SpecializationManager({
         </h3>
         <div className="space-y-3">
           {mentorshipSpecs.length === 0 ? (
-            <Card className="border-none shadow-sm rounded-xl bg-gray-50 p-6 text-center">
-              <p className="text-gray-500 font-medium">No Mentorship specializations added</p>
+            <Card className="border-none shadow-sm rounded-xl bg-muted/20 p-6 text-center border border-muted/30">
+              <p className="text-muted-foreground font-medium">No Mentorship specializations added</p>
             </Card>
           ) : (
             mentorshipSpecs.map((spec) => (
               <motion.div key={spec.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-                <Card className="border-none shadow-sm rounded-xl hover:shadow-md transition-shadow p-4">
-                  <CardContent className="p-0 flex justify-between items-center">
+                <Card className="border border-muted shadow-sm rounded-xl hover:shadow-md hover:border-yellow-400/50 transition-all p-4 bg-card text-left">
+                  <CardContent className="p-0 flex justify-between items-center text-left">
                     <div className="flex items-center gap-4">
                       <div
                         className="w-6 h-6 rounded-full flex-shrink-0"
