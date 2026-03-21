@@ -5,8 +5,10 @@ import { adminService } from "@/lib/services"
 import { ApprovalRequest } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { Bell, Check, X, UserCog, GraduationCap } from "lucide-react"
+import { useAuth } from "@/context/AuthContext"
 
 export default function NotificationBar() {
+  const { profile } = useAuth()
   const [requests, setRequests] = useState<ApprovalRequest[]>([])
   const [isOpen, setIsOpen] = useState(false)
 
@@ -21,7 +23,7 @@ export default function NotificationBar() {
   }, [])
 
   const handleProcess = async (id: string, approved: boolean) => {
-    await adminService.processApproval(id, approved)
+    await adminService.processApproval(id, approved, profile)
     fetchRequests()
   }
 

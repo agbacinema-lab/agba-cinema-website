@@ -5,7 +5,7 @@ import { adminService, studentService } from "@/lib/services"
 import { useAuth } from "@/context/AuthContext"
 import { UserProfile, UserRole } from "@/lib/types"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Shield, UserCheck, ChevronDown, Users, Search, RefreshCw, XCircle, ArrowRight, Globe } from "lucide-react"
+import { Shield, UserCheck, ChevronDown, Users, Search, RefreshCw, XCircle, ArrowRight, Globe, Trash2 } from "lucide-react"
 import PasswordVerifyDialog from "./PasswordVerifyDialog"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
@@ -203,6 +203,45 @@ export default function UserManagement() {
     }
   }
 
+  // Super Admin Delete User Function
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
+  
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (currentAdmin?.role !== "super_admin") {
+      toast.error("Only Super Admins can delete accounts.")
+      return
+    }
+
+    if (!confirm(`SUPER ADMIN ACTION: Are you absolutely sure you want to permanently delete ${userName}? This action cannot be undone.`)) {
+      return
+    }
+
+    setDeletingUserId(userId)
+    const t = toast.loading(`Erasing ${userName} from the system...`)
+    
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, requesterRole: currentAdmin?.role })
+      })
+      
+      const data = await res.json()
+      
+      if (!res.ok) throw new Error(data.error || "Failed to delete user")
+      
+      toast.success(data.message, { id: t })
+      // Optimistically remove from UI
+      setUsers(prev => prev.filter(u => u.uid !== userId))
+      setTutors(prev => prev.filter(u => u.uid !== userId))
+    } catch (error: any) {
+      console.error(error)
+      toast.error(`Error: ${error.message}`, { id: t })
+    } finally {
+      setDeletingUserId(null)
+    }
+  }
+
   if (loading) return (
     <div className="p-24 text-left">
        <div className="w-10 h-10 border-4 border-foreground border-t-transparent rounded-full animate-spin mb-4" />
@@ -333,103 +372,119 @@ export default function UserManagement() {
                 ) : displayedStudents.map(u => {
                   const isExpanded = expandedId === u.uid
                   return (
-                  <React.Fragment key={u.uid}>
-                    <tr onClick={() => setExpandedId(isExpanded ? null : u.uid)} className={`hover:bg-muted/20 transition-all cursor-pointer group ${isExpanded ? 'bg-muted/10' : ''}`}>
-                      <td className="py-6 px-10 flex items-center justify-between">
-                         <div className="flex items-center gap-6">
-                            <div className={`w-3 h-3 rounded-full ${isExpanded ? 'bg-yellow-400' : 'bg-muted'} transition-all shadow-[0_0_10px_rgba(250,204,21,0.5)]`} />
-                            <div className="text-left">
-                              <p className="font-black text-foreground tracking-tighter text-xl transition-colors">{u.name}</p>
-                              <p className="text-[9px] text-muted-foreground font-black tracking-widest mt-1 opacity-40">{u.email}</p>
-                            </div>
-                         </div>
-                         <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-500 ${isExpanded ? 'rotate-180 text-yellow-500' : ''}`} />
-                      </td>
-                    </tr>
-                    
-                    {isExpanded && (
-                      <tr>
-                        <td className="p-0 border-b border-muted bg-muted/5">
-                           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="overflow-hidden">
-                              <div className="p-10 lg:p-14 space-y-10">
-                               <div className="flex items-center gap-4 border-b border-muted pb-6 text-left">
-                                    <div className="w-10 h-10 bg-foreground/10 rounded-xl flex items-center justify-center text-foreground font-black text-[10px]">
-                                       {u.name[0]}
-                                    </div>
-                                     <div>
-                                        <h4 className="text-sm font-black tracking-widest text-foreground">Operational track engagement</h4>
-                                        <p className="text-[10px] text-muted-foreground font-medium">Enrolled specializations and assigned tutorial personnel.</p>
-                                     </div>
-                                 </div>
-
-                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                    {(u.enrolledSpecializations || [{ value: u.specialization || 'general' }]).map((spec: any) => {
-                                       const specId = spec.value || spec.id || u.specialization || 'general'
-                                       const assignment = (u as any).assignedTutors?.[specId]
-                                       const specLabel = specs.find(s => s.value === specId)?.label || specId
-                                       
-                                       return (
-                                         <div key={specId} className="p-8 bg-card rounded-[2rem] border border-muted shadow-xl space-y-6 group/spec hover:border-yellow-400/50 transition-colors text-left">
-                                           <div className="flex justify-between items-start">
-                                              <p className="text-[10px] font-black text-yellow-500 tracking-[0.2em]">{specLabel}</p>
-                                              <div className="h-1.5 w-1.5 rounded-full bg-yellow-400 animate-pulse" />
-                                           </div>
-                                           
-                                           {assigningTo === `${u.uid}_${specId}` ? (
-                                              <div className="space-y-4">
-                                                 <select
-                                                   value={assigningTutorId}
-                                                   autoFocus
-                                                   onChange={e => setAssigningTutorId(e.target.value)}
-                                                   className="h-14 w-full px-6 rounded-2xl border-2 border-muted-foreground/40 text-[10px] font-black bg-background text-foreground outline-none shadow-xl focus:border-yellow-400 transition-all appearance-none"
-                                                 >
-                                                    <option value="" className="bg-card text-foreground">— Select tutor —</option>
-                                                    {tutors.filter(t => {
-                                                      const tSpecs = (t as any).specializations || []
-                                                      return tSpecs.length === 0 || tSpecs.includes(specId)
-                                                    }).map(t => (
-                                                      <option key={t.uid} value={t.uid} className="bg-card text-foreground">{t.name}</option>
-                                                    ))}
-                                                 </select>
-                                                 <div className="flex gap-3">
-                                                    <button onClick={() => handleAssignTutor(u.uid, specId, u.name)} disabled={assignLoading} className="flex-1 h-12 bg-foreground text-background rounded-xl font-black text-[10px] hover:bg-yellow-400 hover:text-black transition-all shadow-lg active:scale-95">
-                                                      {assignLoading ? "..." : "Deploy"}
-                                                    </button>
-                                                    <button onClick={() => setAssigningTo(null)} className="px-6 h-12 bg-muted text-muted-foreground rounded-xl font-black text-[10px] hover:bg-black hover:text-white transition-all">Close</button>
-                                                 </div>
-                                              </div>
-                                           ) : (
-                                             <div className="space-y-6">
-                                               <div className="flex items-center gap-4">
-                                                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-2xl ${assignment ? 'bg-yellow-400 text-black' : 'bg-muted/20 text-muted-foreground opacity-20'}`}>
-                                                    {assignment ? (assignment.tutorName[0]) : "?"}
-                                                  </div>
-                                                    <div>
-                                                      <p className="text-[10px] font-black tracking-widest text-muted-foreground mb-1">Assigned support</p>
-                                                      <h5 className="font-black text-lg text-foreground tracking-tighter leading-none">
-                                                        {assignment?.tutorName || "Awaiting unit"}
-                                                      </h5>
-                                                    </div>
-                                               </div>
-                                               
-                                               {isSuperAdmin && (
-                                                 <button onClick={(e) => { e.stopPropagation(); setAssigningTo(`${u.uid}_${specId}`) }} className="w-full h-12 bg-muted/30 hover:bg-foreground hover:text-background border-2 border-transparent hover:border-black rounded-xl text-[9px] font-black tracking-widest transition-all">
-                                                   {assignment ? "Modify deployment" : "Initialize tutor"}
-                                                 </button>
-                                               )}
-                                             </div>
-                                           )}
-                                         </div>
-                                       )
-                                    })}
-                                 </div>
+                    <React.Fragment key={u.uid}>
+                      <tr onClick={() => setExpandedId(isExpanded ? null : u.uid)} className={`hover:bg-muted/20 transition-all cursor-pointer group ${isExpanded ? 'bg-muted/10' : ''}`}>
+                        <td className="py-6 px-10 flex items-center justify-between">
+                           <div className="flex items-center gap-6">
+                              <div className={`w-3 h-3 rounded-full ${isExpanded ? 'bg-yellow-400' : 'bg-muted'} transition-all shadow-[0_0_10px_rgba(250,204,21,0.5)]`} />
+                              <div className="text-left">
+                                <p className="font-black text-foreground tracking-tighter text-xl transition-colors">{u.name}</p>
+                                <p className="text-[9px] text-muted-foreground font-black tracking-widest mt-1 opacity-40">{u.email}</p>
                               </div>
-                           </motion.div>
+                           </div>
+                           <div className="flex items-center gap-4">
+                             {isSuperAdmin && (
+                               <button
+                                 onClick={(e) => {
+                                   e.stopPropagation()
+                                   handleDeleteUser(u.uid, u.name)
+                                 }}
+                                 disabled={deletingUserId === u.uid}
+                                 className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all"
+                                 title="Permanently Delete User"
+                               >
+                                 <Trash2 className="h-4 w-4" />
+                               </button>
+                             )}
+                             <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-500 ${isExpanded ? 'rotate-180 text-yellow-500' : ''}`} />
+                           </div>
                         </td>
                       </tr>
-                    )}
-                  </React.Fragment>
-                )})}
+                      
+                      {isExpanded && (
+                        <tr>
+                          <td className="p-0 border-b border-muted bg-muted/5">
+                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="overflow-hidden">
+                                <div className="p-10 lg:p-14 space-y-10">
+                                 <div className="flex items-center gap-4 border-b border-muted pb-6 text-left">
+                                      <div className="w-10 h-10 bg-foreground/10 rounded-xl flex items-center justify-center text-foreground font-black text-[10px]">
+                                         {u.name[0]}
+                                      </div>
+                                       <div>
+                                          <h4 className="text-sm font-black tracking-widest text-foreground">Operational track engagement</h4>
+                                          <p className="text-[10px] text-muted-foreground font-medium">Enrolled specializations and assigned tutorial personnel.</p>
+                                       </div>
+                                   </div>
+  
+                                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                      {(u.enrolledSpecializations || [{ value: u.specialization || 'general' }]).map((spec: any) => {
+                                         const specId = spec.value || spec.id || u.specialization || 'general'
+                                         const assignment = (u as any).assignedTutors?.[specId]
+                                         const specLabel = specs.find(s => s.value === specId)?.label || specId
+                                         
+                                         return (
+                                           <div key={specId} className="p-8 bg-card rounded-[2rem] border border-muted shadow-xl space-y-6 group/spec hover:border-yellow-400/50 transition-colors text-left">
+                                             <div className="flex justify-between items-start">
+                                                <p className="text-[10px] font-black text-yellow-500 tracking-[0.2em]">{specLabel}</p>
+                                                <div className="h-1.5 w-1.5 rounded-full bg-yellow-400 animate-pulse" />
+                                             </div>
+                                             
+                                             {assigningTo === `${u.uid}_${specId}` ? (
+                                                <div className="space-y-4">
+                                                   <select
+                                                     value={assigningTutorId}
+                                                     autoFocus
+                                                     onChange={e => setAssigningTutorId(e.target.value)}
+                                                     className="h-14 w-full px-6 rounded-2xl border-2 border-muted-foreground/40 text-[10px] font-black bg-background text-foreground outline-none shadow-xl focus:border-yellow-400 transition-all appearance-none"
+                                                   >
+                                                      <option value="" className="bg-card text-foreground">— Select tutor —</option>
+                                                      {tutors.filter(t => {
+                                                        const tSpecs = (t as any).specializations || []
+                                                        return tSpecs.length === 0 || tSpecs.includes(specId)
+                                                      }).map(t => (
+                                                        <option key={t.uid} value={t.uid} className="bg-card text-foreground">{t.name}</option>
+                                                      ))}
+                                                   </select>
+                                                   <div className="flex gap-3">
+                                                      <button onClick={() => handleAssignTutor(u.uid, specId, u.name)} disabled={assignLoading} className="flex-1 h-12 bg-foreground text-background rounded-xl font-black text-[10px] hover:bg-yellow-400 hover:text-black transition-all shadow-lg active:scale-95">
+                                                        {assignLoading ? "..." : "Deploy"}
+                                                      </button>
+                                                      <button onClick={() => setAssigningTo(null)} className="px-6 h-12 bg-muted text-muted-foreground rounded-xl font-black text-[10px] hover:bg-black hover:text-white transition-all">Close</button>
+                                                   </div>
+                                                </div>
+                                             ) : (
+                                               <div className="space-y-6">
+                                                 <div className="flex items-center gap-4">
+                                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-2xl ${assignment ? 'bg-yellow-400 text-black' : 'bg-muted/20 text-muted-foreground opacity-20'}`}>
+                                                      {assignment ? (assignment.tutorName[0]) : "?"}
+                                                    </div>
+                                                      <div>
+                                                        <p className="text-[10px] font-black tracking-widest text-muted-foreground mb-1">Assigned support</p>
+                                                        <h5 className="font-black text-lg text-foreground tracking-tighter leading-none">
+                                                          {assignment?.tutorName || "Awaiting unit"}
+                                                        </h5>
+                                                      </div>
+                                                 </div>
+                                                 
+                                                 {isSuperAdmin && (
+                                                   <button onClick={(e) => { e.stopPropagation(); setAssigningTo(`${u.uid}_${specId}`) }} className="w-full h-12 bg-muted/30 hover:bg-foreground hover:text-background border-2 border-transparent hover:border-black rounded-xl text-[9px] font-black tracking-widest transition-all">
+                                                     {assignment ? "Modify deployment" : "Initialize tutor"}
+                                                   </button>
+                                                 )}
+                                               </div>
+                                             )}
+                                           </div>
+                                         )
+                                      })}
+                                   </div>
+                                </div>
+                             </motion.div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  )
+                })}
               </tbody>
             </table>
           </div>
@@ -530,7 +585,7 @@ export default function UserManagement() {
                       )}
                     </td>
                     <td className="px-6 py-6 text-right">
-                      <div className="flex justify-end">
+                      <div className="flex justify-end items-center gap-3">
                         {u.role !== 'super_admin' && (
                           <select 
                             value=""
@@ -549,6 +604,20 @@ export default function UserManagement() {
                             <option value="staff" className="bg-card text-foreground">Staff</option>
                             {u.role !== 'student' && <option value="student" className="bg-card text-foreground">Deactivate</option>}
                           </select>
+                        )}
+                        {isSuperAdmin && (
+                          <button
+                            onClick={() => handleDeleteUser(u.uid, u.name)}
+                            disabled={deletingUserId === u.uid}
+                            className={`p-2.5 rounded-xl transition-all ${
+                              deletingUserId === u.uid 
+                                ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                                : 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white'
+                            }`}
+                            title="Permanently Delete Staff"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         )}
                       </div>
                     </td>
@@ -605,7 +674,7 @@ export default function UserManagement() {
                         </span>
                       </td>
                       <td className="px-6 py-6 text-right">
-                        <div className="flex justify-end">
+                        <div className="flex justify-end items-center gap-3">
                            <select 
                               value=""
                               onChange={(e) => {
@@ -624,6 +693,20 @@ export default function UserManagement() {
                               <option value="student" className="bg-card text-foreground">Deactivate</option>
                               <option value="brand" className="bg-card text-foreground">Keep as brand</option>
                             </select>
+                           {isSuperAdmin && (
+                             <button
+                               onClick={() => handleDeleteUser(u.uid, u.name)}
+                               disabled={deletingUserId === u.uid}
+                               className={`p-2.5 rounded-xl transition-all ${
+                                 deletingUserId === u.uid 
+                                   ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                                   : 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white'
+                               }`}
+                               title="Permanently Delete Brand Account"
+                             >
+                               <Trash2 className="h-4 w-4" />
+                             </button>
+                           )}
                         </div>
                       </td>
                     </tr>

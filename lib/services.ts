@@ -580,6 +580,15 @@ export const lmsService = {
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   },
 
+  createAssignment: async (assignmentData: any): Promise<string> => {
+    const assignmentsCol = collection(db, "assignments");
+    const docRef = await addDoc(assignmentsCol, {
+      ...assignmentData,
+      createdAt: serverTimestamp()
+    });
+    return docRef.id;
+  },
+
   getAssignments: async (subject?: string): Promise<any[]> => {
     const assignmentsCol = collection(db, "assignments");
     let q = query(assignmentsCol, orderBy("createdAt", "desc"));

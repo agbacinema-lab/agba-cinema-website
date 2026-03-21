@@ -19,7 +19,8 @@ export default function LoginFormClient() {
     e.preventDefault()
     setLoading(true)
     try {
-      const result = await authService.login(email, password)
+      const trimmedEmail = email.trim()
+      const result = await authService.login(trimmedEmail, password)
       const profile = await authService.getUserProfile(result.user.uid)
       
       toast.success("Welcome back!")
@@ -126,7 +127,7 @@ export default function LoginFormClient() {
                     placeholder="your@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white text-gray-900"
+                    className="h-12 rounded-xl border-input bg-background focus:bg-accent text-foreground"
                     required
                   />
                 </div>
@@ -150,7 +151,7 @@ export default function LoginFormClient() {
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white pr-10 text-gray-900"
+                      className="h-12 rounded-xl border-input bg-background focus:bg-accent pr-10 text-foreground"
                       required
                     />
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">

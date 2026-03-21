@@ -186,12 +186,12 @@ export const authService = {
             createdAt: serverTimestamp(),
           });
           // Notify superadmins in-app
-          await notificationService.notifySuperAdmins(
+          await notifySuperAdmins(
             `🆕 Staff Registration Pending Approval`,
             `${profile.name} (${profile.email}) has registered as staff and is awaiting your approval.`,
             'staff_approval_request',
             { staffUid: profile.uid, staffName: profile.name, staffEmail: profile.email, requestId: user.uid }
-          ).catch(e => console.error("Platform Broadcast Error:", e));
+          ).catch((e: any) => console.error("Platform Broadcast Error:", e));
           // Email superadmin
           await fetch("/api/notifications/email", {
             method: "POST",
@@ -210,7 +210,7 @@ export const authService = {
                 action: 'Log in to Admin Panel → User Management → Staff Approvals'
               }
             })
-          }).catch(e => console.error("Staff Approval Email Error:", e));
+          }).catch((e: any) => console.error("Staff Approval Email Error:", e));
         } else {
           const settings = await adminService.getSettings();
           if (settings?.notifications?.studentJoining && (role === 'student' || role === 'brand')) {
@@ -230,14 +230,14 @@ export const authService = {
                   intent: role === 'student' ? 'Education / Academy' : 'Partnership / Brand'
                 }
               })
-            }).catch(e => console.error("Signal Broadcast Error:", e));
+            }).catch((e: any) => console.error("Signal Broadcast Error:", e));
           }
-          await notificationService.notifySuperAdmins(
+          await notifySuperAdmins(
             `NEW ${role.toUpperCase()} ENROLLED`,
             `${profile.name} (${profile.email}) has joined as a ${role}.`,
             'new_registration',
             { userId: profile.uid, role }
-          ).catch(e => console.error("Platform Broadcast Error:", e));
+          ).catch((e: any) => console.error("Platform Broadcast Error:", e));
         }
       } catch (e) {
         console.error("Critical Settings Access Failure:", e);
