@@ -126,7 +126,7 @@ export default function LoginFormClient() {
                     placeholder="your@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white"
+                    className="h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white text-gray-900"
                     required
                   />
                 </div>
@@ -150,7 +150,7 @@ export default function LoginFormClient() {
                       placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white pr-10"
+                      className="h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white pr-10 text-gray-900"
                       required
                     />
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">

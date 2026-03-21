@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
   Zap, Users, CheckCircle2, ArrowRight, ArrowLeft, 
-  AlertCircle, CreditCard, ShieldCheck, Loader2, Eye, EyeOff
+  AlertCircle, CreditCard, ShieldCheck, Loader2, Eye, EyeOff, Mail
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -37,6 +37,7 @@ export default function RegisterFormClient({
   const [name, setName] = useState(initialName || "")
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [staffPending, setStaffPending] = useState(false)
   const [countdown, setCountdown] = useState(3)
 
   // Student multi-step
@@ -67,7 +68,7 @@ export default function RegisterFormClient({
     }
   }, [])
 
-  // Auto-redirect after success
+  // Auto-redirect after success (students & brands only)
   useEffect(() => {
     if (!success) return
     if (countdown <= 0) {
@@ -158,8 +159,12 @@ export default function RegisterFormClient({
     setLoading(true)
     try {
       await authService.signInWithGoogle(role, isStudent ? programType : undefined, isStudent ? specialization : undefined)
-      setSuccess(true)
-      toast.success("Account created successfully!")
+      if (role === 'staff') {
+        setStaffPending(true)
+      } else {
+        setSuccess(true)
+        toast.success("Account created successfully!")
+      }
     } catch { toast.error("Registration failed. Please try again.") }
     finally { setLoading(false) }
   }
@@ -173,8 +178,12 @@ export default function RegisterFormClient({
     setLoading(true)
     try {
       await authService.signUpWithEmail(email, password, name, role, isStudent ? programType : undefined, isStudent ? specialization : undefined)
-      setSuccess(true)
-      toast.success("Account created successfully!")
+      if (role === 'staff') {
+        setStaffPending(true)
+      } else {
+        setSuccess(true)
+        toast.success("Account created successfully!")
+      }
     } catch (error) {
       toast.error("Registration failed: " + (error as any).message)
     } finally { setLoading(false) }
@@ -186,6 +195,61 @@ export default function RegisterFormClient({
       <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-6">
         <Loader2 className="h-12 w-12 text-yellow-400 animate-spin" />
         <p className="text-white font-black uppercase tracking-widest text-sm">Verifying payment with Paystack...</p>
+      </div>
+    )
+  }
+
+  // ── Staff Pending Approval Screen ────────────────────────────────────────────
+  if (staffPending) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black px-4">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="max-w-md w-full text-center space-y-8"
+        >
+          {/* Icon */}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
+            className="w-36 h-36 bg-yellow-400 rounded-[3rem] flex items-center justify-center mx-auto shadow-[0_40px_80px_rgba(250,204,21,0.4)]"
+          >
+            <ShieldCheck className="h-20 w-20 text-black" strokeWidth={2.5} />
+          </motion.div>
+
+          <div className="space-y-4">
+            <h2 className="text-4xl font-black italic uppercase tracking-tighter text-white">
+              Registration Submitted!
+            </h2>
+            <p className="text-gray-400 text-base font-medium leading-relaxed">
+              Your staff account is <span className="text-yellow-400 font-black">pending admin approval</span>.
+              The superadmin has been notified and will review your application.
+            </p>
+          </div>
+
+          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 text-left space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-yellow-400/20 rounded-2xl flex items-center justify-center shrink-0">
+                <Mail className="h-5 w-5 text-yellow-400" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">What happens next</p>
+                <p className="text-sm text-white font-semibold">Check your email within 24 hours</p>
+              </div>
+            </div>
+            <p className="text-gray-400 text-sm ml-13">
+              Once the admin reviews your application, you'll receive an email confirmation to proceed to your dashboard.
+            </p>
+          </div>
+
+          <a
+            href="/login"
+            className="inline-block mt-4 px-8 py-3 rounded-2xl border border-white/20 text-white text-sm font-bold hover:bg-white/10 transition-all"
+          >
+            Back to Login
+          </a>
+        </motion.div>
       </div>
     )
   }

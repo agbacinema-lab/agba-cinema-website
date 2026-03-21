@@ -330,7 +330,7 @@ export const adminService = {
       await updateDoc(sSnap.docs[0].ref, { status: status });
     }
 
-    // Send Notification to Student
+    // Send In-App Notification to Student
     const title = status === 'internship_ready' ? "Mission Clearance: Approved" : "Mission Alert: Status Update";
     const message = status === 'internship_ready' 
       ? `Congratulations ${userName || 'Agent'}, you have been approved for internship! Speak to your tutor immediately for deployment protocol.`
@@ -342,6 +342,84 @@ export const adminService = {
       message: message,
       type: 'internship_update'
     } as any);
+
+    // ── Send Email to Student ────────────────────────────────────────────────
+    try {
+      // Fetch student's email from users collection
+      const userSnap = await getDoc(doc(db, "users", userId));
+      const userEmail = userSnap.exists() ? (userSnap.data() as any).email : null;
+      const studentName = userName || (userSnap.exists() ? (userSnap.data() as any).name : null) || "Agent";
+
+      if (userEmail) {
+        const isApproved = status === 'internship_ready';
+        const emailSubject = isApproved
+          ? `🎉 Congratulations ${studentName} — Internship Approved!`
+          : `Internship Status Update — ÀGBÀ CINEMA`;
+
+        const emailHtml = isApproved
+          ? `
+            <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+              <div style="background-color: #000; color: #fbbf24; padding: 24px; text-align: center;">
+                <h1 style="margin: 0; font-style: italic; letter-spacing: -1px; text-transform: uppercase;">ÀGBÀ CINEMA</h1>
+              </div>
+              <div style="padding: 36px;">
+                <h2 style="color: #000; border-bottom: 2px solid #fbbf24; padding-bottom: 10px; text-transform: uppercase;">
+                  🎉 You've Been Approved for Internship!
+                </h2>
+                <p>Hello <strong>${studentName}</strong>,</p>
+                <p>We are thrilled to inform you that you have officially been <strong style="color: #16a34a;">approved for internship placement</strong> at ÀGBÀ CINEMA!</p>
+                <p>This is a major milestone in your journey — your dedication and hard work have paid off.</p>
+                <div style="background: #fffbeb; border-left: 4px solid #fbbf24; padding: 16px; border-radius: 6px; margin: 24px 0;">
+                  <p style="margin:0; font-weight: bold; color: #92400e; font-size: 14px;">📌 Next Step: Contact Your Tutor</p>
+                  <p style="margin: 8px 0 0; color: #78350f; font-size: 13px;">Speak to your assigned tutor immediately for your deployment protocol and internship briefing.</p>
+                </div>
+                <div style="text-align: center; margin: 32px 0;">
+                  <a href="${process.env.NEXT_PUBLIC_BASE_URL || "https://agba-cinema-website.vercel.app"}/student/dashboard"
+                    style="background-color: #fbbf24; color: #000; padding: 14px 36px; border-radius: 30px; text-decoration: none; font-weight: bold; font-size: 15px; display: inline-block; text-transform: uppercase; letter-spacing: 1px;">
+                    Go to Dashboard →
+                  </a>
+                </div>
+                <p style="color: #888; font-size: 13px;">Questions? Reach us at <a href="mailto:agbacinema@gmail.com" style="color: #b45309;">agbacinema@gmail.com</a></p>
+              </div>
+              <div style="background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 12px; color: #888;">
+                <p style="margin: 0;">© ${new Date().getFullYear()} ÀGBÀ CINEMA HQ. ALL RIGHTS RESERVED.</p>
+              </div>
+            </div>
+          `
+          : `
+            <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+              <div style="background-color: #000; color: #fbbf24; padding: 24px; text-align: center;">
+                <h1 style="margin: 0; font-style: italic; letter-spacing: -1px; text-transform: uppercase;">ÀGBÀ CINEMA</h1>
+              </div>
+              <div style="padding: 36px;">
+                <h2 style="color: #000; border-bottom: 2px solid #fbbf24; padding-bottom: 10px; text-transform: uppercase;">Internship Status Update</h2>
+                <p>Hello <strong>${studentName}</strong>,</p>
+                <p>Your internship status has been updated by the ÀGBÀ CINEMA admin team. Please speak to your tutor immediately for further instructions.</p>
+              </div>
+              <div style="background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 12px; color: #888;">
+                <p style="margin: 0;">© ${new Date().getFullYear()} ÀGBÀ CINEMA HQ. ALL RIGHTS RESERVED.</p>
+              </div>
+            </div>
+          `;
+
+        await fetch("/api/notifications/email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to_email: userEmail,
+            to_name: studentName,
+            subject: emailSubject,
+            message: isApproved
+              ? `Congratulations ${studentName}! You have been approved for internship at ÀGBÀ CINEMA. Contact your tutor immediately for deployment protocol.`
+              : `Hello ${studentName}, your internship status has been updated. Please speak to your tutor for further instructions.`,
+            html: emailHtml,
+          })
+        }).catch((err: any) => console.error("Internship Email Error:", err));
+      }
+    } catch (emailErr: any) {
+      console.error("Failed to send internship status email:", emailErr);
+    }
+    // ── End Email ─────────────────────────────────────────────────────────────
   },
 
   revokeInternshipReadiness: async (userId: string): Promise<void> => {
@@ -978,27 +1056,35 @@ export const specializationService = {
 export const notificationService = {
   getUserNotifications: async (userId: string): Promise<any[]> => {
     const col = collection(db, "notifications");
-    const snap = await getDocs(col);
-    const allDocs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
     const now = Date.now();
     const oneDay = 24 * 60 * 60 * 1000;
-    
-    // Asynchronously delete read notifications older than 24 hours
-    allDocs.forEach(async (n: any) => {
-       if (n.read) {
-          const createdAt = n.createdAt?.toMillis?.() ?? (n.createdAt?.seconds ? n.createdAt.seconds * 1000 : 0);
-          if (now - createdAt > oneDay) {
-             try { await deleteDoc(doc(db, "notifications", n.id)); } catch(e) {}
-          }
-       }
+
+    // Fetch notifications specifically for this user + broadcast "all" notifications
+    const userQ = query(col, where("recipientId", "==", userId), orderBy("createdAt", "desc"), limit(30));
+    const allQ = query(col, where("recipientId", "==", "all"), orderBy("createdAt", "desc"), limit(10));
+
+    const [userSnap, allSnap] = await Promise.all([getDocs(userQ), getDocs(allQ)]);
+
+    const userDocs = userSnap.docs.map(d => ({ id: d.id, ...d.data() as any }));
+    const allDocs = allSnap.docs.map(d => ({ id: d.id, ...d.data() as any }));
+
+    // Merge and deduplicate by id
+    const merged = [...userDocs, ...allDocs].filter(
+      (n, idx, self) => self.findIndex(x => x.id === n.id) === idx
+    );
+
+    // Asynchronously clean up old read notifications (fire and forget)
+    merged.forEach(async (n: any) => {
+      if (n.read) {
+        const createdAt = n.createdAt?.toMillis?.() ?? (n.createdAt?.seconds ? n.createdAt.seconds * 1000 : 0);
+        if (now - createdAt > oneDay) {
+          try { await deleteDoc(doc(db, "notifications", n.id)); } catch (e) {}
+        }
+      }
     });
 
-    return allDocs
+    return merged
       .filter((n: any) => {
-        const isRecipient = n.recipientId === userId || n.recipientId === "all";
-        if (!isRecipient) return false;
-        
-        // Don't show read notifications older than 24 hours in the view anyway
         if (n.read) {
           const createdAt = n.createdAt?.toMillis?.() ?? (n.createdAt?.seconds ? n.createdAt.seconds * 1000 : 0);
           if (now - createdAt > oneDay) return false;
@@ -1012,6 +1098,7 @@ export const notificationService = {
       })
       .slice(0, 30);
   },
+
 
   markAsRead: async (notificationId: string): Promise<void> => {
     await updateDoc(doc(db, "notifications", notificationId), { read: true });

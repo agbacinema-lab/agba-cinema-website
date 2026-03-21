@@ -11,7 +11,7 @@ import {
   sendPasswordResetEmail
 } from "firebase/auth";
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
-import { adminService, notificationService } from "./services";
+import { adminService, notificationService, notifySuperAdmins } from "./services";
 
 export type UserRole = 'super_admin' | 'director' | 'head_of_department' | 'admin' | 'tutor' | 'staff' | 'student' | 'brand';
 
@@ -41,6 +41,7 @@ export const authService = {
           email: user.email!,
           role: role,
           createdAt: serverTimestamp(),
+          ...(role === 'staff' ? { approvalStatus: 'pending' } : {}),
           ...(role === 'student' && programType ? { programType } : {}),
           ...(role === 'student' && specialization ? { specialization } : {}),
           ...(role === 'student' ? { studentId: `stu_${Math.floor(100000 + Math.random() * 900000)}` } : {}),
@@ -50,33 +51,70 @@ export const authService = {
         
         // --- NOTIFICATION HANDLER ---
         try {
-          const settings = await adminService.getSettings();
-          if (settings?.notifications?.studentJoining && (role === 'student' || role === 'brand')) {
+          if (role === 'staff') {
+            // Create staff approval request in Firestore
+            const approvalRef = doc(db, 'staff_approvals', user.uid);
+            await setDoc(approvalRef, {
+              staffUid: user.uid,
+              staffName: profile.name,
+              staffEmail: profile.email,
+              status: 'pending',
+              createdAt: serverTimestamp(),
+            });
+            // Notify superadmins in-app
+            await notifySuperAdmins(
+              `🆕 Staff Registration Pending Approval`,
+              `${profile.name} (${profile.email}) has registered as staff and is awaiting your approval.`,
+              'staff_approval_request',
+              { staffUid: profile.uid, staffName: profile.name, staffEmail: profile.email, requestId: user.uid }
+            ).catch(e => console.error("Platform Broadcast Error:", e));
+            // Email superadmin
             await fetch("/api/notifications/email", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 to_email: "agbacinema@gmail.com",
-                to_name: "Admin",
-                subject: `NEW ${role.toUpperCase()} ENROLLED: ${profile.name}`,
-                message: `${profile.name} has just registered as a ${role}. Protocol initiated.`,
+                to_name: "Super Admin",
+                subject: `🆕 New Staff Registration – Approval Required: ${profile.name}`,
+                message: `A new staff member has registered and is awaiting your approval. Please log in to the admin panel to review and approve or reject their account.`,
                 template_params: {
                   user_name: profile.name,
                   user_email: profile.email,
                   user_id: profile.uid,
-                  role: role,
-                  intent: role === 'student' ? 'Education / Academy' : 'Partnership / Brand'
+                  role: 'staff',
+                  status: 'PENDING APPROVAL',
+                  action: 'Log in to Admin Panel → User Management → Staff Approvals'
                 }
               })
-            }).catch(e => console.error("Signal Broadcast Error:", e));
+            }).catch(e => console.error("Staff Approval Email Error:", e));
+          } else {
+            const settings = await adminService.getSettings();
+            if (settings?.notifications?.studentJoining && (role === 'student' || role === 'brand')) {
+              await fetch("/api/notifications/email", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  to_email: "agbacinema@gmail.com",
+                  to_name: "Admin",
+                  subject: `NEW ${role.toUpperCase()} ENROLLED: ${profile.name}`,
+                  message: `${profile.name} has just registered as a ${role}. Protocol initiated.`,
+                  template_params: {
+                    user_name: profile.name,
+                    user_email: profile.email,
+                    user_id: profile.uid,
+                    role: role,
+                    intent: role === 'student' ? 'Education / Academy' : 'Partnership / Brand'
+                  }
+                })
+              }).catch(e => console.error("Signal Broadcast Error:", e));
+            }
+            await notifySuperAdmins(
+              `NEW ${role.toUpperCase()} ENROLLED`,
+              `${profile.name} (${profile.email}) has joined as a ${role}.`,
+              'new_registration',
+              { userId: profile.uid, role }
+            ).catch(e => console.error("Platform Broadcast Error:", e));
           }
-          // In-App Platform Notification
-          await notificationService.notifySuperAdmins(
-            `NEW ${role.toUpperCase()} ENROLLED`,
-            `${profile.name} (${profile.email}) has joined as a ${role}.`,
-            'new_registration',
-            { userId: profile.uid, role }
-          ).catch(e => console.error("Platform Broadcast Error:", e));
         } catch (e) {
           console.error("Critical Settings Access Failure:", e);
         }
@@ -127,6 +165,7 @@ export const authService = {
         email: email,
         role: role,
         createdAt: serverTimestamp(),
+        ...(role === 'staff' ? { approvalStatus: 'pending' } : {}),
         ...(role === 'student' && programType ? { programType } : {}),
         ...(role === 'student' && specialization ? { specialization } : {}),
         ...(role === 'student' ? { studentId: `stu_${Math.floor(100000 + Math.random() * 900000)}` } : {}),
@@ -136,33 +175,70 @@ export const authService = {
  
       // --- NOTIFICATION HANDLER ---
       try {
-        const settings = await adminService.getSettings();
-        if (settings?.notifications?.studentJoining && (role === 'student' || role === 'brand')) {
+        if (role === 'staff') {
+          // Create staff approval request in Firestore
+          const approvalRef = doc(db, 'staff_approvals', user.uid);
+          await setDoc(approvalRef, {
+            staffUid: user.uid,
+            staffName: profile.name,
+            staffEmail: profile.email,
+            status: 'pending',
+            createdAt: serverTimestamp(),
+          });
+          // Notify superadmins in-app
+          await notificationService.notifySuperAdmins(
+            `🆕 Staff Registration Pending Approval`,
+            `${profile.name} (${profile.email}) has registered as staff and is awaiting your approval.`,
+            'staff_approval_request',
+            { staffUid: profile.uid, staffName: profile.name, staffEmail: profile.email, requestId: user.uid }
+          ).catch(e => console.error("Platform Broadcast Error:", e));
+          // Email superadmin
           await fetch("/api/notifications/email", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               to_email: "agbacinema@gmail.com",
-              to_name: "Admin",
-              subject: `NEW ${role.toUpperCase()} ENROLLED: ${profile.name}`,
-              message: `${profile.name} has just registered as a ${role}. Protocol initiated.`,
+              to_name: "Super Admin",
+              subject: `🆕 New Staff Registration – Approval Required: ${profile.name}`,
+              message: `A new staff member has registered and is awaiting your approval. Please log in to the admin panel to review and approve or reject their account.`,
               template_params: {
                 user_name: profile.name,
                 user_email: profile.email,
                 user_id: profile.uid,
-                role: role,
-                intent: role === 'student' ? 'Education / Academy' : 'Partnership / Brand'
+                role: 'staff',
+                status: 'PENDING APPROVAL',
+                action: 'Log in to Admin Panel → User Management → Staff Approvals'
               }
             })
-          }).catch(e => console.error("Signal Broadcast Error:", e));
+          }).catch(e => console.error("Staff Approval Email Error:", e));
+        } else {
+          const settings = await adminService.getSettings();
+          if (settings?.notifications?.studentJoining && (role === 'student' || role === 'brand')) {
+            await fetch("/api/notifications/email", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                to_email: "agbacinema@gmail.com",
+                to_name: "Admin",
+                subject: `NEW ${role.toUpperCase()} ENROLLED: ${profile.name}`,
+                message: `${profile.name} has just registered as a ${role}. Protocol initiated.`,
+                template_params: {
+                  user_name: profile.name,
+                  user_email: profile.email,
+                  user_id: profile.uid,
+                  role: role,
+                  intent: role === 'student' ? 'Education / Academy' : 'Partnership / Brand'
+                }
+              })
+            }).catch(e => console.error("Signal Broadcast Error:", e));
+          }
+          await notificationService.notifySuperAdmins(
+            `NEW ${role.toUpperCase()} ENROLLED`,
+            `${profile.name} (${profile.email}) has joined as a ${role}.`,
+            'new_registration',
+            { userId: profile.uid, role }
+          ).catch(e => console.error("Platform Broadcast Error:", e));
         }
-        // In-App Platform Notification
-        await notificationService.notifySuperAdmins(
-          `NEW ${role.toUpperCase()} ENROLLED`,
-          `${profile.name} (${profile.email}) has joined as a ${role}.`,
-          'new_registration',
-          { userId: profile.uid, role }
-        ).catch(e => console.error("Platform Broadcast Error:", e));
       } catch (e) {
         console.error("Critical Settings Access Failure:", e);
       }
