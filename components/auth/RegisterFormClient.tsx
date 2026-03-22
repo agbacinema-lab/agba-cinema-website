@@ -58,6 +58,25 @@ export default function RegisterFormClient({
   const [verifiedRef, setVerifiedRef] = useState<string | null>(paymentRef)
   const [paymentVerified, setPaymentVerified] = useState(false)
   const [verifyingRef, setVerifyingRef] = useState(false)
+  const [academySettings, setAcademySettings] = useState({ activeCohort: 'Cohort 3', cohortStartDate: 'August' })
+
+  useEffect(() => {
+    const loadAcademy = async () => {
+      try {
+        const { adminService } = await import('@/lib/services')
+        const settings = await adminService.getAcademySettings()
+        if (settings) {
+          setAcademySettings({
+            activeCohort: settings.activeCohort || 'Cohort 3',
+            cohortStartDate: settings.cohortStartDate || 'August'
+          })
+        }
+      } catch (e) {
+        console.error("Failed to load academy settings", e)
+      }
+    }
+    loadAcademy()
+  }, [])
 
   const isStudent = role === "student"
 
@@ -158,7 +177,8 @@ export default function RegisterFormClient({
   const handleGoogleRegister = async () => {
     setLoading(true)
     try {
-      await authService.signInWithGoogle(role, isStudent ? programType : undefined, isStudent ? specialization : undefined)
+      const activeCohort = programType === "gopro" ? academySettings.activeCohort : undefined
+      await authService.signInWithGoogle(role, isStudent ? programType : undefined, isStudent ? specialization : undefined, activeCohort)
       if (role === 'staff') {
         setStaffPending(true)
       } else {
@@ -177,7 +197,8 @@ export default function RegisterFormClient({
     }
     setLoading(true)
     try {
-      await authService.signUpWithEmail(email, password, name, role, isStudent ? programType : undefined, isStudent ? specialization : undefined)
+      const activeCohort = programType === "gopro" ? academySettings.activeCohort : undefined
+      await authService.signUpWithEmail(email, password, name, role, isStudent ? programType : undefined, isStudent ? specialization : undefined, activeCohort)
       if (role === 'staff') {
         setStaffPending(true)
       } else {
@@ -384,8 +405,8 @@ export default function RegisterFormClient({
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {([
-                    { value: "gopro", label: "Go Pro", icon: Zap, desc: "Self-paced, structured curriculum. Master film fundamentals on your schedule." },
-                    { value: "mentorship", label: "Mentorship", icon: Users, desc: "1-on-1 guided training with expert mentors. Intense, personalised, fast-tracked." }
+                    { value: "gopro", label: `Go Pro (${academySettings.activeCohort})`, icon: Zap, desc: `Join ${academySettings.activeCohort} (Classes start ${academySettings.cohortStartDate}). 4-week intensive live classes followed by a 6-month internship.` },
+                    { value: "mentorship", label: "Mentorship", icon: Users, desc: "1-on-1 guided live classes for 4 weeks. Personalised, fast-tracked, flexible scheduling." }
                   ] as const).map(({ value, label, icon: Icon, desc }) => (
                     <button key={value} onClick={() => setProgramType(value)}
                       className={`group relative p-8 rounded-[2rem] border-2 text-left transition-all duration-300 ${programType === value ? "border-yellow-400 bg-black text-white shadow-2xl shadow-yellow-400/20 scale-[1.02]" : "border-gray-100 bg-white hover:border-yellow-400/50 hover:shadow-lg"}`}
@@ -557,7 +578,7 @@ export default function RegisterFormClient({
                   <div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Enrolled in</p>
                     <p className="text-sm font-black text-gray-900 uppercase tracking-tight">
-                      {programType === "gopro" ? "Go Pro" : "Mentorship"} — {specializationLabel.replace(/-/g, " ")}
+                      {programType === "gopro" ? `Go Pro (${academySettings.activeCohort})` : "Mentorship"} — {specializationLabel.replace(/-/g, " ")}
                     </p>
                   </div>
                 </div>

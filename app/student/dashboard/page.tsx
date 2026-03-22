@@ -98,7 +98,8 @@ export default function StudentDashboard() {
           </h2>
 
           <p className="text-gray-500 dark:text-gray-400 font-medium max-w-md">
-            You are enrolled in the <strong className="text-gray-900 dark:text-white">{String(profile.specialization).replace(/-/g, " ")}</strong> track as part of our <strong className="text-gray-900 dark:text-white capitalize">{profile.programType?.replace(/-/g, " ")}</strong> program.
+            You are enrolled in the <strong className="text-gray-900 dark:text-white">{String(profile.specialization).replace(/-/g, " ")}</strong> track as part of our <strong className="text-gray-900 dark:text-white capitalize">{profile.programType?.replace(/-/g, " ")}</strong> program
+            {(profile as any).cohort ? <span className="text-yellow-600 font-bold"> ({(profile as any).cohort})</span> : ""}.
           </p>
 
           <div className="flex flex-wrap gap-4 pt-4">

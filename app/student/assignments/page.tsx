@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useAuth } from "@/context/AuthContext"
-import { assignmentService } from "@/lib/services"
+import { assignmentService, classSchedulerService } from "@/lib/services"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   CheckCircle2,
@@ -14,7 +14,8 @@ import {
   X,
   Eye,
   Award,
-  AlertCircle
+  AlertCircle,
+  Timer
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -34,6 +35,35 @@ export default function StudentAssignments() {
   const [submitNotes, setSubmitNotes] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [previewing, setPreviewing] = useState(false)
+  const [deadline, setDeadline] = useState<Date | null>(null)
+  const [timeLeft, setTimeLeft] = useState<{ hours: number, minutes: number }>({ hours: 0, minutes: 0 })
+  const [isLockedOut, setIsLockedOut] = useState(false)
+
+  useEffect(() => {
+    if (deadline && !isLockedOut) {
+      const timer = setInterval(() => {
+        const now = new Date()
+        const diff = deadline.getTime() - now.getTime()
+        
+        if (diff <= 0) {
+          setIsLockedOut(true)
+          setTimeLeft({ hours: 0, minutes: 0 })
+          clearInterval(timer)
+        } else {
+          const hours = Math.floor(diff / (1000 * 60 * 60))
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+          setTimeLeft({ hours, minutes })
+        }
+      }, 60000)
+      
+      // Init
+      const diff = deadline.getTime() - new Date().getTime()
+      if (diff <= 0) setIsLockedOut(true)
+      else setTimeLeft({ hours: Math.floor(diff / (1000 * 60 * 60)), minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)) })
+
+      return () => clearInterval(timer)
+    }
+  }, [deadline, isLockedOut])
 
   useEffect(() => {
     if (profile?.uid) loadData()
@@ -76,6 +106,22 @@ export default function StudentAssignments() {
         })
       )
       setSubmissions(subMap)
+
+      // PHASE 3: FETCH LIVE CLASSES FOR TIMING LOGIC
+      try {
+        const classes = await classSchedulerService.getStudentTimetable(profile?.uid || "", (profile as any)?.cohort)
+        // Find the most recent LIVE or COMPLETED class
+        const latestClass = classes.reverse().find(c => c.status === 'live' || c.status === 'completed' || c.status === 'scheduled')
+        if (latestClass) {
+          const startTimestamp = latestClass.startTime?.seconds ? latestClass.startTime.seconds * 1000 : latestClass.startTime
+          const endTimestamp = new Date(startTimestamp).getTime() + (latestClass.durationMinutes * 60000)
+          
+          // Deadline is exactly 48 hours from the exact ending of the class!
+          const generatedDeadline = new Date(endTimestamp + (48 * 60 * 60 * 1000))
+          setDeadline(generatedDeadline)
+        }
+      } catch (err) { console.error("Could not fetch timetable for timer logic:", err) }
+
     } catch (err) {
       console.error("Failed to load assignments:", err)
     } finally {
@@ -145,6 +191,41 @@ export default function StudentAssignments() {
         </div>
       </div>
 
+      {/* ─── PHASE 3: SMART ASSIGNMENT TIMER ─── */}
+      {deadline && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`w-full rounded-[3rem] p-10 md:p-14 relative overflow-hidden transition-all shadow-2xl ${isLockedOut ? 'bg-red-600 outline-none' : 'bg-yellow-400 outline-none'}`}>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 bg-black/10 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-black/10">
+                 {!isLockedOut ? <><div className="w-2 h-2 bg-black rounded-full animate-pulse" /> TACTICAL TIMER ACTIVE</> : <><div className="w-2 h-2 bg-black rounded-full" /> TRANSMISSION LOCKED</>}
+              </div>
+              <h3 className={`text-4xl md:text-6xl font-black italic uppercase tracking-tighter ${isLockedOut ? 'text-white' : 'text-black'}`}>
+                {isLockedOut ? 'Deadline Passed.' : 'Submit Evidence.'}
+              </h3>
+              <p className={`font-bold max-w-xl ${isLockedOut ? 'text-white/80' : 'text-black/80'}`}>
+                Your assignment module timing is strictly chronolinked to the completion of your latest Live Google Meet session.
+              </p>
+            </div>
+
+            <div className={`p-8 md:p-10 rounded-[2.5rem] flex items-center justify-center border-4 min-w-[300px] shrink-0 ${isLockedOut ? 'bg-black text-red-500 border-red-500/20' : 'bg-black text-yellow-400 border-yellow-400/20'}`}>
+              <div className="text-center space-y-2">
+                 <div className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.4em] opacity-60 mb-4">
+                    <Timer className="h-4 w-4" /> Time Remaining
+                 </div>
+                 {isLockedOut ? (
+                   <p className="text-6xl md:text-7xl font-mono font-black tracking-tighter">00:00</p>
+                 ) : (
+                   <p className="text-6xl md:text-7xl font-mono font-black tracking-tighter">
+                     {String(timeLeft.hours).padStart(2, '0')}<span className="animate-pulse">:</span>{String(timeLeft.minutes).padStart(2, '0')}
+                   </p>
+                 )}
+              </div>
+            </div>
+          </div>
+          <div className="absolute top-1/2 left-1/4 w-[1000px] h-[1000px] bg-white/10 blur-[100px] rounded-full -translate-y-1/2 -z-0 pointer-events-none" />
+        </motion.div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         <div className="lg:col-span-12 xl:col-span-8 space-y-6">
           <div className="flex items-center gap-3 mb-2 px-2">
@@ -197,8 +278,9 @@ export default function StudentAssignments() {
 
                     <div className="mt-10 flex items-center justify-between pt-10 border-t border-muted group-hover:border-yellow-400/20">
                       <button
-                        onClick={() => setSelectedAssignment(assignment)}
-                        className={`flex items-center gap-3 px-10 h-14 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all hover:scale-105 active:scale-95 shadow-xl ${
+                        onClick={() => !isLockedOut && setSelectedAssignment(assignment)}
+                        disabled={isLockedOut}
+                        className={`flex items-center gap-3 px-10 h-14 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all hover:scale-105 active:scale-95 shadow-xl disabled:opacity-30 disabled:hover:scale-100 disabled:cursor-not-allowed ${
                           isAction ? 'bg-red-600 text-white shadow-red-600/20' :
                           sub ? 'bg-muted/30 text-foreground border border-muted' : 'bg-foreground text-background hover:bg-yellow-400 hover:text-black'
                         }`}

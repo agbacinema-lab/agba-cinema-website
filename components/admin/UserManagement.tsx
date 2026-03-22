@@ -5,10 +5,20 @@ import { adminService, studentService } from "@/lib/services"
 import { useAuth } from "@/context/AuthContext"
 import { UserProfile, UserRole } from "@/lib/types"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Shield, UserCheck, ChevronDown, Users, Search, RefreshCw, XCircle, ArrowRight, Globe, Trash2 } from "lucide-react"
+import { Shield, UserCheck, ChevronDown, Users, Search, RefreshCw, XCircle, ArrowRight, Globe, Trash2, GraduationCap } from "lucide-react"
 import PasswordVerifyDialog from "./PasswordVerifyDialog"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function UserManagement() {
   const { profile: currentAdmin, isSuperAdmin } = useAuth()
@@ -161,9 +171,9 @@ export default function UserManagement() {
       const { db } = await import('@/lib/firebase')
       const batch = writeBatch(db)
       
-      const affectedStudents = students.filter(s => {
+      const affectedStudents = students.filter((s: any) => {
         const assignments = (s as any).assignedTutors || {}
-        return Object.values(assignments).some((a:any) => a.tutorId === massOldTutorId)
+        return Object.values(assignments).some((a: any) => a.tutorId === massOldTutorId)
       })
 
       if (affectedStudents.length === 0) {
@@ -205,40 +215,46 @@ export default function UserManagement() {
 
   // Super Admin Delete User Function
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
-  
-  const handleDeleteUser = async (userId: string, userName: string) => {
-    if (currentAdmin?.role !== "super_admin") {
-      toast.error("Only Super Admins can delete accounts.")
-      return
-    }
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [userToDelete, setUserToDelete] = useState<{ id: string, name: string } | null>(null)
 
-    if (!confirm(`SUPER ADMIN ACTION: Are you absolutely sure you want to permanently delete ${userName}? This action cannot be undone.`)) {
-      return
-    }
+  const triggerDeleteConfirm = (id: string, name: string) => {
+    setUserToDelete({ id, name })
+    setDeleteConfirmOpen(true)
+  }
 
-    setDeletingUserId(userId)
-    const t = toast.loading(`Erasing ${userName} from the system...`)
+  const handleDeleteUser = async () => {
+    if (!userToDelete || currentAdmin?.role !== "super_admin") return
+    const { id, name } = userToDelete
+    setDeleteConfirmOpen(false)
+    setDeletingUserId(id)
+    const t = toast.loading(`Erasing ${name} from the system...`)
     
     try {
       const res = await fetch("/api/admin/users", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, requesterRole: currentAdmin?.role })
+        body: JSON.stringify({ userId: id, requesterRole: currentAdmin?.role })
       })
       
-      const data = await res.json()
+      const text = await res.text()
+      let data
+      try {
+        data = JSON.parse(text)
+      } catch (e) {
+        throw new Error("Server returned an invalid response. Please check your admin permissions.")
+      }
       
       if (!res.ok) throw new Error(data.error || "Failed to delete user")
       
       toast.success(data.message, { id: t })
-      // Optimistically remove from UI
-      setUsers(prev => prev.filter(u => u.uid !== userId))
-      setTutors(prev => prev.filter(u => u.uid !== userId))
+      setUsers(prev => prev.filter(u => u.uid !== id))
     } catch (error: any) {
       console.error(error)
       toast.error(`Error: ${error.message}`, { id: t })
     } finally {
       setDeletingUserId(null)
+      setUserToDelete(null)
     }
   }
 
@@ -258,11 +274,94 @@ export default function UserManagement() {
     })
   
   const displayedStudents = limitView && searchQuery === "" ? students.slice(0, 5) : students
-  const staff = users.filter(u => u.role !== 'student' && u.role !== 'brand')
+  const staff = users.filter(u => u.role !== 'student' && u.role !== 'brand' && (u as any).approvalStatus !== 'pending')
   const brands = users.filter(u => u.role === 'brand')
+  const pendingApprovals = users.filter(u => (u as any).approvalStatus === 'pending')
+
+  const handleApproveStaff = async (userId: string) => {
+    try {
+      const { doc, updateDoc } = await import('firebase/firestore')
+      const { db } = await import('@/lib/firebase')
+      await updateDoc(doc(db, "users", userId), { approvalStatus: 'approved' })
+      toast.success("Staff member approved successfully.")
+      
+      // Send confirmation email
+      const user = users.find(u => u.uid === userId)
+      if (user) {
+        await fetch("/api/notifications/email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to_email: user.email,
+            to_name: user.name,
+            subject: "Operational Access Granted",
+            message: `Your account has been verified and approved for dashboard access. You can now log in to the ÀGBÀ CINEMA administration portal.`,
+            template_params: {
+              role: user.role?.replace('_', ' '),
+              status: "APPROVED"
+            }
+          })
+        })
+      }
+      
+      loadData()
+    } catch (err) {
+      toast.error("Failed to approve.")
+    }
+  }
 
   return (
     <>
+      {/* ─── PENDING STAFF APPROVALS ─── */}
+      {pendingApprovals.length > 0 && (
+        <div className="mb-12 space-y-6">
+           <div className="flex items-center gap-3 px-4">
+              <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground">Verification Queue</p>
+           </div>
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {pendingApprovals.map(u => (
+                <motion.div 
+                  key={u.uid} 
+                  initial={{ opacity: 0, scale: 0.95 }} 
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="bg-black text-white p-8 rounded-[2.5rem] border border-white/10 shadow-2xl space-y-8 flex flex-col justify-between"
+                >
+                   <div className="space-y-4">
+                      <div className="flex justify-between items-start">
+                         <div className="w-12 h-12 bg-yellow-400 rounded-2xl flex items-center justify-center text-black font-black">
+                            <Shield className="h-6 w-6" />
+                         </div>
+                         <span className="bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-[8px] font-black tracking-widest text-yellow-400">
+                            PENDING: {u.role?.toUpperCase()}
+                         </span>
+                      </div>
+                      <div>
+                         <h4 className="text-xl font-black italic tracking-tighter">{u.name}</h4>
+                         <p className="text-white/40 text-[10px] font-bold mt-1">{u.email}</p>
+                      </div>
+                   </div>
+
+                   <div className="grid grid-cols-2 gap-3 pt-6 border-t border-white/5">
+                      <button 
+                        onClick={() => handleApproveStaff(u.uid)}
+                        className="h-12 bg-yellow-400 text-black rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95"
+                      >
+                         Approve
+                      </button>
+                      <button 
+                        onClick={() => triggerDeleteConfirm(u.uid, u.name)}
+                        className="h-12 bg-red-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95"
+                      >
+                         Reject
+                      </button>
+                   </div>
+                </motion.div>
+              ))}
+           </div>
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-8 bg-muted/10 p-6 rounded-[2.5rem] border border-muted/30">
         <div className="text-left">
           <h2 className="text-2xl font-black tracking-tighter text-foreground">Talent command</h2>
@@ -387,7 +486,7 @@ export default function UserManagement() {
                                <button
                                  onClick={(e) => {
                                    e.stopPropagation()
-                                   handleDeleteUser(u.uid, u.name)
+                                   triggerDeleteConfirm(u.uid, u.name)
                                  }}
                                  disabled={deletingUserId === u.uid}
                                  className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all"
@@ -607,7 +706,7 @@ export default function UserManagement() {
                         )}
                         {isSuperAdmin && (
                           <button
-                            onClick={() => handleDeleteUser(u.uid, u.name)}
+                            onClick={() => triggerDeleteConfirm(u.uid, u.name)}
                             disabled={deletingUserId === u.uid}
                             className={`p-2.5 rounded-xl transition-all ${
                               deletingUserId === u.uid 
@@ -695,7 +794,7 @@ export default function UserManagement() {
                             </select>
                            {isSuperAdmin && (
                              <button
-                               onClick={() => handleDeleteUser(u.uid, u.name)}
+                               onClick={() => triggerDeleteConfirm(u.uid, u.name)}
                                disabled={deletingUserId === u.uid}
                                className={`p-2.5 rounded-xl transition-all ${
                                  deletingUserId === u.uid 
@@ -724,6 +823,29 @@ export default function UserManagement() {
         onVerified={handleVerifiedAction}
         title={`Authorize change for ${pendingAction?.userName}`}
       />
+
+      {/* --- PREMIUM DELETE DIALOG --- */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent className="bg-black border-white/10 rounded-[2.5rem] p-12 max-w-xl shadow-[0_40px_100px_rgba(0,0,0,0.8)]">
+          <AlertDialogHeader className="text-left space-y-6">
+            <div className="w-16 h-16 bg-red-500 rounded-2xl flex items-center justify-center shadow-[0_20px_40px_rgba(239,68,68,0.3)]">
+               <Trash2 className="h-8 w-8 text-white" />
+            </div>
+            <div className="space-y-2">
+              <AlertDialogTitle className="text-3xl font-black italic uppercase tracking-tighter text-white">Permanently Delete Account?</AlertDialogTitle>
+              <AlertDialogDescription className="text-gray-400 font-medium leading-relaxed">
+                You are about to initiate a terminal deletion protocol for <span className="text-white font-black">{userToDelete?.name}</span>. 
+                This will wipe their profile, access, and all associated academy records forever. 
+                <span className="block mt-4 text-red-400 font-black uppercase text-[10px] tracking-widest italic font-bold">This action cannot be undone.</span>
+              </AlertDialogDescription>
+            </div>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-8 gap-4">
+            <AlertDialogCancel className="h-14 bg-white/5 border-white/10 hover:bg-white/10 text-white font-black rounded-2xl flex-1 active:scale-95 transition-all">Abort Protocol</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteUser} className="h-14 bg-red-600 hover:bg-red-700 text-white font-black rounded-2xl flex-1 active:scale-95 transition-all shadow-xl shadow-red-600/20">Execute Deletion</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }

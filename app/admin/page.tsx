@@ -16,6 +16,7 @@ import BlogManager from "@/components/admin/BlogManager"
 import CurriculumAdminPanel from "@/components/admin/CurriculumAdminPanel"
 import ContentHub from "@/components/admin/ContentHub"
 import EventManager from "@/components/admin/EventManager"
+import LiveTimetableManager from "@/components/admin/LiveTimetableManager"
 import AcademyManager from "@/components/admin/AcademyManager"
 import BrandManagementPanel from "@/components/admin/BrandManagementPanel"
 import AnnouncementManager from "@/components/admin/AnnouncementManager"
@@ -98,10 +99,10 @@ function AdminDashboardContent() {
     if (['super_admin', 'director'].includes(profile?.role || '')) return true;
 
     const permissions: Record<string, string[]> = {
-      hod: ['readiness', 'courses', 'content', 'assignments'],
-      tutor: ['content', 'assignments'],
+      hod: ['readiness', 'courses', 'content', 'assignments', 'timetable'],
+      tutor: ['content', 'assignments', 'timetable'],
       staff: ['readiness', 'content'],
-      admin: ['readiness', 'content', 'assignments']
+      admin: ['readiness', 'content', 'assignments', 'timetable']
     };
 
     return permissions[profile?.role || '']?.includes(tab) || false;
@@ -134,13 +135,53 @@ function AdminDashboardContent() {
     return null
   }
 
+  // --- STAFF APPROVAL GUARD ---
+  // Allow super_admin and verified students/brands. Staff/Tutors/HOD/Director need approvalStatus === 'approved'
+  const restrictedRoles = ['staff', 'tutor', 'hod', 'director'];
+  // Ensure the check only runs for non-super_admins
+  const isApproved = (profile as any).approvalStatus === 'approved';
+  
+  if (restrictedRoles.includes(profile.role) && profile.role !== 'super_admin' && !isApproved) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black px-4 overflow-hidden relative">
+         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(250,204,21,0.1),transparent_50%)]" />
+         <motion.div 
+           initial={{ scale: 0.9, opacity: 0 }} 
+           animate={{ scale: 1, opacity: 1 }}
+           className="max-w-md w-full text-center space-y-10 relative z-10"
+         >
+            <div className="w-32 h-32 bg-yellow-400 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-[0_40px_80px_rgba(250,204,21,0.3)]">
+               <Shield className="h-16 w-16 text-black" />
+            </div>
+            <div className="space-y-4">
+               <h2 className="text-4xl font-black italic uppercase tracking-tighter text-white">Access Pending</h2>
+               <p className="text-gray-400 font-medium leading-relaxed">
+                 Your staff account is currently scheduled for <span className="text-yellow-400 font-black">Admin Approval</span>. 
+                 Access to operational tools is restricted until verified.
+               </p>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 text-left space-y-3">
+               <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Security Note</p>
+               <p className="text-sm text-gray-300 font-medium">Verify your credentials with the Super Admin or Director to activate your dashboard access.</p>
+            </div>
+            <Button 
+              onClick={() => authService.logout()} 
+              className="w-full bg-white hover:bg-yellow-400 text-black font-black h-14 rounded-2xl transition-all shadow-xl active:scale-95"
+            >
+              Sign Out Securely
+            </Button>
+         </motion.div>
+      </div>
+    )
+  }
+
   // Build a flat list of visible tabs for mobile bar
   const mobileTabs = [
     { id: 'overview', label: 'Home', icon: LayoutDashboard },
     ...(isStaff ? [
       { id: 'users', label: 'Users', icon: Users },
       { id: 'students', label: 'Students', icon: GraduationCap },
-      { id: 'readiness', label: 'Ready', icon: Shield },
+      { id: 'timetable', label: 'Live', icon: Calendar },
       { id: 'assignments', label: 'Tasks', icon: BookOpen },
     ] : []),
     { id: 'analytics', label: 'Stats', icon: BarChart3 },
@@ -187,6 +228,7 @@ function AdminDashboardContent() {
                 <NavItem active={activeTab === 'users'} disabled={!hasAccess('users')} icon={<Users className="h-5 w-5" />} label="Manage Users" onClick={() => handleTabChange('users')} />
                 <NavItem active={activeTab === 'students'} disabled={!hasAccess('students')} icon={<Users className="h-5 w-5" />} label="Student Database" onClick={() => handleTabChange('students')} />
                 <NavItem active={activeTab === 'readiness'} disabled={!hasAccess('readiness')} icon={<Shield className="h-5 w-5" />} label="Nominate Ready" onClick={() => handleTabChange('readiness')} />
+                <NavItem active={activeTab === 'timetable'} disabled={!hasAccess('timetable')} icon={<Calendar className="h-5 w-5" />} label="Live Schedule" onClick={() => handleTabChange('timetable')} />
                 <NavItem active={activeTab === 'courses'} disabled={!hasAccess('courses')} icon={<BookMarked className="h-5 w-5" />} label="Manage Courses" onClick={() => handleTabChange('courses')} />
                 <NavItem active={activeTab === 'content'} disabled={!hasAccess('content')} icon={<Layers className="h-5 w-5" />} label="Media Library" onClick={() => handleTabChange('content')} />
                 <NavItem active={activeTab === 'assignments'} disabled={!hasAccess('assignments')} icon={<BookOpen className="h-5 w-5" />} label="Assignments" onClick={() => handleTabChange('assignments')} />
@@ -278,6 +320,12 @@ function AdminDashboardContent() {
             {activeTab === 'content' && isStaff && hasAccess('content') && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                 <ContentHub />
+              </motion.div>
+            )}
+
+            {activeTab === 'timetable' && isStaff && hasAccess('timetable') && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <LiveTimetableManager />
               </motion.div>
             )}
 

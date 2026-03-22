@@ -25,7 +25,7 @@ export interface UserProfile {
 
 export const authService = {
   // Google Sign In for all roles
-  async signInWithGoogle(role: UserRole = 'student', programType?: string, specialization?: string) {
+  async signInWithGoogle(role: UserRole = 'student', programType?: string, specialization?: string, cohort?: string) {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
@@ -44,6 +44,7 @@ export const authService = {
           ...(role === 'staff' ? { approvalStatus: 'pending' } : {}),
           ...(role === 'student' && programType ? { programType } : {}),
           ...(role === 'student' && specialization ? { specialization } : {}),
+          ...(role === 'student' && cohort ? { cohort } : {}),
           ...(role === 'student' ? { studentId: `stu_${Math.floor(100000 + Math.random() * 900000)}` } : {}),
           ...(role === 'tutor' ? { tutorId: `tut_${Math.floor(100000 + Math.random() * 900000)}` } : {}),
         };
@@ -140,6 +141,7 @@ export const authService = {
             skills: [],
             programType: programType || "gopro",
             specialization: specialization || "",
+            cohort: cohort || "",
             portfolioLinks: { youtube: "", drive: "", behance: "", website: "" },
             createdAt: serverTimestamp()
           });
@@ -153,7 +155,7 @@ export const authService = {
   },
 
   // Student/Admin Sign Up with Email
-  async signUpWithEmail(email: string, pass: string, name: string, role: UserRole = 'student', programType?: string, specialization?: string) {
+  async signUpWithEmail(email: string, pass: string, name: string, role: UserRole = 'student', programType?: string, specialization?: string, cohort?: string) {
     try {
       const result = await createUserWithEmailAndPassword(auth, email, pass);
       const user = result.user;
@@ -168,6 +170,7 @@ export const authService = {
         ...(role === 'staff' ? { approvalStatus: 'pending' } : {}),
         ...(role === 'student' && programType ? { programType } : {}),
         ...(role === 'student' && specialization ? { specialization } : {}),
+        ...(role === 'student' && cohort ? { cohort } : {}),
         ...(role === 'student' ? { studentId: `stu_${Math.floor(100000 + Math.random() * 900000)}` } : {}),
         ...(role === 'tutor' ? { tutorId: `tut_${Math.floor(100000 + Math.random() * 900000)}` } : {}),
       };
@@ -254,6 +257,7 @@ export const authService = {
           skills: [],
           programType: programType || "gopro",
           specialization: specialization || "",
+          cohort: cohort || "",
           portfolioLinks: { youtube: "", drive: "", behance: "", website: "" },
           createdAt: serverTimestamp()
         });

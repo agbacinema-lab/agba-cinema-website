@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-import { Moon, Sun, Bell, Shield, Globe, Zap, Palette, Lock } from "lucide-react"
+import { Moon, Sun, Bell, Shield, Globe, Zap, Palette, Lock, GraduationCap } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import { adminService } from "@/lib/services"
+import { Input } from "@/components/ui/input"
 
 export default function AdminSettings() {
   const { theme, setTheme } = useTheme()
@@ -20,10 +21,17 @@ export default function AdminSettings() {
     newUsers: true
   })
 
+  const [cohort, setCohort] = useState("Cohort 3")
+  const [cohortMonth, setCohortMonth] = useState("August")
+  const [savingAcademy, setSavingAcademy] = useState(false)
+
   useEffect(() => {
     setMounted(true)
     const loadSettings = async () => {
-      const settings = await adminService.getSettings()
+      const [settings, academy] = await Promise.all([
+        adminService.getSettings(),
+        adminService.getAcademySettings()
+      ])
       if (settings && settings.notifications) {
         setNotifications({
           email: settings.notifications.email ?? true,
@@ -32,9 +40,28 @@ export default function AdminSettings() {
           newUsers: settings.notifications.studentJoining ?? true
         })
       }
+      if (academy) {
+        setCohort(academy.activeCohort || "Cohort 3")
+        setCohortMonth(academy.cohortStartDate || "August")
+      }
     }
     loadSettings()
   }, [])
+
+  const handleSaveAcademy = async () => {
+    setSavingAcademy(true)
+    try {
+      await adminService.updateAcademySettings({
+        activeCohort: cohort,
+        cohortStartDate: cohortMonth
+      })
+      toast.success("Academy settings updated!")
+    } catch (e) {
+      toast.error("Failed to update academy settings.")
+    } finally {
+      setSavingAcademy(false)
+    }
+  }
 
   const handleSave = async () => {
     try {
@@ -171,6 +198,46 @@ export default function AdminSettings() {
                 checked={notifications.newUsers}
                 onChange={(v: boolean) => setNotifications({...notifications, newUsers: v})}
               />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Academy Control Section */}
+        <Card className="border-none shadow-premium rounded-[2rem] bg-card overflow-hidden md:col-span-2 transition-colors">
+          <CardHeader className="bg-yellow-400 text-black p-8 flex flex-row items-center justify-between text-left">
+            <div className="space-y-1">
+              <div className="flex items-center gap-3 text-black">
+                <GraduationCap className="h-5 w-5" />
+                <CardTitle className="text-xl font-black tracking-tighter uppercase italic">Academy Control</CardTitle>
+              </div>
+              <CardDescription className="text-black/60 font-medium italic">Configure the next Go Pro cohort launch details.</CardDescription>
+            </div>
+            <Button onClick={handleSaveAcademy} disabled={savingAcademy} className="bg-black text-white hover:bg-black/80 font-bold px-8 rounded-xl h-12">
+              {savingAcademy ? "Saving..." : "Update Academy"}
+            </Button>
+          </CardHeader>
+          <CardContent className="p-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+               <div className="space-y-3 text-left">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Active Go Pro Cohort</Label>
+                  <Input 
+                    value={cohort} 
+                    onChange={e => setCohort(e.target.value)} 
+                    placeholder="e.g. Cohort 3"
+                    className="h-14 rounded-2xl border-muted bg-muted/10 font-bold text-lg focus:bg-card transition-all"
+                  />
+                  <p className="text-[10px] text-muted-foreground font-medium italic opacity-60">* This will update the registration form and student IDs.</p>
+               </div>
+               <div className="space-y-3 text-left">
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Launch Month/Time</Label>
+                  <Input 
+                    value={cohortMonth} 
+                    onChange={e => setCohortMonth(e.target.value)} 
+                    placeholder="e.g. August 2026"
+                    className="h-14 rounded-2xl border-muted bg-muted/10 font-bold text-lg focus:bg-card transition-all"
+                  />
+                  <p className="text-[10px] text-muted-foreground font-medium italic opacity-60">* Displayed to students before registration.</p>
+               </div>
             </div>
           </CardContent>
         </Card>

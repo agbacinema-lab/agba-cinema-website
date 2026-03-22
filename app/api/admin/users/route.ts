@@ -9,6 +9,11 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Missing userId" }, { status: 400 })
     }
 
+    if (!adminAuth || !db) {
+       console.error("[API_ERROR] Firebase Admin SDK not initialized.")
+       return NextResponse.json({ error: "Administration service currently offline. Verify backend credentials." }, { status: 503 })
+    }
+
     if (requesterRole !== "super_admin") {
       return NextResponse.json({ error: "Unauthorized: Only super admins can delete accounts" }, { status: 403 })
     }

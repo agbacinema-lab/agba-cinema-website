@@ -23,10 +23,14 @@ import {
   GraduationCap,
   Plus,
   Grid,
+  Calendar,
+  Video,
+  Clock
 } from "lucide-react"
 import { toast } from "sonner"
 import { X, ArrowLeft } from "lucide-react"
 import PDFViewer from "@/components/curriculum/PDFViewer"
+import { classSchedulerService, LiveClassSession } from "@/lib/services"
 
 // ─── INTERNAL VIEWER ──────────────────────────────────────────────────────────
 function InternalViewer({ url, onClose }: { url: string; onClose: () => void }) {
@@ -258,6 +262,10 @@ function StudentLearningContent() {
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
 
+  // Live Timetable
+  const [liveClasses, setLiveClasses] = useState<LiveClassSession[]>([])
+  const [upcomingClass, setUpcomingClass] = useState<LiveClassSession | null>(null)
+
   // Derive enrolled list — supports both old single-spec and new multi-spec
   const enrolled: Array<{ id: string; title: string; value: string; programType: string }> = (() => {
     if (profile?.enrolledSpecializations?.length) return profile.enrolledSpecializations
@@ -284,6 +292,14 @@ function StudentLearningContent() {
     setSelectedModule(null)
     setMaterials([])
     try {
+      // 1. Load Live Timetable
+      const timetable = await classSchedulerService.getStudentTimetable(user?.uid || "", (profile as any)?.cohort)
+      setLiveClasses(timetable)
+      
+      const upcoming = timetable.find(c => c.status === 'scheduled' || c.status === 'live')
+      if (upcoming) setUpcomingClass(upcoming)
+
+      // 2. Load Existing Curriculum Media/Recordings
       const allCurricula = await curriculumService.getAllCurricula()
       let myCurriculum = allCurricula.find(c => c.programType === programType && c.specialization === specialization)
       if (!myCurriculum) myCurriculum = allCurricula.find(c => c.programType === programType)
@@ -392,6 +408,44 @@ function StudentLearningContent() {
           <div className="absolute right-0 top-0 bottom-8 w-16 bg-gradient-to-l from-background to-transparent pointer-events-none md:block" />
         </div>
       </div>
+
+      {/* ─── LIVE TIMETABLE HUD ─── */}
+      {upcomingClass && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-8 md:p-12 rounded-[3rem] bg-gradient-to-br from-yellow-400 to-yellow-500 text-black shadow-2xl relative overflow-hidden group">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 relative z-10">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 bg-black/10 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-black/10">
+                {upcomingClass.status === 'live' ? (
+                  <><div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" /> LIVE NOW</>
+                ) : (
+                  <><div className="w-2 h-2 rounded-full bg-black animate-pulse" /> UPCOMING CLASS</>
+                )}
+              </div>
+              <h2 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter leading-tight">{upcomingClass.topic}</h2>
+              <div className="flex flex-wrap gap-4 pt-2">
+                <div className="flex items-center gap-2 bg-black/5 px-4 h-10 rounded-xl text-xs font-bold font-mono">
+                  <Calendar className="h-4 w-4" /> 
+                  {new Date(upcomingClass.startTime.seconds * 1000).toLocaleDateString()}
+                </div>
+                <div className="flex items-center gap-2 bg-black/5 px-4 h-10 rounded-xl text-xs font-bold font-mono">
+                  <Clock className="h-4 w-4" /> 
+                  {new Date(upcomingClass.startTime.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} ({upcomingClass.durationMinutes} mins)
+                </div>
+                <div className="flex items-center gap-2 bg-black/5 px-4 h-10 rounded-xl text-xs font-bold">
+                  <Users className="h-4 w-4" /> Tutor: {upcomingClass.tutorName}
+                </div>
+              </div>
+            </div>
+            <div className="shrink-0 w-full md:w-auto flex flex-col gap-3">
+              <a href={upcomingClass.meetLink} target="_blank" rel="noopener noreferrer" className="bg-black hover:bg-gray-900 text-white w-full md:w-64 h-16 rounded-2xl flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-2xl">
+                <Video className="h-5 w-5 text-yellow-400" /> Join Google Meet
+              </a>
+              <p className="text-[10px] font-black uppercase tracking-widest text-black/60 text-center">Class starts promptly</p>
+            </div>
+          </div>
+          <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-white/20 blur-3xl rounded-full" />
+        </motion.div>
+      )}
 
       {/* ─── LMS Content ─── */}
       {loading ? (

@@ -443,6 +443,21 @@ export const adminService = {
 
   updateSettings: async (settings: any) => {
      await setDoc(doc(db, "system", "settings"), settings, { merge: true });
+  },
+
+  getAcademySettings: async () => {
+    const snap = await getDoc(doc(db, "system", "academy"));
+    if (!snap.exists()) {
+       return {
+          activeCohort: "Cohort 3",
+          cohortStartDate: "August"
+       };
+    }
+    return snap.data();
+  },
+
+  updateAcademySettings: async (settings: { activeCohort: string, cohortStartDate: string }) => {
+    await setDoc(doc(db, "system", "academy"), settings, { merge: true });
   }
 };
 
@@ -1227,3 +1242,79 @@ export const shopService = {
   }
 };
 
+// ==========================================
+// NEW: LIVE CLASS TIMETABLE SERVICE
+// ==========================================
+export interface LiveClassSession {
+  id?: string;
+  topic: string;
+  tutorId: string;
+  tutorName: string;
+  targetAudience: 'individual' | 'cohort';
+  targetId: string; // Either studentId or cohort name (e.g. "Cohort 3")
+  targetName: string; // Student name or Cohort 3
+  programType: 'gopro' | 'mentorship';
+  startTime: any; // Firestore Timestamp
+  durationMinutes: number;
+  meetLink: string;
+  recordingLink?: string;
+  status: 'scheduled' | 'live' | 'completed' | 'cancelled';
+  createdAt: any;
+}
+
+export const classSchedulerService = {
+  // 1. Schedule a new class
+  scheduleClass: async (data: Omit<LiveClassSession, 'id' | 'createdAt'>) => {
+    const classesCol = collection(db, "live_classes");
+    const docRef = await addDoc(classesCol, {
+      ...data,
+      createdAt: serverTimestamp()
+    });
+    return docRef.id;
+  },
+
+  // 2. Add video recording after completion
+  addRecordingLink: async (classId: string, youtubeLink: string) => {
+    await updateDoc(doc(db, "live_classes", classId), {
+      recordingLink: youtubeLink,
+      status: 'completed'
+    });
+  },
+
+  // 3. For Tutors to see their generated schedule
+  getClassesByTutor: async (tutorId: string) => {
+    const q = query(
+      collection(db, "live_classes"),
+      where("tutorId", "==", tutorId),
+      orderBy("startTime", "asc")
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map(doc => ({ id: doc.id, ...(doc.data() as Omit<LiveClassSession, 'id'>) } as LiveClassSession));
+  },
+
+  // 4. For Students to see their personalized live timetable (1-on-1 Mentorship + Go Pro Cohort)
+  getStudentTimetable: async (uid: string, cohortId?: string) => {
+    const classesCol = collection(db, "live_classes");
+    
+    // They get classes strictly scheduled for them AND classes scheduled for their specific cohort
+    const queries = [];
+    queries.push(getDocs(query(classesCol, where("targetId", "==", uid))));
+    if (cohortId) {
+      queries.push(getDocs(query(classesCol, where("targetId", "==", cohortId))));
+    }
+    
+    const results = await Promise.all(queries);
+    const uniqueClasses = new Map();
+    
+    results.forEach(snap => {
+      snap.docs.forEach(doc => {
+        uniqueClasses.set(doc.id, { id: doc.id, ...(doc.data() as Omit<LiveClassSession, 'id'>) });
+      });
+    });
+    
+    // Sort combined explicitly by startTime
+    return Array.from(uniqueClasses.values()).sort((a: any, b: any) => 
+      (a.startTime?.toMillis() || 0) - (b.startTime?.toMillis() || 0)
+    ) as LiveClassSession[];
+  }
+};
