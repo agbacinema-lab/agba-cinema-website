@@ -45,6 +45,22 @@ export default function ContactPage() {
         }),
       })
 
+      // 2. Send confirmation to user
+      await fetch("/api/notifications/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to_email: data.email,
+          to_name: data.firstName,
+          subject: "Transmission Received: ÀGBÀ CINEMA",
+          message: "Your signal has been received and logged at HQ. An elite unit will review your brief within the next 24 operational hours.",
+          template_params: {
+            status: "LOGGED IN QUEUE",
+            codename: data.firstName,
+          }
+        })
+      }).catch(err => console.error("Confirmation Email Failed:", err))
+
       if (!response.ok) throw new Error("Failed to send transmission")
 
       toast.success("Transmission Received", {

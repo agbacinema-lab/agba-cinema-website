@@ -1,4 +1,4 @@
-import { NextResponse } from "next/navigation"
+import { NextResponse } from "next/server"
 import { google } from "googleapis"
 import { adminAuth } from "@/lib/firebase-admin"
 import { classSchedulerService } from "@/lib/services"
@@ -14,15 +14,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing Google Credentials" }, { status: 500 })
     }
 
-    const serviceAccount = JSON.parse(Buffer.from(serviceAccountStr, 'base64').toString('utf8'))
+    let serviceAccount;
+    try {
+      if (serviceAccountStr.trim().startsWith('{')) {
+        serviceAccount = JSON.parse(serviceAccountStr);
+      } else {
+        serviceAccount = JSON.parse(Buffer.from(serviceAccountStr, 'base64').toString('utf8'));
+      }
+    } catch (e) {
+      console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT in calendar API:", e);
+      return NextResponse.json({ error: "Invalid Google Credentials Format" }, { status: 500 });
+    }
 
     // Auth client
-    const auth = new google.auth.JWT(
-      serviceAccount.client_email,
-      undefined,
-      serviceAccount.private_key,
-      ['https://www.googleapis.com/auth/calendar']
-    )
+    const auth = new google.auth.JWT({
+      email: serviceAccount.client_email,
+      key: serviceAccount.private_key,
+      scopes: ['https://www.googleapis.com/auth/calendar']
+    })
 
     const calendar = google.calendar({ version: 'v3', auth })
 

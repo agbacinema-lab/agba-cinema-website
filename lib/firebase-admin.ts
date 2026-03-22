@@ -7,16 +7,23 @@ function getAdminApp(): App | null {
     return getApps()[0]
   }
 
-  // Support for combined service account JSON (base64)
+  // Support for combined service account JSON (Base64 OR Raw JSON)
   const serviceAccountStr = process.env.FIREBASE_SERVICE_ACCOUNT
   if (serviceAccountStr) {
     try {
-      const serviceAccount = JSON.parse(Buffer.from(serviceAccountStr, 'base64').toString('utf8'))
+      let serviceAccount;
+      // Detect if it's Raw JSON or Base64
+      if (serviceAccountStr.trim().startsWith('{')) {
+        serviceAccount = JSON.parse(serviceAccountStr);
+      } else {
+        serviceAccount = JSON.parse(Buffer.from(serviceAccountStr, 'base64').toString('utf8'));
+      }
+      
       return initializeApp({
         credential: cert(serviceAccount),
-      })
+      });
     } catch (e) {
-      console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT:", e)
+      console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT:", e);
     }
   }
 

@@ -24,7 +24,8 @@ import AdminSettings from "@/components/admin/AdminSettings"
 import ProductManager from "@/components/admin/ProductManager"
 import AdminProfile from "@/components/admin/AdminProfile"
 import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard"
-import { LogOut, LayoutDashboard, Users, Briefcase, Star, Settings, GraduationCap, BookOpen, FileText, BookMarked, MonitorPlay, Calendar, Image as ImageIcon, Layers, Bell, BarChart3, UserCircle, Shield, Package } from "lucide-react"
+import EmailTester from "@/components/admin/EmailTester"
+import { LogOut, LayoutDashboard, Users, Briefcase, Star, Settings, GraduationCap, BookOpen, FileText, BookMarked, MonitorPlay, Calendar, Image as ImageIcon, Layers, Bell, BarChart3, UserCircle, Shield, Package, Mail } from "lucide-react"
 import { motion } from "framer-motion"
 import PushPrompt from "@/components/common/PushPrompt"
 import { UserDropdown } from "@/components/common/UserDropdown"
@@ -233,6 +234,9 @@ function AdminDashboardContent() {
                 <NavItem active={activeTab === 'content'} disabled={!hasAccess('content')} icon={<Layers className="h-5 w-5" />} label="Media Library" onClick={() => handleTabChange('content')} />
                 <NavItem active={activeTab === 'assignments'} disabled={!hasAccess('assignments')} icon={<BookOpen className="h-5 w-5" />} label="Assignments" onClick={() => handleTabChange('assignments')} />
                 <NavItem active={activeTab === 'armory'} disabled={!['super_admin', 'director'].includes(profile?.role || '')} icon={<Package className="h-5 w-5" />} label="The Armory" onClick={() => handleTabChange('armory')} />
+                {profile?.role === 'super_admin' && (
+                  <NavItem active={activeTab === 'email-tester'} icon={<Mail className="h-5 w-5" />} label="Email Tester" onClick={() => handleTabChange('email-tester')} />
+                )}
               </>
             )}
             <NavItem active={activeTab === 'analytics'} icon={<BarChart3 className="h-5 w-5" />} label="Portal Stats" onClick={() => handleTabChange('analytics')} />
@@ -350,6 +354,12 @@ function AdminDashboardContent() {
             {activeTab === 'settings' && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                 <AdminSettings />
+              </motion.div>
+            )}
+
+            {activeTab === 'email-tester' && profile?.role === 'super_admin' && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <EmailTester />
               </motion.div>
             )}
           </div>

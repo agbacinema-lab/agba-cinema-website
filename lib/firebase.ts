@@ -20,7 +20,16 @@ const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
-const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
+// Messaging with support check
+let messaging: any = null;
+if (typeof window !== 'undefined') {
+  const { isSupported } = require("firebase/messaging");
+  isSupported().then((supported: boolean) => {
+    if (supported) {
+      messaging = getMessaging(app);
+    }
+  }).catch(() => {});
+}
 const googleProvider = new GoogleAuthProvider();
 
 export { app, auth, db, storage, messaging, googleProvider };

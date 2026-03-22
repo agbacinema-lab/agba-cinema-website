@@ -41,7 +41,8 @@ export default function LeadCapture() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          to: email,
+          to_email: email,
+          to_name: "Creative",
           subject: config.subject,
           text: `${config.message}\n\nAccess it here: ${config.link}`,
           html: `

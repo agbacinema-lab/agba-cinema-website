@@ -13,15 +13,8 @@ import {
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { adminService, notificationService, notifySuperAdmins } from "./services";
 
-export type UserRole = 'super_admin' | 'director' | 'head_of_department' | 'admin' | 'tutor' | 'staff' | 'student' | 'brand';
-
-export interface UserProfile {
-  uid: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  createdAt: any;
-}
+import { UserRole, UserProfile } from "./types";
+export { type UserRole, type UserProfile } from "./types";
 
 export const authService = {
   // Google Sign In for all roles
@@ -109,6 +102,24 @@ export const authService = {
                 })
               }).catch(e => console.error("Signal Broadcast Error:", e));
             }
+
+            // --- WELCOME EMAIL TO USER ---
+            await fetch("/api/notifications/email", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                to_email: profile.email,
+                to_name: profile.name,
+                subject: `Welcome to ÀGBÀ CINEMA: Protocol Initiated 🎬`,
+                message: `Your account has been successfully generated. ${String(role) === 'staff' ? 'Your access is currently pending administrative review.' : 'You now have access to your personal portal.'}`,
+                template_params: {
+                  role: role.toUpperCase(),
+                  status: String(role) === 'staff' ? 'PENDING REVIEW' : 'ACTIVE',
+                  mission: "Begin your creative trajectory today."
+                }
+              })
+            }).catch(e => console.error("Welcome Email Error:", e));
+
             await notifySuperAdmins(
               `NEW ${role.toUpperCase()} ENROLLED`,
               `${profile.name} (${profile.email}) has joined as a ${role}.`,
@@ -235,13 +246,31 @@ export const authService = {
               })
             }).catch((e: any) => console.error("Signal Broadcast Error:", e));
           }
-          await notifySuperAdmins(
-            `NEW ${role.toUpperCase()} ENROLLED`,
-            `${profile.name} (${profile.email}) has joined as a ${role}.`,
-            'new_registration',
-            { userId: profile.uid, role }
-          ).catch((e: any) => console.error("Platform Broadcast Error:", e));
         }
+
+        // --- WELCOME EMAIL TO USER (All roles) ---
+        await fetch("/api/notifications/email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to_email: email,
+            to_name: name,
+            subject: `Welcome to ÀGBÀ CINEMA: Protocol Initiated 🎬`,
+            message: `Your account has been successfully generated. ${String(role) === 'staff' ? 'Your access is currently pending administrative review.' : 'You now have access to your personal portal.'}`,
+            template_params: {
+              role: role.toUpperCase(),
+              status: String(role) === 'staff' ? 'PENDING REVIEW' : 'ACTIVE',
+              mission: "Begin your creative trajectory today."
+            }
+          })
+        }).catch(e => console.error("Welcome Email Error:", e));
+
+        await notifySuperAdmins(
+          `NEW ${role.toUpperCase()} ENROLLED`,
+          `${profile.name} (${profile.email}) has joined as a ${role}.`,
+          'new_registration',
+          { userId: profile.uid, role }
+        ).catch((e: any) => console.error("Platform Broadcast Error:", e));
       } catch (e) {
         console.error("Critical Settings Access Failure:", e);
       }

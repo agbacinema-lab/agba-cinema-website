@@ -343,15 +343,15 @@ export default function RegisterFormClient({
               <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" /> Continue with Google
             </Button>
             <form onSubmit={handleRegister} className="space-y-4">
-              <Input placeholder="Full Name" className="h-12 rounded-xl border-gray-100 bg-gray-50" value={name} onChange={e => setName(e.target.value)} required />
-              <Input type="email" placeholder="Email" className="h-12 rounded-xl border-gray-100 bg-gray-50" value={email} onChange={e => setEmail(e.target.value)} required />
+              <Input placeholder="Full Name" className="h-12 rounded-xl border-gray-100 bg-gray-50 text-gray-900" value={name} onChange={e => setName(e.target.value)} required />
+              <Input type="email" placeholder="Email" className="h-12 rounded-xl border-gray-100 bg-gray-50 text-gray-900" value={email} onChange={e => setEmail(e.target.value)} required />
               <div className="relative">
-                <Input type={showPassword ? "text" : "password"} placeholder="Password" className="h-12 rounded-xl border-gray-100 bg-gray-50 pr-10" value={password} onChange={e => setPassword(e.target.value)} required />
+                <Input type={showPassword ? "text" : "password"} placeholder="Password" className="h-12 rounded-xl border-gray-100 bg-gray-50 pr-10 text-gray-900" value={password} onChange={e => setPassword(e.target.value)} required />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              <Input type={showPassword ? "text" : "password"} placeholder="Confirm Password" className="h-12 rounded-xl border-gray-100 bg-gray-50" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
+              <Input type={showPassword ? "text" : "password"} placeholder="Confirm Password" className="h-12 rounded-xl border-gray-100 bg-gray-50 text-gray-900" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
               <Button type="submit" disabled={loading} className="w-full bg-yellow-400 text-black font-black h-14 rounded-2xl">
                 {loading ? "Creating..." : "Create Account"}
               </Button>
@@ -512,13 +512,13 @@ export default function RegisterFormClient({
                   <div className="space-y-2">
                     <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">Your Full Name</label>
                     <Input value={payName} onChange={e => setPayName(e.target.value)} placeholder="David Okon"
-                      className="h-14 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white font-bold"
+                      className="h-14 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white font-bold text-gray-900"
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">Email for Receipt</label>
                     <Input type="email" value={payEmail} onChange={e => setPayEmail(e.target.value)} placeholder="david@example.com"
-                      className="h-14 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white font-bold"
+                      className="h-14 rounded-2xl border-gray-100 bg-gray-50 focus:bg-white font-bold text-gray-900"
                     />
                   </div>
                 </div>
@@ -598,16 +598,16 @@ export default function RegisterFormClient({
                 <form onSubmit={handleRegister} className="space-y-4">
                   <div className="space-y-1.5">
                     <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">Full Name</label>
-                    <Input placeholder="David Okon" className="h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white" value={name} onChange={e => setName(e.target.value)} required />
+                    <Input placeholder="David Okon" className="h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white text-gray-900" value={name} onChange={e => setName(e.target.value)} required />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">Email Address</label>
-                    <Input type="email" placeholder="david@example.com" className="h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white" value={email} onChange={e => setEmail(e.target.value)} required />
+                    <Input type="email" placeholder="david@example.com" className="h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white text-gray-900" value={email} onChange={e => setEmail(e.target.value)} required />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">Password</label>
                     <div className="relative">
-                      <Input type={showPassword ? "text" : "password"} placeholder="••••••••" className="h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white pr-10" value={password} onChange={e => setPassword(e.target.value)} required />
+                      <Input type={showPassword ? "text" : "password"} placeholder="••••••••" className="h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white pr-10 text-gray-900" value={password} onChange={e => setPassword(e.target.value)} required />
                       <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
@@ -615,7 +615,7 @@ export default function RegisterFormClient({
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">Confirm Password</label>
-                    <Input type={showPassword ? "text" : "password"} placeholder="••••••••" className="h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
+                    <Input type={showPassword ? "text" : "password"} placeholder="••••••••" className="h-12 rounded-xl border-gray-100 bg-gray-50 focus:bg-white text-gray-900" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
                   </div>
                   <Button type="submit" disabled={loading} className="w-full bg-yellow-400 text-black font-black h-14 rounded-2xl hover:bg-black hover:text-white transition-all">
                     {loading ? "Activating..." : "Activate Enrollment"}

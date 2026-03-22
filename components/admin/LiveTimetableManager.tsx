@@ -69,16 +69,51 @@ export default function LiveTimetableManager() {
       return
     }
 
+    const t = toast.loading("Deploying session and transmitting invites...")
+
     try {
-      const startDateTime = new Date(`${date}T${time}`)
+      const startDateTime = `${date}T${time}`
       let targetName = ""
+      let studentEmail = ""
+      let cohortEmails: string[] = []
+
       if (targetAudience === 'individual') {
         const student = students.find(s => s.uid === targetId || s.id === targetId)
-        targetName = student?.fullName || "Student"
+        targetName = student?.name || "Student"
+        studentEmail = student?.email || ""
       } else {
         targetName = targetId // Cohort name
+        // Get all student emails in this cohort from our full list (we need another fetch or use state)
+        const allUsers = await adminService.getAllUsers();
+        cohortEmails = allUsers
+          .filter(u => u.role === 'student' && (u as any).cohort === targetId)
+          .map(u => u.email)
+          .filter(Boolean)
       }
 
+      // 1. Call Google Calendar API
+      const calendarRes = await fetch("/api/calendar/schedule", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          topic,
+          durationMinutes: parseInt(duration),
+          startDateTime,
+          tutorId: profile.uid,
+          studentEmail,
+          cohortEmails
+        })
+      })
+
+      const calendarData = await calendarRes.json().catch(() => ({ error: "Protocol malformed" }))
+
+      if (!calendarRes.ok) {
+        throw new Error(calendarData.error || "Google Calendar uplink failed")
+      }
+
+      const generatedMeetLink = calendarData.meetLink
+
+      // 2. Save to Firestore
       await classSchedulerService.scheduleClass({
         topic,
         tutorId: profile.uid,
@@ -87,13 +122,13 @@ export default function LiveTimetableManager() {
         targetId,
         targetName,
         programType,
-        startTime: startDateTime,
+        startTime: new Date(startDateTime),
         durationMinutes: parseInt(duration),
-        meetLink,
+        meetLink: generatedMeetLink || meetLink || "https://meet.google.com/new",
         status: 'scheduled'
       })
 
-      toast.success("Live Class Scheduled!")
+      toast.success("Live Class Scheduled and invites dispatched!", { id: t })
       setShowForm(false)
       loadData()
       
@@ -101,7 +136,8 @@ export default function LiveTimetableManager() {
       setTopic("")
       setTargetId("")
     } catch (err: any) {
-      toast.error("Failed to schedule class: " + err.message)
+      console.error(err)
+      toast.error("Protocol failure: " + err.message, { id: t })
     }
   }
 
