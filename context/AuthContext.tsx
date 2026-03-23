@@ -51,24 +51,49 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setLoading(false);
         });
 
-        // 2. FCM Token Registration
+        // 2. FCM Token Registration & Messaging Setup
         try {
           const { messaging } = await import("@/lib/firebase");
           const vapidKey = process.env.NEXT_PUBLIC_VAPID_KEY;
           
           if (messaging && vapidKey) {
-            const { getToken } = await import("firebase/messaging");
-            const token = await getToken(messaging, { vapidKey });
+            const { getToken, onMessage } = await import("firebase/messaging");
             
-            if (token) {
-              const { setDoc, doc, serverTimestamp } = await import("firebase/firestore");
-              const tokenRef = doc(db, "users", firebaseUser.uid, "fcm_tokens", token);
-              await setDoc(tokenRef, {
-                token,
-                platform: window.navigator.userAgent.includes("Mobi") ? "mobile" : "web",
-                lastUsed: serverTimestamp()
-              }, { merge: true });
+            // Explicitly register service worker to ensure it's available for getToken
+            if ('serviceWorker' in navigator) {
+              const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+              
+              const token = await getToken(messaging, { 
+                vapidKey,
+                serviceWorkerRegistration: registration
+              });
+              
+              if (token) {
+                const { setDoc, doc, serverTimestamp } = await import("firebase/firestore");
+                const tokenRef = doc(db, "users", firebaseUser.uid, "fcm_tokens", token);
+                await setDoc(tokenRef, {
+                  token,
+                  platform: window.navigator.userAgent.includes("Mobi") ? "mobile" : "web",
+                  lastUsed: serverTimestamp()
+                }, { merge: true });
+                console.log("[FCM] Token secured and registered.");
+              }
             }
+
+            // Listen for foreground messages
+            onMessage(messaging, async (payload) => {
+              console.log("[FCM] Foreground message received:", payload);
+              // Trigger a toast for foreground messages
+              const { toast } = await import("sonner");
+              toast(payload.notification?.title || "New Notification", {
+                description: payload.notification?.body,
+                action: payload.data?.link ? {
+                  label: "View",
+                  onClick: () => window.location.href = payload.data?.link as string
+                } : undefined
+              });
+            });
+
           } else if (!vapidKey) {
             console.warn("[FCM] NEXT_PUBLIC_VAPID_KEY missing. Push notifications disabled.");
           }
@@ -76,7 +101,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           if (e.code === 'messaging/permission-blocked') {
             console.log("[FCM] Notifications blocked by user.");
           } else {
-            console.warn("[FCM] Token registration failed:", e);
+            console.warn("[FCM] Messaging setup failed:", e);
           }
         }
       } else {
