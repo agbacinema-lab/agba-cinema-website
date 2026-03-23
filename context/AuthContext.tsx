@@ -35,14 +35,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     let unsubscribeProfile: (() => void) | null = null;
     
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (unsubscribeProfile) {
-        unsubscribeProfile();
-        unsubscribeProfile = null;
-      }
-      
       setUser(firebaseUser);
       if (firebaseUser) {
-        // Real-time profile listener
+        // 1. Real-time profile listener
         const userRef = doc(db, "users", firebaseUser.uid);
         unsubscribeProfile = onSnapshot(userRef, (userSnap) => {
           if (userSnap.exists()) {
@@ -55,6 +50,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.error("Profile Listener Error:", err);
           setLoading(false);
         });
+
+        // 2. FCM Token Registration
+        try {
+          const { messaging } = await import("@/lib/firebase");
+          const vapidKey = process.env.NEXT_PUBLIC_VAPID_KEY;
+          
+          if (messaging && vapidKey) {
+            const { getToken } = await import("firebase/messaging");
+            const token = await getToken(messaging, { vapidKey });
+            
+            if (token) {
+              const { setDoc, doc, serverTimestamp } = await import("firebase/firestore");
+              const tokenRef = doc(db, "users", firebaseUser.uid, "fcm_tokens", token);
+              await setDoc(tokenRef, {
+                token,
+                platform: window.navigator.userAgent.includes("Mobi") ? "mobile" : "web",
+                lastUsed: serverTimestamp()
+              }, { merge: true });
+            }
+          } else if (!vapidKey) {
+            console.warn("[FCM] NEXT_PUBLIC_VAPID_KEY missing. Push notifications disabled.");
+          }
+        } catch (e: any) {
+          if (e.code === 'messaging/permission-blocked') {
+            console.log("[FCM] Notifications blocked by user.");
+          } else {
+            console.warn("[FCM] Token registration failed:", e);
+          }
+        }
       } else {
         setProfile(null);
         setLoading(false);

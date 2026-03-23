@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
     sgMail.setApiKey(SENDGRID_API_KEY)
 
     if (action === "approve") {
+      if (!db) throw new Error("Firebase admin database not initialized")
       // 1. Update user document — set role to staff and mark approved
       await db.collection("users").doc(staffUid).update({
         approvalStatus: "approved",
@@ -74,6 +75,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "reject") {
+      if (!db) throw new Error("Firebase admin database not initialized")
       // 1. Update user document
       await db.collection("users").doc(staffUid).update({
         approvalStatus: "rejected",

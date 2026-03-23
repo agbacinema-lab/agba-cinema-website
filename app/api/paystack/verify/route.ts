@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
-import { adminService, studentService, notificationService } from "@/lib/services"
+import { adminService, studentService, notificationService, brandService } from "@/lib/services"
+import { db as adminDb } from "@/lib/firebase-admin"
+import { FieldValue } from "firebase-admin/firestore"
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -34,7 +36,7 @@ export async function GET(request: NextRequest) {
           fullName: metadata?.fullName || "Valued Customer",
           service: metadata?.service || "General Support",
           status: 'success',
-          userId: metadata?.userId,
+          userId: metadata?.userId || metadata?.brandId,
           processedAt: new Date().toISOString()
         })
       } catch (logErr) {
@@ -88,6 +90,91 @@ export async function GET(request: NextRequest) {
         }
       }
 
+      // ─── Direct Intern Recruitment Execution ───
+      if (metadata?.type === 'intern_recruitment' && metadata?.brandId && metadata?.studentId) {
+        console.log(`[INTERN RECRUITMENT] Processing direct hire. Brand: ${metadata.brandId}, Intern: ${metadata.studentId}`)
+        try {
+          if (!adminDb) throw new Error("Firebase Admin DB not initialized");
+          
+          const reqRef = await adminDb.collection("internship_requests").add({
+            brandId: metadata.brandId,
+            studentId: metadata.studentId,
+            studentName: metadata.fullName || "Intern", // Here fullName from metadata might be the Brand's, so we'll fetch student in notification later if needed
+            skills: [], // Can be populated if needed
+            termsAccepted: true,
+            status: 'approved', // Automatically approved because they paid!
+            isDirectHire: true, 
+            paymentPlan: metadata.plan || "subscription",
+            amountPaid: amount / 100, // actual amount
+            requestedAt: new Date()
+          })
+
+          // ── Create Group Chat for Brand, Intern, Tutor and Admins ──
+          const studentDoc = await adminDb.collection("users").doc(metadata.studentId).get()
+          const studentData = studentDoc.data()
+          const tutorId = studentData?.tutorId
+          const studentName = studentData?.name || "Intern"
+          const brandName = metadata.fullName || "Brand"
+
+          const participants = [metadata.brandId, metadata.studentId]
+          if (tutorId) participants.push(tutorId)
+
+          const participantDetails: any = {
+            [metadata.brandId]: { name: brandName, role: 'brand' },
+            [metadata.studentId]: { name: studentName, role: 'student' }
+          }
+          if (tutorId) {
+             const tutorDoc = await adminDb.collection("users").doc(tutorId).get()
+             participantDetails[tutorId] = { name: tutorDoc.data()?.name || "Tutor", role: 'tutor' }
+          }
+
+          const adminsSnap = await adminDb.collection("users").where("role", "==", "super_admin").get()
+          adminsSnap.docs.forEach(d => {
+            if (!participants.includes(d.id)) participants.push(d.id)
+            participantDetails[d.id] = { name: d.data().name || "System Admin", role: 'super_admin' }
+          })
+
+          const chatRef = await adminDb.collection("chat_rooms").add({
+            participants,
+            participantDetails,
+            metadata: {
+              brandId: metadata.brandId,
+              studentId: metadata.studentId,
+              requestId: reqRef.id,
+              type: 'intern_recruitment',
+              plan: metadata.plan || 'subscription'
+            },
+            createdAt: FieldValue.serverTimestamp(),
+            lastMessage: "Recruitment deployment initialized. Official channel opened.",
+            lastMessageAt: FieldValue.serverTimestamp()
+          })
+
+          await adminDb.collection("chat_rooms").doc(chatRef.id).collection("messages").add({
+            text: "Recruitment deployment initialized. Official channel opened.",
+            senderId: "system",
+            senderName: "SYSTEM_DISPATCH",
+            timestamp: FieldValue.serverTimestamp()
+          })
+
+          await notificationService.sendNotification({
+            recipientId: metadata.studentId,
+            title: "Direct Internship Deployment",
+            message: `You have been directly recruited! Check your portal for deployment details.`,
+            type: "system"
+          })
+          
+          await notificationService.sendNotification({
+            recipientId: metadata.brandId,
+            title: "Recruitment Successful",
+            message: `Payment successful. The specialist has been deployed to your active roster.`,
+            type: "system"
+          })
+          
+        } catch (recruitErr) {
+          console.error("[RECRUITMENT ERROR] Failed to finalize intern hire:", recruitErr)
+        }
+      }
+
       // Notify Admin based on settings
       try {
         const settings = await adminService.getSettings()
@@ -116,6 +203,9 @@ export async function GET(request: NextRequest) {
 
       const successUrl = new URL('/payment/success', request.url)
       successUrl.searchParams.set('reference', reference)
+      if (metadata?.type === 'intern_recruitment') {
+        successUrl.searchParams.set('type', 'brand')
+      }
       return NextResponse.redirect(successUrl)
     } else {
       console.warn(`[VERIFICATION FAILED] Transaction ${reference} status: ${data.data?.status || 'Unknown'}`)

@@ -25,7 +25,9 @@ import ProductManager from "@/components/admin/ProductManager"
 import AdminProfile from "@/components/admin/AdminProfile"
 import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard"
 import EmailTester from "@/components/admin/EmailTester"
-import { LogOut, LayoutDashboard, Users, Briefcase, Star, Settings, GraduationCap, BookOpen, FileText, BookMarked, MonitorPlay, Calendar, Image as ImageIcon, Layers, Bell, BarChart3, UserCircle, Shield, Package, Mail } from "lucide-react"
+import PromoCodeManager from "@/components/admin/PromoCodeManager"
+import ChatMonitoring from "@/components/admin/ChatMonitoring"
+import { LogOut, LayoutDashboard, Users, Briefcase, Star, Settings, GraduationCap, BookOpen, FileText, BookMarked, MonitorPlay, Calendar, Image as ImageIcon, Layers, Bell, BarChart3, UserCircle, Shield, Package, Mail, Ticket, MessageSquare } from "lucide-react"
 import { motion } from "framer-motion"
 import PushPrompt from "@/components/common/PushPrompt"
 import { UserDropdown } from "@/components/common/UserDropdown"
@@ -87,7 +89,7 @@ function AdminDashboardContent() {
     if (!loading && profile) {
       if (profile.role === 'student') {
         window.location.href = '/student/dashboard'
-      } else if (profile.role === 'brand') {
+      } else if (profile.role === 'brand' || profile.role === 'ngo') {
         window.location.href = '/brand/dashboard'
       }
     }
@@ -181,13 +183,12 @@ function AdminDashboardContent() {
     { id: 'overview', label: 'Home', icon: LayoutDashboard },
     ...(isStaff ? [
       { id: 'users', label: 'Users', icon: Users },
-      { id: 'students', label: 'Students', icon: GraduationCap },
       { id: 'timetable', label: 'Live', icon: Calendar },
-      { id: 'assignments', label: 'Tasks', icon: BookOpen },
     ] : []),
     { id: 'analytics', label: 'Stats', icon: BarChart3 },
-    { id: 'broadcasts', label: 'Alerts', icon: Bell },
-    { id: 'brands', label: 'Brands', icon: Briefcase },
+    ...(profile?.role === 'super_admin' ? [
+       { id: 'communications', label: 'Comms', icon: MessageSquare }
+    ] : [])
   ]
 
   return (
@@ -235,7 +236,11 @@ function AdminDashboardContent() {
                 <NavItem active={activeTab === 'assignments'} disabled={!hasAccess('assignments')} icon={<BookOpen className="h-5 w-5" />} label="Assignments" onClick={() => handleTabChange('assignments')} />
                 <NavItem active={activeTab === 'armory'} disabled={!['super_admin', 'director'].includes(profile?.role || '')} icon={<Package className="h-5 w-5" />} label="The Armory" onClick={() => handleTabChange('armory')} />
                 {profile?.role === 'super_admin' && (
-                  <NavItem active={activeTab === 'email-tester'} icon={<Mail className="h-5 w-5" />} label="Email Tester" onClick={() => handleTabChange('email-tester')} />
+                  <>
+                    <NavItem active={activeTab === 'email-tester'} icon={<Mail className="h-5 w-5" />} label="Email Tester" onClick={() => handleTabChange('email-tester')} />
+                    <NavItem active={activeTab === 'promo-codes'} icon={<Ticket className="h-5 w-5" />} label="Promo Codes" onClick={() => handleTabChange('promo-codes')} />
+                    <NavItem active={activeTab === 'communications'} icon={<MessageSquare className="h-5 w-5" />} label="Live Comms" onClick={() => handleTabChange('communications')} />
+                  </>
                 )}
               </>
             )}
@@ -360,6 +365,18 @@ function AdminDashboardContent() {
             {activeTab === 'email-tester' && profile?.role === 'super_admin' && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                 <EmailTester />
+              </motion.div>
+            )}
+
+            {activeTab === 'promo-codes' && profile?.role === 'super_admin' && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <PromoCodeManager />
+              </motion.div>
+            )}
+
+            {activeTab === 'communications' && profile?.role === 'super_admin' && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <ChatMonitoring currentUser={profile as any} />
               </motion.div>
             )}
           </div>

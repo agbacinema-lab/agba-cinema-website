@@ -26,7 +26,7 @@ export interface PortfolioItem {
   duration: string;
 }
 
-export type UserRole = 'super_admin' | 'director' | 'head_of_department' | 'admin' | 'tutor' | 'staff' | 'student' | 'brand';
+export type UserRole = 'super_admin' | 'director' | 'head_of_department' | 'admin' | 'tutor' | 'staff' | 'student' | 'brand' | 'ngo';
 
 export interface UserProfile {
   uid: string;
@@ -54,6 +54,9 @@ export interface UserProfile {
   state?: string;
   country?: string;
   postalCode?: string;
+  strikes?: number;
+  promoCodeUsed?: string;
+  isNGO?: boolean;
 }
 
 export interface AdminPermissions {
@@ -90,6 +93,8 @@ export interface StudentProfile {
   state?: string;
   country?: string;
   postalCode?: string;
+  strikes?: number;
+  specialization?: string;
 }
 
 export interface ProductVariant {
@@ -159,6 +164,12 @@ export interface BrandProfile {
   requirements?: string;
   preferredSkills?: string[];
   internshipDuration?: string;
+  logo?: string;
+  brandDescription?: string;
+  brandingItems?: string[];
+  subscriptionEnd?: any;
+  isSetupDone?: boolean;
+  isNGO?: boolean;
 }
 
 export interface InternshipRequest {
@@ -374,4 +385,49 @@ export interface Announcement {
   link?: string;
   createdAt: any;
   updatedAt: any;
+}
+
+export interface PromoCode {
+  id: string;
+  code: string;
+  ngoId: string;
+  ngoName: string;
+  programType?: 'gopro' | 'mentorship';
+  maxUses: number;
+  usedCount: number;
+  discountType: 'percent' | 'fixed';
+  discountValue: number;
+  expiresAt: any;
+  createdAt: any;
+}
+
+export interface ChatMessage {
+  id: string;
+  senderId: string;
+  senderName: string;
+  senderRole: UserRole;
+  text: string;
+  timestamp: any;
+  readBy?: string[];
+}
+
+export interface ChatRoom {
+  roomId: string;
+  participants: string[]; // uids
+  participantDetails: {
+    [uid: string]: {
+      name: string;
+      role: UserRole;
+    }
+  };
+  lastMessage?: string;
+  lastMessageAt?: any;
+  createdAt: any;
+  metadata: {
+    brandId: string;
+    studentId: string;
+    requestId: string;
+    brandName: string;
+    studentName: string;
+  };
 }

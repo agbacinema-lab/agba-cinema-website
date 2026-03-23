@@ -10,6 +10,7 @@ function PaymentSuccessContent() {
   const searchParams = useSearchParams()
   const [reference, setReference] = useState("VERIFYING...")
   const [countdown, setCountdown] = useState(10)
+  const isBrand = searchParams.get('type') === 'brand'
 
   useEffect(() => {
     setReference(searchParams.get('reference') || "SYSTEM-BYPASS")
@@ -20,14 +21,14 @@ function PaymentSuccessContent() {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer)
-          router.push("/student/learning")
+          router.push(isBrand ? "/brand/dashboard" : "/student/learning")
           return 0
         }
         return prev - 1
       })
     }, 1000)
     return () => clearInterval(timer)
-  }, [router])
+  }, [router, isBrand])
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-6 overflow-hidden">
@@ -50,7 +51,9 @@ function PaymentSuccessContent() {
 
         <h1 className="text-4xl font-black italic uppercase tracking-tighter text-white mb-4">Payment Successful</h1>
         <p className="text-gray-400 font-medium leading-relaxed mb-10 max-w-sm mx-auto">
-          Transaction verified. Your course access has been updated. You can now start your new specialization track.
+          {isBrand 
+            ? "Transaction verified. Your specialist has been recruited and deployed to your active roster." 
+            : "Transaction verified. Your course access has been updated. You can now start your new specialization track."}
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
@@ -66,17 +69,17 @@ function PaymentSuccessContent() {
 
         <div className="space-y-4">
           <button 
-            onClick={() => router.push("/student/learning")}
+            onClick={() => router.push(isBrand ? "/brand/dashboard" : "/student/learning")}
             className="w-full h-16 bg-yellow-400 text-black rounded-2xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-xl"
           >
-            Enter Academy <BookOpen className="h-5 w-5" />
+            {isBrand ? "Go to Dashboard" : "Enter Academy"} <BookOpen className="h-5 w-5" />
           </button>
           
           <button 
-            onClick={() => router.push("/student/dashboard")}
+            onClick={() => router.push(isBrand ? "/brand/dashboard?tab=roster" : "/student/dashboard")}
             className="w-full h-16 bg-white/5 text-white border border-white/10 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:bg-white/10 transition-all"
           >
-            Command Dashboard <LayoutDashboard className="h-4 w-4" />
+            {isBrand ? "Recruitment Roster" : "Command Dashboard"} <LayoutDashboard className="h-4 w-4" />
           </button>
         </div>
 

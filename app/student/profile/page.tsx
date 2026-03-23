@@ -122,6 +122,23 @@ export default function StudentProfile() {
           </div>
         )}
 
+        {/* Disciplinary Record */}
+        {((profile as any).strikes || 0) > 0 && (
+          <div className="p-4 bg-red-50 dark:bg-red-500/5 rounded-2xl border border-red-100 dark:border-red-500/20">
+            <div className="flex items-center gap-3 mb-2">
+              <Shield className="h-5 w-5 text-red-500" />
+              <p className="text-[10px] font-black uppercase tracking-widest text-red-500">Disciplinary Record (Queries)</p>
+            </div>
+            <div className="flex items-center justify-between">
+              <p className="text-xl font-black text-red-600 dark:text-red-400">{(profile as any).strikes}/3 STRIKES</p>
+              <div className="text-[9px] font-black uppercase tracking-widest text-red-600/50 italic py-1 px-3 bg-red-100 dark:bg-red-500/20 rounded-lg">
+                Critical Threshold: 3
+              </div>
+            </div>
+            <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mt-2">Warning: Accumulating 3 queries within a 90-day cycle results in automatic mission deactivation.</p>
+          </div>
+        )}
+
         {/* Mission Logistics */}
         <div className="p-4 bg-gray-50 dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-700">
           <div className="flex items-center gap-3 mb-3">

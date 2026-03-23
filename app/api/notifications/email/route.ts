@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from "next/server"
-import sgMail from "@sendgrid/mail"
 
 export async function POST(request: NextRequest) {
   try {
     const { to_email, to_name, subject, message, template_params } = await request.json()
     
     const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY
-    const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || "agbacinema@gmail.com"
+    const FROM_EMAIL = "agbacinema@gmail.com"
 
     if (!SENDGRID_API_KEY) {
       console.error("[EMAIL SYSTEM] SENDGRID_API_KEY is missing")
       return NextResponse.json({ success: false, error: "Configuration failed" }, { status: 500 })
     }
 
+    const sgMail = require("@sendgrid/mail")
     sgMail.setApiKey(SENDGRID_API_KEY)
 
     const html = `
@@ -22,14 +22,14 @@ export async function POST(request: NextRequest) {
           </div>
           <div style="padding: 30px;">
               <h2 style="color: #000; border-bottom: 2px solid #fbbf24; padding-bottom: 10px; text-transform: uppercase;">Incoming Signal</h2>
-              <p>Hello ${to_name},</p>
-              <p>${message}</p>
+              <p>Hello ${to_name || "Operational Liaison"},</p>
+              <div style="white-space: pre-wrap; font-size: 16px; color: #333; line-height: 1.6;">${message}</div>
               
               <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #000;">
                   <p style="font-weight: bold; margin-bottom: 15px; color: #000; text-transform: uppercase; font-size: 12px; letter-spacing: 1px;">Transmission Details:</p>
                   ${template_params ? Object.entries(template_params).map(([key, value]) => `
                     <p style="margin: 5px 0;"><strong style="text-transform: uppercase; font-size: 10px; color: #666;">${key}:</strong> <span style="font-weight: bold;">${value}</span></p>
-                  `).join('') : ''}
+                  `).join('') : '<p style="margin:0; font-style: italic; color: #999;">Direct Command Signal Delivery</p>'}
               </div>
           </div>
           <div style="background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 12px; color: #888;">
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       to: to_email,
       from: {
         email: FROM_EMAIL,
-        name: "ÀGBÀ CINEMA",
+        name: "ÀGBÀ CINEMA COMMAND",
       },
       subject: subject,
       text: message,

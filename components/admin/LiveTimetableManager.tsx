@@ -6,7 +6,7 @@ import { classSchedulerService, adminService, LiveClassSession } from "@/lib/ser
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Calendar, Clock, Video, Plus, X, Users, User } from "lucide-react"
+import { Calendar, Clock, Video, Plus, X, Users, User, Edit2, Trash } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { toast } from "sonner"
 
@@ -16,6 +16,7 @@ export default function LiveTimetableManager() {
   const [students, setStudents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
 
   // Scheduling Form
   const [topic, setTopic] = useState("")
@@ -60,6 +61,35 @@ export default function LiveTimetableManager() {
     }
   }
 
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this scheduled class?")) return
+    const t = toast.loading("Removing class...")
+    try {
+      await classSchedulerService.deleteClass(id)
+      toast.success("Class deleted", { id: t })
+      loadData()
+    } catch (err: any) {
+      toast.error("Failed to delete: " + err.message, { id: t })
+    }
+  }
+
+  const onEdit = (c: LiveClassSession) => {
+    setEditingId(c.id)
+    setTopic(c.topic)
+    setProgramType(c.programType)
+    setTargetAudience(c.targetAudience)
+    setTargetId(c.targetId)
+    setDuration(c.durationMinutes.toString())
+    setMeetLink(c.meetLink)
+    
+    // Parse Date/Time from Firestore Timestamp if possible
+    const dateObj = c.startTime?.toDate ? c.startTime.toDate() : new Date(c.startTime || Date.now())
+    setDate(dateObj.toISOString().split('T')[0])
+    setTime(dateObj.toTimeString().split(' ')[0].substring(0, 5))
+    
+    setShowForm(true)
+  }
+
   const handleSchedule = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!profile) return
@@ -69,7 +99,7 @@ export default function LiveTimetableManager() {
       return
     }
 
-    const t = toast.loading("Deploying session and transmitting invites...")
+    const t = toast.loading(editingId ? "Updating session..." : "Deploying session and transmitting invites...")
 
     try {
       const startDateTime = `${date}T${time}`
@@ -79,11 +109,10 @@ export default function LiveTimetableManager() {
 
       if (targetAudience === 'individual') {
         const student = students.find(s => s.uid === targetId || s.id === targetId)
-        targetName = student?.name || "Student"
+        targetName = student?.fullName || student?.name || "Student"
         studentEmail = student?.email || ""
       } else {
         targetName = targetId // Cohort name
-        // Get all student emails in this cohort from our full list (we need another fetch or use state)
         const allUsers = await adminService.getAllUsers();
         cohortEmails = allUsers
           .filter(u => u.role === 'student' && (u as any).cohort === targetId)
@@ -91,30 +120,31 @@ export default function LiveTimetableManager() {
           .filter(Boolean)
       }
 
-      // 1. Call Google Calendar API
-      const calendarRes = await fetch("/api/calendar/schedule", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          topic,
-          durationMinutes: parseInt(duration),
-          startDateTime,
-          tutorId: profile.uid,
-          studentEmail,
-          cohortEmails
+      let generatedMeetLink = meetLink
+
+      // 1. Call Google Calendar API ONLY if creating new
+      if (!editingId) {
+        const calendarRes = await fetch("/api/calendar/schedule", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            topic,
+            durationMinutes: parseInt(duration),
+            startDateTime,
+            tutorId: profile.uid,
+            studentEmail,
+            cohortEmails
+          })
         })
-      })
 
-      const calendarData = await calendarRes.json().catch(() => ({ error: "Protocol malformed" }))
-
-      if (!calendarRes.ok) {
-        throw new Error(calendarData.error || "Google Calendar uplink failed")
+        const calendarData = await calendarRes.json().catch(() => ({ error: "Protocol malformed" }))
+        if (calendarRes.ok) {
+           generatedMeetLink = calendarData.meetLink || meetLink
+        }
       }
 
-      const generatedMeetLink = calendarData.meetLink
-
-      // 2. Save to Firestore
-      await classSchedulerService.scheduleClass({
+      // 2. Save to Firestore (Update or New)
+      const classData: any = {
         topic,
         tutorId: profile.uid,
         tutorName: profile.name,
@@ -124,12 +154,20 @@ export default function LiveTimetableManager() {
         programType,
         startTime: new Date(startDateTime),
         durationMinutes: parseInt(duration),
-        meetLink: generatedMeetLink || meetLink || "https://meet.google.com/new",
+        meetLink: generatedMeetLink || "https://meet.google.com/new",
         status: 'scheduled'
-      })
+      }
 
-      toast.success("Live Class Scheduled and invites dispatched!", { id: t })
+      if (editingId) {
+        await classSchedulerService.updateClass(editingId, classData)
+        toast.success("Live Class Updated", { id: t })
+      } else {
+        await classSchedulerService.scheduleClass({ ...classData, createdAt: new Date() })
+        toast.success("Live Class Scheduled and invites dispatched!", { id: t })
+      }
+
       setShowForm(false)
+      setEditingId(null)
       loadData()
       
       // Reset
@@ -167,7 +205,9 @@ export default function LiveTimetableManager() {
                 <X className="h-6 w-6" />
               </button>
               
-              <h3 className="text-2xl font-black uppercase tracking-tighter mb-6 text-yellow-400">New Session</h3>
+              <h3 className="text-2xl font-black uppercase tracking-tighter mb-6 text-yellow-400">
+                {editingId ? "Edit Session" : "New Session"}
+              </h3>
               
               <form onSubmit={handleSchedule} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -201,7 +241,7 @@ export default function LiveTimetableManager() {
                     >
                       <option value="" disabled className="text-black">Choose...</option>
                       {targetAudience === 'individual' ? (
-                        students.map(s => <option key={s.uid || s.id} value={s.uid || s.id} className="text-black">{s.fullName} ({s.email})</option>)
+                        students.map(s => <option key={s.uid || s.id} value={s.uid || s.id} className="text-black">{s.fullName || s.name}</option>)
                       ) : (
                         cohorts.map(c => <option key={c} value={c} className="text-black">{c}</option>)
                       )}
@@ -215,7 +255,7 @@ export default function LiveTimetableManager() {
                       <Input type="number" value={duration} onChange={e => setDuration(e.target.value)} className="bg-white/5 border-white/10 text-white h-12 rounded-xl" required />
                     </div>
                     <div>
-                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Meet Link (Phase 1)</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Meet Link</label>
                       <Input value={meetLink} onChange={e => setMeetLink(e.target.value)} className="bg-white/5 border-white/10 text-white h-12 rounded-xl" placeholder="https://meet.google.com/..." required />
                     </div>
                   </div>
@@ -233,9 +273,14 @@ export default function LiveTimetableManager() {
                   </div>
                 </div>
 
-                <Button type="submit" className="w-full bg-yellow-400 text-black font-black h-14 rounded-2xl hover:bg-yellow-500">
-                  Generate Class & Send Invites
-                </Button>
+                <div className="flex gap-4">
+                   <Button type="submit" className="flex-[2] bg-yellow-400 text-black font-black h-14 rounded-2xl hover:bg-yellow-500">
+                     {editingId ? "Save Changes" : "Generate Class & Send Invites"}
+                   </Button>
+                   <Button type="button" onClick={() => { setShowForm(false); setEditingId(null); setTopic(""); setTargetId(""); }} variant="outline" className="flex-1 h-14 rounded-2xl border-white/10 text-white hover:bg-white/10">
+                     Cancel
+                   </Button>
+                </div>
               </form>
             </Card>
           </motion.div>
@@ -250,13 +295,30 @@ export default function LiveTimetableManager() {
           </div>
         ) : (
           classes.map(c => (
-            <Card key={c.id} className="border border-muted rounded-[2rem] p-6 hover:shadow-lg transition-all bg-card flex flex-col justify-between">
+            <Card key={c.id} className="border border-muted rounded-[2rem] p-6 hover:shadow-lg transition-all bg-card flex flex-col justify-between group">
               <div>
                 <div className="flex justify-between items-start mb-4">
                   <span className={`px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg ${c.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                     {c.status}
                   </span>
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{c.programType}</span>
+                  <div className="flex gap-1">
+                     <Button 
+                       variant="ghost" 
+                       size="icon" 
+                       className="h-8 w-8 rounded-lg text-muted-foreground hover:bg-yellow-400 hover:text-black opacity-0 group-hover:opacity-100 transition-all"
+                       onClick={() => onEdit(c)}
+                     >
+                        <Edit2 className="h-3.5 w-3.5" />
+                     </Button>
+                     <Button 
+                       variant="ghost" 
+                       size="icon" 
+                       className="h-8 w-8 rounded-lg text-red-500 hover:bg-red-500 hover:text-white opacity-0 group-hover:opacity-100 transition-all"
+                       onClick={() => c.id && handleDelete(c.id)}
+                     >
+                        <Trash className="h-3.5 w-3.5" />
+                     </Button>
+                  </div>
                 </div>
                 <h4 className="font-black text-xl italic uppercase tracking-tighter mb-1 line-clamp-2">{c.topic}</h4>
                 <p className="text-sm font-medium text-gray-500 mb-4">{c.targetAudience === 'individual' ? 'Student' : 'Batch'}: <span className="text-gray-900 font-bold">{c.targetName}</span></p>

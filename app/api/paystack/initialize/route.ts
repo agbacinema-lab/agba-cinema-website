@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(request: NextRequest) {
   try {
-    const { amount, email, service, fullName, phone, userId, type, programType } = await request.json()
+    const { amount, email, service, fullName, phone, userId, type, programType, brandId, studentId, plan } = await request.json()
     if (!amount || !email) {
       return NextResponse.json({ message: "Missing amount or email" }, { status: 400 })
     }
@@ -22,7 +22,10 @@ export async function POST(request: NextRequest) {
         phone, 
         userId: userId || "", 
         type: type || "academy_enrollment",
-        programType: programType || "mentorship"
+        programType: programType || "mentorship",
+        brandId: brandId || "",
+        studentId: studentId || "",
+        plan: plan || ""
       },
       callback_url: `${origin}/api/paystack/verify`,
     }

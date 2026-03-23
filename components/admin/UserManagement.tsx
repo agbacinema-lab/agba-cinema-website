@@ -274,8 +274,8 @@ export default function UserManagement() {
     })
   
   const displayedStudents = limitView && searchQuery === "" ? students.slice(0, 5) : students
-  const staff = users.filter(u => u.role !== 'student' && u.role !== 'brand' && (u as any).approvalStatus !== 'pending')
-  const brands = users.filter(u => u.role === 'brand')
+  const staff = users.filter(u => u.role !== 'student' && u.role !== 'brand' && u.role !== 'ngo' && (u as any).approvalStatus !== 'pending')
+  const brands = users.filter(u => u.role === 'brand' || u.role === 'ngo')
   const pendingApprovals = users.filter(u => (u as any).approvalStatus === 'pending')
 
   const handleApproveStaff = async (userId: string) => {
@@ -762,8 +762,14 @@ export default function UserManagement() {
                         <p className="font-black text-foreground tracking-tighter">{u.name}</p>
                         <p className="text-xs text-muted-foreground font-medium mt-1">{u.email}</p>
                       </td>
-                      <td className="px-6 py-6 font-black text-yellow-500 text-[10px] tracking-widest">
-                        Brand partner
+                      <td className="px-6 py-6">
+                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest border ${
+                          u.role === 'ngo' 
+                            ? 'bg-green-500/10 text-green-500 border-green-500/20' 
+                            : 'bg-yellow-400/10 text-yellow-600 border-yellow-400/20'
+                        }`}>
+                          {u.role === 'ngo' ? '🤝 NGO Partner' : '🏢 Brand Partner'}
+                        </span>
                       </td>
                       <td className="px-6 py-6">
                         <span className={`px-4 py-2 rounded-full text-[10px] font-black tracking-widest ${
@@ -783,14 +789,15 @@ export default function UserManagement() {
                               }}
                               className="h-10 px-4 rounded-xl border border-muted-foreground/30 bg-card text-[10px] font-black text-foreground outline-none hover:border-yellow-400 transition-all cursor-pointer appearance-none"
                             >
-                              <option value="" className="bg-card text-foreground">Change role...</option>
+                               <option value="" className="bg-card text-foreground">Change role...</option>
+                              <option value="brand" className="bg-card text-foreground">Fleet Management (Brand)</option>
+                              <option value="ngo" className="bg-card text-foreground">Social Impact (NGO)</option>
                               <option value="director" className="bg-card text-foreground">Director</option>
-                              <option value="head_of_department" className="bg-card text-foreground">Head of department</option>
+                              <option value="head_of_department" className="bg-card text-foreground">HOD</option>
                               <option value="admin" className="bg-card text-foreground">Admin</option>
                               <option value="tutor" className="bg-card text-foreground">Tutor</option>
                               <option value="staff" className="bg-card text-foreground">Staff</option>
                               <option value="student" className="bg-card text-foreground">Deactivate</option>
-                              <option value="brand" className="bg-card text-foreground">Keep as brand</option>
                             </select>
                            {isSuperAdmin && (
                              <button

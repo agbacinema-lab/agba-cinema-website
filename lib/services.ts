@@ -1,26 +1,27 @@
 import { db } from "@/lib/firebase";
-import { 
-  collection, 
-  getDocs, 
-  query, 
-  orderBy, 
-  limit, 
-  where, 
-  doc, 
-  getDoc, 
-  setDoc, 
-  updateDoc, 
-  addDoc, 
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  limit,
+  where,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  addDoc,
   serverTimestamp,
   deleteDoc,
-  writeBatch
+  writeBatch,
+  onSnapshot
 } from "firebase/firestore";
-import { 
-  PortfolioItem, 
-  StudentProfile, 
-  BrandProfile, 
-  PortfolioReview, 
-  InternshipRequest, 
+import {
+  PortfolioItem,
+  StudentProfile,
+  BrandProfile,
+  PortfolioReview,
+  InternshipRequest,
   UserProfile,
   AdminProfile,
   ApprovalRequest,
@@ -28,7 +29,10 @@ import {
   PerformanceFeedback,
   Announcement,
   ShopProduct,
-  Order
+  Order,
+  PromoCode,
+  ChatMessage,
+  ChatRoom
 } from "./types";
 
 // NOTIFICATION UTILITY (Defined first to avoid TDZ errors)
@@ -36,10 +40,10 @@ export const notifySuperAdmins = async (title: string, message: string, type: st
   const usersCol = collection(db, "users");
   const q = query(usersCol, where("role", "==", "super_admin"));
   const snap = await getDocs(q);
-  
+
   const batch = (await import('firebase/firestore')).writeBatch(db);
   const notificationsCol = collection(db, "notifications");
-  
+
   snap.docs.forEach(adminDoc => {
     const newRef = doc(notificationsCol);
     batch.set(newRef, {
@@ -52,7 +56,7 @@ export const notifySuperAdmins = async (title: string, message: string, type: st
       createdAt: serverTimestamp()
     });
   });
-  
+
   await batch.commit();
 }
 
@@ -148,7 +152,7 @@ export const adminService = {
       if (snap.empty) return null
       return snap.docs[0].data() as UserProfile
     }
-    
+
     // Otherwise assume it's a Firebase UID
     const snap = await getDoc(doc(db, "users", id));
     return snap.exists() ? snap.data() as UserProfile : null;
@@ -174,7 +178,26 @@ export const adminService = {
   },
 
   updateUserRole: async (userId: string, newRole: any): Promise<void> => {
-    await updateDoc(doc(db, "users", userId), { role: newRole });
+    const isPartnerRole = newRole === 'brand' || newRole === 'ngo';
+
+    // Always update the users document
+    await updateDoc(doc(db, "users", userId), { 
+      role: newRole,
+      isNGO: newRole === 'ngo',
+      updatedAt: serverTimestamp()
+    });
+
+    // If the new role is a partner type (brand/ngo), also sync the brands document
+    // so the brand dashboard reads the correct role on next login
+    if (isPartnerRole) {
+      const { setDoc } = await import('firebase/firestore');
+      await setDoc(doc(db, "brands", userId), {
+        role: newRole,
+        isNGO: newRole === 'ngo',
+        isSetupDone: true,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+    }
   },
 
   upgradeBrandAccess: async (userId: string): Promise<void> => {
@@ -189,11 +212,11 @@ export const adminService = {
       status: 'pending',
       createdAt: serverTimestamp()
     });
-    
+
     const usersCol = collection(db, "users");
     const q = query(usersCol, where("role", "==", "super_admin"));
     const adminSnap = await getDocs(q);
-    
+
     for (const d of adminSnap.docs) {
       await notifySuperAdmins(
         "New Approval Request",
@@ -224,14 +247,17 @@ export const adminService = {
 
     if (approved) {
       if (request.type === 'role_change') {
-        await updateDoc(doc(db, "users", request.data.userId), { role: request.data.targetRole });
+        await updateDoc(doc(db, "users", request.data.userId), { 
+          role: request.data.targetRole,
+          isNGO: request.data.targetRole === 'ngo'
+        });
       } else if (request.type === 'internship_ready') {
         await adminService.setInternshipStatus(request.data.userId, 'internship_ready', request.data.userName);
       } else if (request.type === 'revoke_internship') {
         await adminService.setInternshipStatus(request.data.userId, 'active', request.data.userName);
       }
       await updateDoc(approvalRef, { status: 'approved', processedBy, processedAt: serverTimestamp() });
-      
+
       // Notify requester
       const verb = request.type === 'revoke_internship' ? 'Revoke' : 'Readiness';
       await notificationService.sendNotification({
@@ -242,7 +268,7 @@ export const adminService = {
       } as any)
     } else {
       await updateDoc(approvalRef, { status: 'rejected', reason, processedBy, processedAt: serverTimestamp() });
-      
+
       // Notify requester with reason
       const verb = request.type === 'revoke_internship' ? 'Revoke' : 'Readiness';
       await notificationService.sendNotification({
@@ -270,9 +296,9 @@ export const adminService = {
   createAnnouncement: async (ann: Omit<Announcement, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> => {
     const col = collection(db, "announcements");
     const docRef = await addDoc(col, {
-       ...ann,
-       createdAt: serverTimestamp(),
-       updatedAt: serverTimestamp()
+      ...ann,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
     });
     return docRef.id;
   },
@@ -292,11 +318,11 @@ export const adminService = {
     const col = collection(db, "payments");
     const q = query(col, orderBy("createdAt", "desc"));
     const snap = await getDocs(q);
-    
+
     const raw = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     const totalRevenue = raw.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
     const count = raw.length;
-    
+
     return { totalRevenue, count, transactions: raw };
   },
 
@@ -312,16 +338,16 @@ export const adminService = {
     // Basic engagement tracking based on user roles and registrations for now
     const users = await adminService.getAllUsers();
     return {
-       totalUsers: users.length,
-       students: users.filter(u => u.role === 'student').length,
-       brands: users.filter(u => u.role === 'brand').length,
-       staff: users.filter(u => u.role !== 'student' && u.role !== 'brand').length
+      totalUsers: users.length,
+      students: users.filter(u => u.role === 'student').length,
+      brands: users.filter(u => u.role === 'brand').length,
+      staff: users.filter(u => u.role !== 'student' && u.role !== 'brand').length
     };
   },
 
-   setInternshipStatus: async (userId: string, status: 'active' | 'internship_ready', userName?: string): Promise<void> => {
+  setInternshipStatus: async (userId: string, status: 'active' | 'internship_ready', userName?: string): Promise<void> => {
     await updateDoc(doc(db, "users", userId), { status: status });
-    
+
     // Also update student collection if exists
     const studentRef = collection(db, "students");
     const q = query(studentRef, where("studentUID", "==", userId));
@@ -332,7 +358,7 @@ export const adminService = {
 
     // Send In-App Notification to Student
     const title = status === 'internship_ready' ? "Mission Clearance: Approved" : "Mission Alert: Status Update";
-    const message = status === 'internship_ready' 
+    const message = status === 'internship_ready'
       ? `Congratulations ${userName || 'Agent'}, you have been approved for internship! Speak to your tutor immediately for deployment protocol.`
       : "Your internship status has been updated/revoked. Speak to your tutor immediately for further instructions.";
 
@@ -426,32 +452,32 @@ export const adminService = {
     await adminService.setInternshipStatus(userId, 'active');
   },
   getSettings: async () => {
-     const snap = await getDoc(doc(db, "system", "settings"));
-     if (!snap.exists()) {
-        return {
-           notifications: {
-              email: true,
-              browser: true,
-              studentJoining: true,
-              payments: true
-           },
-           theme: 'dark'
-        };
-     }
-     return snap.data();
+    const snap = await getDoc(doc(db, "system", "settings"));
+    if (!snap.exists()) {
+      return {
+        notifications: {
+          email: true,
+          browser: true,
+          studentJoining: true,
+          payments: true
+        },
+        theme: 'dark'
+      };
+    }
+    return snap.data();
   },
 
   updateSettings: async (settings: any) => {
-     await setDoc(doc(db, "system", "settings"), settings, { merge: true });
+    await setDoc(doc(db, "system", "settings"), settings, { merge: true });
   },
 
   getAcademySettings: async () => {
     const snap = await getDoc(doc(db, "system", "academy"));
     if (!snap.exists()) {
-       return {
-          activeCohort: "Cohort 3",
-          cohortStartDate: "August"
-       };
+      return {
+        activeCohort: "Cohort 3",
+        cohortStartDate: "August"
+      };
     }
     return snap.data();
   },
@@ -493,9 +519,9 @@ export const studentService = {
 
   getAllTalent: async (isPremiumOnly = false): Promise<StudentProfile[]> => {
     const studentsCol = collection(db, "students");
-    let q = query(studentsCol, where("status", "==", "internship_ready"));
+    let q = query(studentsCol);
     if (isPremiumOnly) {
-      q = query(q, where("programType", "==", "mentorship"));
+      q = query(studentsCol, where("programType", "==", "mentorship"));
     }
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => doc.data() as StudentProfile);
@@ -537,9 +563,9 @@ export const brandService = {
 
   getActiveInternships: async (brandId: string): Promise<InternshipRequest[]> => {
     const q = query(
-      collection(db, "internship_requests"), 
-      where("brandId", "==", brandId), 
-      where("status", "==", "assigned")
+      collection(db, "internship_requests"),
+      where("brandId", "==", brandId),
+      where("status", "in", ["assigned", "approved"])
     );
     const snap = await getDocs(q);
     return snap.docs.map(doc => ({ requestId: doc.id, ...doc.data() } as InternshipRequest));
@@ -547,10 +573,10 @@ export const brandService = {
 
   getBrandRequests: async (brandId: string): Promise<InternshipRequest[]> => {
     const col = collection(db, "internship_requests");
-    const q = brandId === "all" 
+    const q = brandId === "all"
       ? query(col, orderBy("requestedAt", "desc"))
       : query(col, where("brandId", "==", brandId), orderBy("requestedAt", "desc"));
-    
+
     const snap = await getDocs(q);
     return snap.docs.map(doc => ({ requestId: doc.id, ...doc.data() } as InternshipRequest));
   },
@@ -564,6 +590,127 @@ export const brandService = {
         submittedAt: serverTimestamp()
       }
     });
+  },
+
+  addStrike: async (studentId: string, reason: string): Promise<number> => {
+    const studentRef = doc(db, "users", studentId);
+    const snap = await getDoc(studentRef);
+    if (!snap.exists()) throw new Error("Student not found");
+
+    const data = snap.data();
+    const currentStrikes = (data.strikes || 0) + 1;
+
+    // Atomic update for strikes
+    await updateDoc(studentRef, { 
+      strikes: currentStrikes,
+      updatedAt: serverTimestamp() 
+    });
+
+    // Mirror to students collection for specialized logic
+    const studentsCol = collection(db, "students");
+    const q = query(studentsCol, where("userId", "==", studentId));
+    const sSnap = await getDocs(q);
+    if (!sSnap.empty) {
+      await updateDoc(sSnap.docs[0].ref, { strikes: currentStrikes });
+    }
+
+    if (currentStrikes >= 3) {
+      // Terminal Disciplinary Action: Account Erasure/Deactivation
+      await updateDoc(studentRef, {
+        status: 'deactivated',
+        role: 'retired_intern', // Prevent login as student
+        deactivationReason: "Automatic System Clearance: 3 Critical Queries (Strikes) received from Partner Authority."
+      });
+      
+      // Notify Admin of Terminal Action
+      await notifySuperAdmins(
+        "TERMINAL DISCIPLINARY ACTION",
+        `Student ${data.name || studentId} has reached the strike limit (3/3) and has been deactivated from the system.`,
+        "student_dismissed",
+        { studentId, finalReason: reason }
+      );
+    } else if (currentStrikes === 2) {
+      // Alert: Replacement Eligibility
+      await notifySuperAdmins(
+        "REPLACEMENT ELIGIBILITY",
+        `Brand has deployed a 2nd Strike for ${data.name || studentId}. They are now eligible for a secondary hire protocol.`,
+        "replacement_alert",
+        { studentId, brandId: data.currentBrandId }
+      );
+    }
+
+    return currentStrikes;
+  },
+
+  getSettings: async () => {
+    const snap = await getDoc(doc(db, "system_settings", "brand"));
+    if (snap.exists()) return snap.data();
+    return {
+      accreditationFee: 100000,
+      defaultDuration: "3 Months",
+      rosterSubtitle: "Deployment-ready specialists in sectors",
+      briefDescription: "Our HODs use this brief to match specialists to your needs.",
+      internsSubtitle: "Specialists currently deployed to your sectors",
+      accreditationPlaceholder: "Board Locked: Accreditation Required"
+    };
+  },
+
+  setPartnerType: async (userId: string, type: 'brand' | 'ngo'): Promise<void> => {
+    await updateDoc(doc(db, "users", userId), {
+      role: type,
+      isNGO: type === 'ngo',
+      updatedAt: serverTimestamp()
+    });
+    // Also mark as setup in brands table
+    await updateDoc(doc(db, "brands", userId), {
+      isSetupDone: true,
+      isNGO: type === 'ngo'
+    });
+  }
+};
+
+// PROMO CODE SERVICE
+export const promoCodeService = {
+  getPromoCode: async (code: string): Promise<PromoCode | null> => {
+    const col = collection(db, "promo_codes");
+    const q = query(col, where("code", "==", code.toUpperCase()));
+    const snap = await getDocs(q);
+    if (snap.empty) return null;
+    return { id: snap.docs[0].id, ...snap.docs[0].data() } as PromoCode;
+  },
+
+  applyCode: async (codeId: string): Promise<void> => {
+    const batch = (await import('firebase/firestore')).writeBatch(db);
+    const codeRef = doc(db, "promo_codes", codeId);
+    const codeSnap = await getDoc(codeRef);
+    if (!codeSnap.exists()) return;
+
+    const currentUsed = (codeSnap.data().usedCount || 0) + 1;
+    batch.update(codeRef, { usedCount: currentUsed });
+    await batch.commit();
+  },
+
+  getAllCodes: async (): Promise<PromoCode[]> => {
+    const col = collection(db, "promo_codes");
+    const snap = await getDocs(query(col, orderBy("createdAt", "desc")));
+    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as PromoCode));
+  },
+
+  createCode: async (data: Omit<PromoCode, 'id'>): Promise<string> => {
+    const col = collection(db, "promo_codes");
+    const docRef = await addDoc(col, {
+      ...data,
+      code: data.code.toUpperCase(),
+      createdAt: serverTimestamp()
+    });
+    return docRef.id;
+  },
+
+  getCodesByNgo: async (ngoId: string): Promise<PromoCode[]> => {
+    const col = collection(db, "promo_codes");
+    const q = query(col, where("ngoId", "==", ngoId));
+    const snap = await getDocs(q);
+    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as PromoCode));
   }
 };
 
@@ -741,7 +888,7 @@ export const curriculumService = {
     // Assign order based on current count
     const snapshot = await getDocs(modulesCol);
     const order = snapshot.size + 1;
-    
+
     // Update parent moduleCount
     const curriculumRef = doc(db, "curricula", curriculumId);
     await updateDoc(curriculumRef, { moduleCount: order });
@@ -776,7 +923,7 @@ export const curriculumService = {
     const curriculaCol = collection(db, "curricula");
     const specQuery = query(curriculaCol, where("specialization", "==", specialization), limit(1));
     const specSnap = await getDocs(specQuery);
-    
+
     if (specSnap.empty) {
       // Fallback to legacy path if no curriculum found
       const modulesCol = collection(db, "curriculumModules");
@@ -857,7 +1004,7 @@ export const curriculumService = {
       limit(1)
     );
     const snapshot = await getDocs(q);
-    
+
     if (!snapshot.empty) {
       const docRef = doc(db, "studentProgress", snapshot.docs[0].id);
       const currentData = snapshot.docs[0].data();
@@ -1013,7 +1160,7 @@ export const assignmentService = {
     const assignmentsCol = collection(db, "assignments");
     const snapshot = await getDocs(assignmentsCol);
     const results: any[] = [];
-    
+
     for (const d of snapshot.docs) {
       const subCol = collection(db, "assignments", d.id, "submissions");
       // Only query by studentId to avoid composite index requirements
@@ -1102,7 +1249,7 @@ export const notificationService = {
       if (n.read) {
         const createdAt = n.createdAt?.toMillis?.() ?? (n.createdAt?.seconds ? n.createdAt.seconds * 1000 : 0);
         if (now - createdAt > oneDay) {
-          try { await deleteDoc(doc(db, "notifications", n.id)); } catch (e) {}
+          try { await deleteDoc(doc(db, "notifications", n.id)); } catch (e) { }
         }
       }
     });
@@ -1133,7 +1280,7 @@ export const notificationService = {
     const snap = await getDocs(col);
     const batch = writeBatch(db);
     let count = 0;
-    
+
     snap.docs.forEach(d => {
       const data = d.data();
       if ((data.recipientId === userId || data.recipientId === "all")) {
@@ -1143,7 +1290,7 @@ export const notificationService = {
         count++;
       }
     });
-    
+
     if (count > 0) {
       await batch.commit();
     }
@@ -1295,26 +1442,169 @@ export const classSchedulerService = {
   // 4. For Students to see their personalized live timetable (1-on-1 Mentorship + Go Pro Cohort)
   getStudentTimetable: async (uid: string, cohortId?: string) => {
     const classesCol = collection(db, "live_classes");
-    
+
     // They get classes strictly scheduled for them AND classes scheduled for their specific cohort
     const queries = [];
     queries.push(getDocs(query(classesCol, where("targetId", "==", uid))));
     if (cohortId) {
       queries.push(getDocs(query(classesCol, where("targetId", "==", cohortId))));
     }
-    
+
     const results = await Promise.all(queries);
     const uniqueClasses = new Map();
-    
+
     results.forEach(snap => {
       snap.docs.forEach(doc => {
         uniqueClasses.set(doc.id, { id: doc.id, ...(doc.data() as Omit<LiveClassSession, 'id'>) });
       });
     });
-    
+
     // Sort combined explicitly by startTime
-    return Array.from(uniqueClasses.values()).sort((a: any, b: any) => 
+    return Array.from(uniqueClasses.values()).sort((a: any, b: any) =>
       (a.startTime?.toMillis() || 0) - (b.startTime?.toMillis() || 0)
     ) as LiveClassSession[];
+  },
+
+  // 5. Update an existing class
+  updateClass: async (classId: string, data: Partial<LiveClassSession>) => {
+    await updateDoc(doc(db, "live_classes", classId), {
+      ...data,
+      updatedAt: serverTimestamp()
+    });
+  },
+
+  // 6. Delete a class
+  deleteClass: async (classId: string) => {
+    await deleteDoc(doc(db, "live_classes", classId));
+  }
+};
+
+// CHAT SERVICE
+export const chatService = {
+  getOrCreateChatRoom: async (metadata: any): Promise<string> => {
+    const roomsCol = collection(db, "chat_rooms");
+    const q = query(roomsCol, where("metadata.requestId", "==", metadata.requestId));
+    const snap = await getDocs(q);
+
+    if (!snap.empty) {
+      return snap.docs[0].id;
+    }
+
+    // Identify participants (Student, Brand, Tutor and Admin)
+    const participants = [metadata.brandId, metadata.studentId];
+    const participantDetails: any = {
+      [metadata.brandId]: { name: metadata.brandName, role: 'brand' },
+      [metadata.studentId]: { name: metadata.studentName, role: 'student' }
+    };
+
+    // Fetch tutor if assigned to student
+    try {
+      const studentSnap = await getDoc(doc(db, "users", metadata.studentId));
+      if (studentSnap.exists()) {
+        const studentData = studentSnap.data();
+        if (studentData.tutorId) {
+          participants.push(studentData.tutorId);
+          participantDetails[studentData.tutorId] = { 
+            name: studentData.tutorName || "Assigned Tutor", 
+            role: 'tutor' 
+          };
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to fetch tutor details for chat room initialization:", e);
+    }
+
+    // We'll also fetch all super_admins to add them to the room
+    const adminSnap = await getDocs(query(collection(db, "users"), where("role", "==", "super_admin")));
+    adminSnap.docs.forEach(d => {
+      if (!participants.includes(d.id)) participants.push(d.id);
+      participantDetails[d.id] = { name: d.data().name || "System Admin", role: 'super_admin' };
+    });
+
+    const docRef = await addDoc(roomsCol, {
+      participants,
+      participantDetails,
+      createdAt: serverTimestamp(),
+      metadata,
+      lastMessage: "Channel opened. Official communication initiated.",
+      lastMessageAt: serverTimestamp()
+    });
+
+    return docRef.id;
+  },
+
+  sendMessage: async (roomId: string, message: Omit<ChatMessage, 'id' | 'timestamp'>): Promise<void> => {
+    const messagesCol = collection(db, "chat_rooms", roomId, "messages");
+    const roomRef = doc(db, "chat_rooms", roomId);
+
+    await addDoc(messagesCol, {
+      ...message,
+      timestamp: serverTimestamp()
+    });
+
+    await updateDoc(roomRef, {
+      lastMessage: message.text,
+      lastMessageAt: serverTimestamp()
+    });
+
+    // Notify other participants via Push Notification (Async)
+    try {
+      const roomSnap = await getDoc(roomRef);
+      if (roomSnap.exists()) {
+        const roomData = roomSnap.data();
+        const otherParticipants = (roomData.participants || []).filter((p: string) => p !== message.senderId);
+        
+        if (otherParticipants.length > 0) {
+          fetch("/api/notifications/push", {
+             method: "POST",
+             headers: { "Content-Type": "application/json" },
+             body: JSON.stringify({
+               userIds: otherParticipants,
+               title: `New message from ${message.senderName}`,
+               body: message.text.length > 50 ? message.text.substring(0, 50) + "..." : message.text,
+               metadata: {
+                 link: `/admin?tab=communications&roomId=${roomId}`,
+                 roomId
+               }
+             })
+          }).catch(e => console.error("Push API delivery error:", e));
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to initiate push notifications for message:", e);
+    }
+  },
+
+  subscribeToRooms: (callback: (rooms: ChatRoom[]) => void) => {
+    const roomsCol = collection(db, "chat_rooms");
+    const q = query(roomsCol, orderBy("lastMessageAt", "desc"));
+
+    return onSnapshot(q, (snap) => {
+      const rooms = snap.docs.map(doc => ({
+        roomId: doc.id,
+        ...doc.data()
+      })) as ChatRoom[];
+      callback(rooms);
+    });
+  },
+
+  subscribeToMessages: (roomId: string, callback: (messages: ChatMessage[]) => void) => {
+    const messagesCol = collection(db, "chat_rooms", roomId, "messages");
+    const q = query(messagesCol, orderBy("timestamp", "asc"), limit(100));
+
+    return onSnapshot(q, (snap) => {
+      const messages = snap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as ChatMessage[];
+      callback(messages);
+    });
+  },
+
+  getRoomDetails: async (roomId: string): Promise<ChatRoom | null> => {
+    const docRef = doc(db, "chat_rooms", roomId);
+    const snap = await getDoc(docRef);
+    if (!snap.exists()) return null;
+    return { roomId: snap.id, ...snap.data() } as ChatRoom;
   }
 };
