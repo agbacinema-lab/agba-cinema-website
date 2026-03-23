@@ -20,16 +20,23 @@ const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
-// Messaging with support check
-let messaging: any = null;
-if (typeof window !== 'undefined') {
-  const { isSupported } = require("firebase/messaging");
-  isSupported().then((supported: boolean) => {
+// Messaging with support check via a robust getter
+export const getMessagingInstance = async () => {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const { getMessaging, isSupported } = await import("firebase/messaging");
+    const supported = await isSupported();
     if (supported) {
-      messaging = getMessaging(app);
+      return getMessaging(app);
     }
-  }).catch(() => {});
-}
+    console.warn("[FCM] Messaging is not supported in this browser.");
+    return null;
+  } catch (e) {
+    console.error("[FCM] Failed to initialize messaging:", e);
+    return null;
+  }
+};
 const googleProvider = new GoogleAuthProvider();
 
-export { app, auth, db, storage, messaging, googleProvider };
+export { app, auth, db, storage, googleProvider };
