@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     let unsubscribeProfile: (() => void) | null = null;
     
-    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
         // 1. Real-time profile listener
@@ -50,77 +50,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.error("Profile Listener Error:", err);
           setLoading(false);
         });
-
-        // 2. FCM Token Registration & Messaging Setup
-        try {
-          const { getMessagingInstance } = await import("@/lib/firebase");
-          const messagingInstance = await getMessagingInstance();
-          const vapidKey = process.env.NEXT_PUBLIC_VAPID_KEY;
-          
-          if (messagingInstance && vapidKey) {
-            console.log("[FCM] Messaging ready. Requesting token...");
-            const { getToken, onMessage } = await import("firebase/messaging");
-            
-            // Explicitly register service worker to ensure it's available for getToken
-            if ('serviceWorker' in navigator) {
-              const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-              console.log("[FCM] Service worker registered.");
-
-              // Small delay to ensure SW is active
-              await navigator.serviceWorker.ready;
-
-              const token = await getToken(messagingInstance, { 
-                vapidKey,
-                serviceWorkerRegistration: registration
-              });
-              
-              if (token) {
-                console.log("[FCM] Token secured:", token.substring(0, 10) + "...");
-                const { setDoc, doc, serverTimestamp } = await import("firebase/firestore");
-                const tokenRef = doc(db, "users", firebaseUser.uid, "fcm_tokens", token);
-                await setDoc(tokenRef, {
-                  token,
-                  platform: window.navigator.userAgent.includes("Mobi") ? "mobile" : "web",
-                  lastUsed: serverTimestamp()
-                }, { merge: true });
-                console.log("[FCM] Token registered in Firestore.");
-              } else {
-                console.warn("[FCM] No token received from browser.");
-              }
-            } else {
-              console.error("[FCM] Service worker not supported by this browser.");
-            }
-
-            // Listen for foreground messages
-            onMessage(messagingInstance, async (payload) => {
-              console.log("[FCM] Foreground message received:", payload);
-              // Trigger a toast for foreground messages
-              try {
-                const { toast } = await import("sonner");
-                toast(payload.notification?.title || "New Notification", {
-                  description: payload.notification?.body,
-                  action: payload.data?.link ? {
-                    label: "View",
-                    onClick: () => window.location.href = payload.data?.link as string
-                  } : undefined
-                });
-              } catch (e) {
-                console.error("[FCM] Toast error:", e);
-              }
-            });
-
-          } else if (!vapidKey) {
-            console.warn("[FCM] NEXT_PUBLIC_VAPID_KEY missing. Push notifications disabled.");
-          } else if (!messagingInstance) {
-            console.warn("[FCM] Messaging instance could not be initialized.");
-          }
-        } catch (e: any) {
-          if (e.code === 'messaging/permission-blocked') {
-            console.log("[FCM] Notifications blocked by user.");
-          } else {
-            console.error("[FCM] Messaging setup failed:", e);
-          }
-        }
       } else {
         setProfile(null);
         setLoading(false);
@@ -132,6 +61,63 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (unsubscribeProfile) (unsubscribeProfile as () => void)();
     };
   }, []);
+  
+  // ── Separate Effect for FCM Setup ──
+  useEffect(() => {
+    if (!user) return;
+
+    const setupFCM = async () => {
+      try {
+        const { getMessagingInstance } = await import("@/lib/firebase");
+        const messagingInstance = await getMessagingInstance();
+        const vapidKey = process.env.NEXT_PUBLIC_VAPID_KEY;
+        
+        if (messagingInstance && vapidKey) {
+          console.log("[FCM] Messaging ready. Requesting token...");
+          const { getToken, onMessage } = await import("firebase/messaging");
+          
+          if ('serviceWorker' in navigator) {
+            const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+            await navigator.serviceWorker.ready;
+
+            const token = await getToken(messagingInstance, { 
+              vapidKey,
+              serviceWorkerRegistration: registration
+            });
+            
+            if (token) {
+              const { setDoc, doc, serverTimestamp } = await import("firebase/firestore");
+              const tokenRef = doc(db, "users", user.uid, "fcm_tokens", token);
+              await setDoc(tokenRef, {
+                token,
+                platform: window.navigator.userAgent.includes("Mobi") ? "mobile" : "web",
+                lastUsed: serverTimestamp()
+              }, { merge: true });
+              console.log("[FCM] Registered token in Firestore.");
+            }
+          }
+
+          onMessage(messagingInstance, async (payload) => {
+            console.log("[FCM] Foreground message:", payload);
+            const { toast } = await import("sonner");
+            toast(payload.notification?.title || "Notification", {
+              description: payload.notification?.body,
+              action: payload.data?.link ? {
+                label: "View",
+                onClick: () => window.location.href = payload.data?.link as string
+              } : undefined
+            });
+          });
+        }
+      } catch (e: any) {
+        if (e.code !== 'messaging/permission-blocked') {
+          console.error("[FCM] Setup error:", e);
+        }
+      }
+    };
+
+    setupFCM();
+  }, [user]);
 
   const value = {
     user,

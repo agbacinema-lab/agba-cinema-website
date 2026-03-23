@@ -3,12 +3,12 @@ importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-comp
 
 firebase.initializeApp({
   apiKey: "AIzaSyATTrhpkwnoewMyTSPS12VjzuDVJ9tS13E", 
-  authDomain: "agbacinema-lab.firebaseapp.com",
-  projectId: "agbacinema-lab",
-  storageBucket: "agbacinema-lab.appspot.com",
+  authDomain: "agba-cinema-platform.firebaseapp.com",
+  projectId: "agba-cinema-platform",
+  storageBucket: "agba-cinema-platform.firebasestorage.app",
   messagingSenderId: "516184463165", 
   appId: "1:516184463165:web:207aee44448e6f3f3dd754", 
-  measurementId: "G-R95672619" 
+  measurementId: "G-QNTKDDHQ1Q" 
 });
 
 const messaging = firebase.messaging();
