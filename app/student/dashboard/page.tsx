@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useAuth } from "@/context/AuthContext"
-import { assignmentService, curriculumService } from "@/lib/services"
+import { assignmentService, curriculumService, studentService } from "@/lib/services"
 import { motion } from "framer-motion"
 import {
   Rocket,
@@ -14,9 +14,12 @@ import {
   ChevronRight,
   ShieldCheck,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Copy,
+  BadgeCheck
 } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
 
 export default function StudentDashboard() {
   const { profile } = useAuth()
@@ -24,6 +27,21 @@ export default function StudentDashboard() {
   const [submissions, setSubmissions] = useState<any[]>([])
   const [totalModules, setTotalModules] = useState<number>(0)
   const [loading, setLoading] = useState(true)
+  const [resolvedStudentId, setResolvedStudentId] = useState<string | null>(null)
+
+  // Fetch Student ID — first from profile, then from students collection
+  useEffect(() => {
+    const fetchStudentId = async () => {
+      const fromProfile = (profile as any)?.studentId
+      if (fromProfile) { setResolvedStudentId(fromProfile); return; }
+      if (!profile?.uid) return;
+      try {
+        const rec = await studentService.getStudentByUserId(profile.uid)
+        setResolvedStudentId(rec?.studentId || null)
+      } catch { setResolvedStudentId(null) }
+    }
+    fetchStudentId()
+  }, [profile?.uid, (profile as any)?.studentId])
 
   useEffect(() => {
     if (profile?.uid) loadLiveStats()
@@ -87,9 +105,27 @@ export default function StudentDashboard() {
         className="bg-card border border-white/5 rounded-[2.5rem] p-8 md:p-12 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8"
       >
         <div className="space-y-4 relative z-10">
-          <div className="inline-flex items-center gap-2 bg-green-500/10 text-green-400 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-green-500/20">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
-            Active Student
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="inline-flex items-center gap-2 bg-green-500/10 text-green-400 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-green-500/20">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
+              Active Student
+            </div>
+
+            {resolvedStudentId ? (
+              <button
+                onClick={() => { navigator.clipboard.writeText(resolvedStudentId); toast.success('Student ID copied!'); }}
+                className="inline-flex items-center gap-2 bg-yellow-400/10 text-yellow-500 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-yellow-400/30 hover:bg-yellow-400/20 transition-all"
+              >
+                <BadgeCheck className="h-3.5 w-3.5" />
+                ID: {resolvedStudentId}
+                <Copy className="h-3 w-3 opacity-60" />
+              </button>
+            ) : (
+              <div className="inline-flex items-center gap-2 bg-red-500/10 text-red-400 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-red-500/20">
+                <AlertCircle className="h-3.5 w-3.5" />
+                ID: Pending Activation
+              </div>
+            )}
           </div>
           
           <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white uppercase tracking-tight">

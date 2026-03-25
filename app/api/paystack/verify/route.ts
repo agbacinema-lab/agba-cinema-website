@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     if (data.status && data.data.status === 'success') {
       const { amount, customer, metadata } = data.data
       console.log(`[VERIFICATION PROTOCOL] Transaction ${reference} confirmed. Metadata:`, metadata)
-      
+
       // Log to Firestore for audit trail
       try {
         await adminService.logPayment({
@@ -46,25 +46,25 @@ export async function GET(request: NextRequest) {
       // ─── Tactical Enrollment Execution ───
       if (metadata?.type === 'academy_enrollment' && metadata?.userId) {
         console.log(`[ENROLLMENT PROTOCOL] Activating track ${metadata.service} for user ${metadata.userId}`)
-        
+
         try {
           // Get existing user data to handle array append accurately
           const userProfile = await adminService.getUserById(metadata.userId);
           const currentEnrolled = userProfile?.enrolledSpecializations || [];
-          
+
           // Verify if already enrolled to avoid duplicates
-          const alreadyEnrolled = currentEnrolled.some((e: any) => 
-            e.title === metadata.service || 
+          const alreadyEnrolled = currentEnrolled.some((e: any) =>
+            e.title === metadata.service ||
             e.value === metadata.service.toLowerCase().replace(/\s+/g, '-')
           );
-          
+
           if (!alreadyEnrolled) {
-            const newEntry = { 
-              id: `${metadata.userId}_${Date.now()}`, 
-              title: metadata.service, 
-              value: metadata.service.toLowerCase().replace(/\s+/g, '-'), 
-              programType: metadata.programType || 'mentorship', 
-              enrolledAt: new Date().toISOString() 
+            const newEntry = {
+              id: `${metadata.userId}_${Date.now()}`,
+              title: metadata.service,
+              value: metadata.service.toLowerCase().replace(/\s+/g, '-'),
+              programType: metadata.programType || 'mentorship',
+              enrolledAt: new Date().toISOString()
             };
 
             await studentService.updateFullProfile(metadata.userId, {
@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
         console.log(`[INTERN RECRUITMENT] Processing direct hire. Brand: ${metadata.brandId}, Intern: ${metadata.studentId}`)
         try {
           if (!adminDb) throw new Error("Firebase Admin DB not initialized");
-          
+
           const reqRef = await adminDb.collection("internship_requests").add({
             brandId: metadata.brandId,
             studentId: metadata.studentId,
@@ -103,29 +103,40 @@ export async function GET(request: NextRequest) {
             skills: [], // Can be populated if needed
             termsAccepted: true,
             status: 'approved', // Automatically approved because they paid!
-            isDirectHire: true, 
+            isDirectHire: true,
             paymentPlan: metadata.plan || "subscription",
             amountPaid: amount / 100, // actual amount
             requestedAt: new Date()
           })
 
+          // ── Resolve Student UID ──
+          let studentUid = metadata.studentId;
+          const userCol = adminDb.collection("users");
+
+          if (studentUid.startsWith('stu_')) {
+            const studentSnap = await userCol.where("studentId", "==", studentUid).limit(1).get();
+            if (!studentSnap.empty) {
+              studentUid = studentSnap.docs[0].id;
+            }
+          }
+
           // ── Create Group Chat for Brand, Intern, Tutor and Admins ──
-          const studentDoc = await adminDb.collection("users").doc(metadata.studentId).get()
+          const studentDoc = await adminDb.collection("users").doc(studentUid).get()
           const studentData = studentDoc.data()
           const tutorId = studentData?.tutorId
           const studentName = studentData?.name || "Intern"
           const brandName = metadata.fullName || "Brand"
 
-          const participants = [metadata.brandId, metadata.studentId]
+          const participants = [metadata.brandId, studentUid]
           if (tutorId) participants.push(tutorId)
 
           const participantDetails: any = {
             [metadata.brandId]: { name: brandName, role: 'brand' },
-            [metadata.studentId]: { name: studentName, role: 'student' }
+            [studentUid]: { name: studentName, role: 'student' }
           }
           if (tutorId) {
-             const tutorDoc = await adminDb.collection("users").doc(tutorId).get()
-             participantDetails[tutorId] = { name: tutorDoc.data()?.name || "Tutor", role: 'tutor' }
+            const tutorDoc = await adminDb.collection("users").doc(tutorId).get()
+            participantDetails[tutorId] = { name: tutorDoc.data()?.name || "Tutor", role: 'tutor' }
           }
 
           const adminsSnap = await adminDb.collection("users").where("role", "==", "super_admin").get()
@@ -139,8 +150,11 @@ export async function GET(request: NextRequest) {
             participantDetails,
             metadata: {
               brandId: metadata.brandId,
-              studentId: metadata.studentId,
+              studentId: studentUid,
+              brandName: brandName,
+              studentName: studentName,
               requestId: reqRef.id,
+              publicStudentId: metadata.studentId, // Keep original for reference if needed
               type: 'intern_recruitment',
               plan: metadata.plan || 'subscription'
             },
@@ -157,19 +171,19 @@ export async function GET(request: NextRequest) {
           })
 
           await notificationService.sendNotification({
-            recipientId: metadata.studentId,
+            recipientId: studentUid,
             title: "Direct Internship Deployment",
             message: `You have been directly recruited! Check your portal for deployment details.`,
             type: "system"
           })
-          
+
           await notificationService.sendNotification({
             recipientId: metadata.brandId,
             title: "Recruitment Successful",
-            message: `Payment successful. The specialist has been deployed to your active roster.`,
+            message: `Payment successful. The intern is now in your active roster.`,
             type: "system"
           })
-          
+
         } catch (recruitErr) {
           console.error("[RECRUITMENT ERROR] Failed to finalize intern hire:", recruitErr)
         }
@@ -185,12 +199,12 @@ export async function GET(request: NextRequest) {
             body: JSON.stringify({
               to_email: "agbacinema@gmail.com",
               to_name: "Admin",
-              subject: `PAYMENT RECEIVED: #${(amount/100).toLocaleString()}`,
+              subject: `PAYMENT RECEIVED: #${(amount / 100).toLocaleString()}`,
               message: `A new transaction has been successfully processed for ${metadata?.service || "General Support"}.`,
               template_params: {
                 customer_name: metadata?.fullName || "Valued Customer",
                 customer_email: customer.email,
-                amount: `#${(amount/100).toLocaleString()}`,
+                amount: `#${(amount / 100).toLocaleString()}`,
                 reference: reference,
                 service: metadata?.service || "N/A"
               }

@@ -42,9 +42,12 @@ export async function POST(req: Request) {
           Urgency: "high"
         },
         notification: {
-          icon: "/agba cinema black.jpg",
-          badge: "/agba cinema black.jpg",
+          icon: "https://agba-cinema-website.vercel.app/icon.png",
+          badge: "https://agba-cinema-website.vercel.app/icon.png",
           requireInteraction: true
+        },
+        fcmOptions: {
+          link: metadata?.link || "https://agba-cinema-website.vercel.app/admin?tab=communications"
         }
       }
     })

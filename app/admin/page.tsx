@@ -103,9 +103,9 @@ function AdminDashboardContent() {
 
     const permissions: Record<string, string[]> = {
       hod: ['readiness', 'courses', 'content', 'assignments', 'timetable'],
-      tutor: ['content', 'assignments', 'timetable'],
+      tutor: ['content', 'assignments', 'timetable', 'communications'],
       staff: ['readiness', 'content'],
-      admin: ['readiness', 'content', 'assignments', 'timetable']
+      admin: ['readiness', 'content', 'assignments', 'timetable', 'communications']
     };
 
     return permissions[profile?.role || '']?.includes(tab) || false;
@@ -186,7 +186,7 @@ function AdminDashboardContent() {
       { id: 'timetable', label: 'Live', icon: Calendar },
     ] : []),
     { id: 'analytics', label: 'Stats', icon: BarChart3 },
-    ...(profile?.role === 'super_admin' ? [
+    ...(['super_admin', 'tutor', 'admin'].includes(profile?.role || '') ? [
        { id: 'communications', label: 'Comms', icon: MessageSquare }
     ] : [])
   ]
@@ -235,10 +235,14 @@ function AdminDashboardContent() {
                 <NavItem active={activeTab === 'content'} disabled={!hasAccess('content')} icon={<Layers className="h-5 w-5" />} label="Media Library" onClick={() => handleTabChange('content')} />
                 <NavItem active={activeTab === 'assignments'} disabled={!hasAccess('assignments')} icon={<BookOpen className="h-5 w-5" />} label="Assignments" onClick={() => handleTabChange('assignments')} />
                 <NavItem active={activeTab === 'armory'} disabled={!['super_admin', 'director'].includes(profile?.role || '')} icon={<Package className="h-5 w-5" />} label="The Armory" onClick={() => handleTabChange('armory')} />
-                {profile?.role === 'super_admin' && (
+                {['super_admin', 'tutor', 'admin'].includes(profile?.role || '') && (
                   <>
-                    <NavItem active={activeTab === 'email-tester'} icon={<Mail className="h-5 w-5" />} label="Email Tester" onClick={() => handleTabChange('email-tester')} />
-                    <NavItem active={activeTab === 'promo-codes'} icon={<Ticket className="h-5 w-5" />} label="Promo Codes" onClick={() => handleTabChange('promo-codes')} />
+                    {profile?.role === 'super_admin' && (
+                      <>
+                        <NavItem active={activeTab === 'email-tester'} icon={<Mail className="h-5 w-5" />} label="Email Tester" onClick={() => handleTabChange('email-tester')} />
+                        <NavItem active={activeTab === 'promo-codes'} icon={<Ticket className="h-5 w-5" />} label="Promo Codes" onClick={() => handleTabChange('promo-codes')} />
+                      </>
+                    )}
                     <NavItem active={activeTab === 'communications'} icon={<MessageSquare className="h-5 w-5" />} label="Live Comms" onClick={() => handleTabChange('communications')} />
                   </>
                 )}
@@ -374,7 +378,7 @@ function AdminDashboardContent() {
               </motion.div>
             )}
 
-            {activeTab === 'communications' && profile?.role === 'super_admin' && (
+            {activeTab === 'communications' && ['super_admin', 'tutor', 'admin'].includes(profile?.role || '') && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                 <ChatMonitoring currentUser={profile as any} />
               </motion.div>

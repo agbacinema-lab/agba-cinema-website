@@ -12,7 +12,8 @@ import {
   LogOut, 
   Star,
   Bell,
-  Clock
+  Clock,
+  MessageSquare
 } from "lucide-react"
 import { authService } from "@/lib/auth-service"
 import PushPrompt from "@/components/common/PushPrompt"
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
   { id: "dashboard",   label: "Home",       icon: LayoutDashboard, href: "/student/dashboard" },
   { id: "lms",         label: "Academy",    icon: BookOpen,        href: "/student/learning" },
   { id: "assignments", label: "Tasks",      icon: FileText,        href: "/student/assignments" },
+  { id: "chat",        label: "Messages",   icon: MessageSquare,   href: "/student/chat" },
   { id: "portfolio",   label: "Portfolio",  icon: Star,            href: "/student/portfolio" },
   { id: "orders",      label: "Orders",     icon: Clock,           href: "/student/orders" },
   { id: "shop",        label: "Shop",       icon: ShoppingBag,     href: "/student/shop" },

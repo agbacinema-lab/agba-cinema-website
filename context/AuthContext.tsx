@@ -39,9 +39,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (firebaseUser) {
         // 1. Real-time profile listener
         const userRef = doc(db, "users", firebaseUser.uid);
-        unsubscribeProfile = onSnapshot(userRef, (userSnap) => {
+        unsubscribeProfile = onSnapshot(userRef, async (userSnap) => {
           if (userSnap.exists()) {
-            setProfile(userSnap.data() as UserProfile);
+            const data = userSnap.data() as UserProfile;
+            setProfile(data);
+
+            // Auto-repair missing Student ID
+            if (data.role === 'student' && !(data as any).studentId) {
+               try {
+                 const { studentService } = await import('@/lib/services');
+                 const sync = await studentService.getStudentByUserId(firebaseUser.uid);
+                 if (sync?.studentId) {
+                    const { updateDoc } = await import('firebase/firestore');
+                    await updateDoc(userRef, { studentId: sync.studentId });
+                    console.log("[AUTH REPAIR] Student ID synced to login profile.");
+                 }
+               } catch (e) {
+                 console.warn("[AUTH REPAIR] Sync failed:", e);
+               }
+            }
           } else {
             setProfile(null);
           }

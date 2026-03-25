@@ -32,10 +32,21 @@ export default function PushPrompt() {
       setIsVisible(false)
       
       if (result === "granted") {
-        new Notification("SYSTEM CONNECTED", {
-          body: "Tactical alerts are now active. You will receive real-time updates from AGBA CINEMA.",
-          icon: "/favicon.ico" // Assuming you have one
-        })
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.ready.then(reg => {
+            reg.showNotification("SYSTEM CONNECTED", {
+              body: "Tactical alerts are now active. You will receive real-time updates from AGBA CINEMA.",
+              icon: "/icon.png" 
+            }).catch(() => {});
+          });
+        } else {
+           try {
+             new Notification("SYSTEM CONNECTED", {
+               body: "Tactical alerts are now active.",
+               icon: "/icon.png"
+             });
+           } catch(e) {}
+        }
         toast.success("Tactical alerts activated.")
       } else {
         toast.error("Notification permission denied.")

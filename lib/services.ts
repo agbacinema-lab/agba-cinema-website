@@ -524,9 +524,15 @@ export const studentService = {
       q = query(studentsCol, where("programType", "==", "mentorship"));
     }
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => doc.data() as StudentProfile);
-  }
-};
+      return snapshot.docs.map(doc => doc.data() as StudentProfile);
+    },
+  
+    getStudentByUserId: async (uid: string): Promise<StudentProfile | null> => {
+      const q = query(collection(db, "students"), where("userId", "==", uid));
+      const snap = await getDocs(q);
+      return snap.empty ? null : snap.docs[0].data() as StudentProfile;
+    }
+  };
 
 // BRAND SERVICE
 export const brandService = {
@@ -1490,16 +1496,26 @@ export const chatService = {
       return snap.docs[0].id;
     }
 
+    // Resolve the student's real UID if they're using a public studentId (stu_...)
+    let studentUid = metadata.studentId;
+    if (studentUid.startsWith('stu_')) {
+      const q = query(collection(db, "users"), where("studentId", "==", studentUid));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        studentUid = snap.docs[0].id;
+      }
+    }
+
     // Identify participants (Student, Brand, Tutor and Admin)
-    const participants = [metadata.brandId, metadata.studentId];
+    const participants = [metadata.brandId, studentUid];
     const participantDetails: any = {
       [metadata.brandId]: { name: metadata.brandName, role: 'brand' },
-      [metadata.studentId]: { name: metadata.studentName, role: 'student' }
+      [studentUid]: { name: metadata.studentName, role: 'student' }
     };
 
     // Fetch tutor if assigned to student
     try {
-      const studentSnap = await getDoc(doc(db, "users", metadata.studentId));
+      const studentSnap = await getDoc(doc(db, "users", studentUid));
       if (studentSnap.exists()) {
         const studentData = studentSnap.data();
         if (studentData.tutorId) {
@@ -1555,19 +1571,35 @@ export const chatService = {
         const otherParticipants = (roomData.participants || []).filter((p: string) => p !== message.senderId);
         
         if (otherParticipants.length > 0) {
-          fetch("/api/notifications/push", {
-             method: "POST",
-             headers: { "Content-Type": "application/json" },
-             body: JSON.stringify({
-               userIds: otherParticipants,
-               title: `New message from ${message.senderName}`,
-               body: message.text.length > 50 ? message.text.substring(0, 50) + "..." : message.text,
-               metadata: {
-                 link: `/admin?tab=communications&roomId=${roomId}`,
-                 roomId
-               }
-             })
-          }).catch(e => console.error("Push API delivery error:", e));
+          // Group by role to ensure the push notification click takes them to the correct portal
+          const adminUids: string[] = [];
+          const studentUids: string[] = [];
+          const brandUids: string[] = [];
+
+          otherParticipants.forEach((p: string) => {
+             const role = roomData.participantDetails?.[p]?.role;
+             if (role === 'student') studentUids.push(p);
+             else if (role === 'brand') brandUids.push(p);
+             else adminUids.push(p); // super_admin, tutor, admin, etc.
+          });
+
+          const sendPushGroup = (uids: string[], link: string) => {
+             if (uids.length === 0) return;
+             fetch("/api/notifications/push", {
+               method: "POST",
+               headers: { "Content-Type": "application/json" },
+               body: JSON.stringify({
+                 userIds: uids,
+                 title: `New message from ${message.senderName}`,
+                 body: message.text.length > 50 ? message.text.substring(0, 50) + "..." : message.text,
+                 metadata: { link, roomId }
+               })
+             }).catch(e => console.error("Push API delivery error:", e));
+          };
+
+          sendPushGroup(adminUids, `/admin?tab=communications&roomId=${roomId}`);
+          sendPushGroup(studentUids, `/student/chat`);
+          sendPushGroup(brandUids, `/brand/dashboard?tab=communications`);
         }
       }
     } catch (e) {
@@ -1575,16 +1607,40 @@ export const chatService = {
     }
   },
 
-  subscribeToRooms: (callback: (rooms: ChatRoom[]) => void) => {
+  subscribeToRooms: (callback: (rooms: ChatRoom[]) => void, userId?: string | string[]) => {
     const roomsCol = collection(db, "chat_rooms");
-    const q = query(roomsCol, orderBy("lastMessageAt", "desc"));
-
+    // If filtering by userId, we remove orderBy to avoid complex index requirements.
+    // We will sort manually in the client after receiving the snapshot.
+    let q;
+    if (userId) {
+       if (Array.isArray(userId)) {
+          q = query(roomsCol, where("participants", "array-contains-any", userId));
+       } else {
+          q = query(roomsCol, where("participants", "array-contains", userId));
+       }
+    } else {
+       q = query(roomsCol, orderBy("lastMessageAt", "desc"));
+    }
+    
     return onSnapshot(q, (snap) => {
       const rooms = snap.docs.map(doc => ({
         roomId: doc.id,
         ...doc.data()
       })) as ChatRoom[];
+
+      // Manual sort if we didn't use Firestore orderBy
+      if (userId) {
+        rooms.sort((a, b) => {
+          const timeA = a.lastMessageAt?.toMillis ? a.lastMessageAt.toMillis() : (a.lastMessageAt?.seconds || 0);
+          const timeB = b.lastMessageAt?.toMillis ? b.lastMessageAt.toMillis() : (b.lastMessageAt?.seconds || 0);
+          return timeB - timeA;
+        });
+      }
+
       callback(rooms);
+    }, (error) => {
+      console.error("Firestore Chat Subscription Error:", error);
+      callback([]); // Return empty list on error to unblock UI
     });
   },
 
