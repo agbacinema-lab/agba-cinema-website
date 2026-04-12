@@ -37,12 +37,10 @@ export default function VideoCaptionTool() {
       ffmpegRef.current = new FFmpeg()
 
       // Enable logging for debugging
-      ffmpegRef.current.on('log', ({ message }) => {
-        console.log("FFmpeg Log:", message)
-      })
+      // Silent in production — no internals exposed to console
+      ffmpegRef.current.on('log', () => {})
 
       if (!window.crossOriginIsolated) {
-        console.warn("Cross-Origin Isolation is not enabled. FFmpeg.wasm might be slow or fail.")
         setIsIsolated(false)
       }
     }
@@ -222,14 +220,13 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
     try {
       setStep("Preparing Engine")
-      console.log("Cross-Origin Isolated:", window.crossOriginIsolated)
-      console.log("Video File:", videoFile.name, videoFile.size, videoFile.type)
 
       const ffmpeg = ffmpegRef.current
       if (!ffmpeg) throw new Error("FFmpeg not initialized")
 
       if (!ffmpeg.loaded) {
-        const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd"
+        // Self-hosted — no external CDN dependency
+        const baseURL = "/ffmpeg"
         await ffmpeg.load({
           coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
           wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
@@ -272,20 +269,17 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
       const renderedBuffer = await offlineCtx.startRendering()
       const audioBuffer = renderedBuffer.getChannelData(0)
       
-      console.log("Audio Cleared:", { duration: renderedBuffer.duration, samples: audioBuffer.length })
-
-      console.log("Starting Transcription Process...")
+      // Audio processing complete — silent in production
       const result = await new Promise<any>((resolve, reject) => {
         const worker = new Worker("/workers/whisper.worker.js", { type: "module" })
         const timeout = setTimeout(() => {
           worker.terminate()
-          reject(new Error("AI transcription timed out. The video might be too complex for browser processing."))
-        }, 300000)
+          reject(new Error("Transcription timed out. Try a shorter clip (under 60 seconds)."))
+        }, 180000)
 
         worker.onmessage = (e) => {
           const { status, output, error } = e.data
           if (status === 'ready') {
-            console.log("Worker ready, sending audio...")
             worker.postMessage({ type: 'transcribe', audio: audioBuffer })
           }
           else if (status === 'complete') {
@@ -327,8 +321,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
       
       audioCtx.close()
     } catch (err: any) {
-      console.error("Workflow Error:", err)
-      setError(`AI processing failed: ${err.message || "Unknown Error"}`)
+      setError(err.message || "Processing failed. Please try a different video.")
     } finally {
       setIsProcessing(false)
     }
@@ -348,7 +341,6 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
       const ffmpeg = ffmpegRef.current!
       if (!ffmpeg.loaded) throw new Error("FFmpeg not loaded")
 
-      console.log("Starting Burner with chunks:", chunks.length)
       setStep("Preparing Burner")
       const renderId = Math.random().toString(36).substring(7)
       const inputName = `in_${renderId}.mp4`
@@ -369,15 +361,14 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
       await ffmpeg.writeFile(subName, new TextEncoder().encode(assData))
       
       try {
-        const fontRes = await fetch("https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/inter/static/Inter-Bold.ttf")
+        // Self-hosted font — no CDN dependency
+        const fontRes = await fetch("/fonts/agba-caption.ttf")
         if (fontRes.ok) {
           const fontData = new Uint8Array(await fontRes.arrayBuffer())
-          // Save as both for maximum compatibility with different libass builds
           await ffmpeg.writeFile("Inter-Agba.ttf", fontData)
-          await ffmpeg.writeFile("Arial.ttf", fontData) 
-          console.log("Elite Font Injected: Inter-Agba.ttf / Arial.ttf")
+          await ffmpeg.writeFile("Arial.ttf", fontData)
         }
-      } catch (e) { }
+      } catch (e) { /* Font load failed — FFmpeg uses built-in fallback */ }
 
       // Use fetchFile for memory efficiency
       await ffmpeg.writeFile(inputName, await fetchFile(videoFile))
@@ -406,8 +397,6 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
       // CRITICAL FIX: Ensure fontsdir is absolute or matches the written file
       const vfChain = `${scaleFilter},subtitles=${subName}:fontsdir=.`
 
-      console.log("Executing Burn Command:", vfChain)
-      
       try {
         await ffmpeg.exec([
           "-i", inputName,

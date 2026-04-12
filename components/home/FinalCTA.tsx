@@ -22,10 +22,10 @@ export default function FinalCTA() {
         >
           <h2 className="text-4xl md:text-6xl font-black text-black mb-6 leading-tight">
             Ready to Start Your<br />
-            Creative Career?
+            Creative Journey?
           </h2>
           <p className="text-xl text-black/70 mb-12 max-w-2xl mx-auto">
-            Whether you want to <strong className="text-black">learn video editing</strong>, get an <strong className="text-black">internship with real brands</strong>, or hire Nigeria's best creative team — we're one click away.
+            Whether you want to <strong className="text-black">learn filmmaking, writing, social media, digital marketing</strong>, or hire Nigeria&apos;s best creative team — we’re one click away.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -35,7 +35,7 @@ export default function FinalCTA() {
                 className="bg-black hover:bg-gray-900 text-white font-bold text-lg px-10 py-7 rounded-xl transition-all duration-300 hover:scale-[1.03] shadow-xl"
               >
                 <a href="/academy">
-                  Apply for Mentorship
+                  Apply for the Academy
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </a>
               </Button>

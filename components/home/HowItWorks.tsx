@@ -9,15 +9,15 @@ const steps = [
   {
     number: "01",
     icon: ClipboardList,
-    title: "Apply for Mentorship",
-    description: "Fill out a short application form. We review within 48 hours and schedule your free consultation call.",
+    title: "Choose Your Creative Track",
+    description: "Pick from 6 disciplines: Filmmaking, Video Editing, Writing, Social Media, Digital Marketing, or Virtual Assistance.",
     color: "from-yellow-400 to-amber-400",
   },
   {
     number: "02",
     icon: Monitor,
-    title: "Learn Premiere Pro & After Effects",
-    description: "Follow a structured 8-week curriculum taught by working professionals. Learn industry workflows from day one.",
+    title: "Train with Working Professionals",
+    description: "Follow a structured curriculum taught by industry practitioners. Learn real workflows from day one, not theory.",
     color: "from-orange-400 to-red-400",
   },
   {
@@ -37,8 +37,8 @@ const steps = [
   {
     number: "05",
     icon: FolderOpen,
-    title: "Build Portfolio + Get Career Guidance",
-    description: "Leave with a professional portfolio, a CV ready for agencies, and ongoing career support from our community.",
+    title: "Build Portfolio + Launch Career",
+    description: "Leave with a professional portfolio, a career-ready CV, and ongoing support from the ÀGBÀ CINEMA community.",
     color: "from-green-400 to-emerald-400",
   },
 ]
@@ -57,7 +57,7 @@ export default function HowItWorks() {
           <span className="text-yellow-600 text-sm font-bold uppercase tracking-widest block mb-3">The Process</span>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">How It Works</h2>
           <p className="text-xl text-gray-500 max-w-2xl mx-auto">
-            5 clear steps from zero experience to job-ready editor. No guesswork — just a proven path.
+            5 clear steps from zero experience to career-ready creative professional. One proven path, 6 disciplines.
           </p>
         </motion.div>
 

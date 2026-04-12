@@ -100,6 +100,7 @@ export async function GET(request: NextRequest) {
             brandId: metadata.brandId,
             studentId: metadata.studentId,
             studentName: metadata.fullName || "Intern", // Here fullName from metadata might be the Brand's, so we'll fetch student in notification later if needed
+            specialization: metadata.specialization || "General",
             skills: [], // Can be populated if needed
             termsAccepted: true,
             status: 'approved', // Automatically approved because they paid!

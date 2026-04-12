@@ -19,7 +19,7 @@ export default function StudentChatPage() {
         <ChatMonitoring 
           currentUser={profile as any} 
           title="My Messages"
-          subtitle="Official Deployment Channels"
+          subtitle="Chat Room"
         />
       </motion.div>
     </div>

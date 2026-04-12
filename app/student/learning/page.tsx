@@ -294,10 +294,42 @@ function StudentLearningContent() {
     try {
       // 1. Load Live Timetable
       const timetable = await classSchedulerService.getStudentTimetable(user?.uid || "", (profile as any)?.cohort)
-      setLiveClasses(timetable)
       
-      const upcoming = timetable.find(c => c.status === 'scheduled' || c.status === 'live')
-      if (upcoming) setUpcomingClass(upcoming)
+      // Calculate active passes (A1 grades) to identify completed modules
+      const a1Submissions = await assignmentService.getA1SubmissionsByStudent(user?.uid || "")
+      const passedTopicNames = a1Submissions.map(s => s.assignmentTitle?.toLowerCase())
+
+      const now = Date.now()
+      const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000
+
+      // Filter classes:
+      // - Keep scheduled/live
+      // - Keep completed for 1 week UNLESS the related module is already passed
+      const filteredTimetable = timetable.filter(c => {
+        if (c.status === 'scheduled' || c.status === 'live') return true
+        
+        if (c.status === 'completed') {
+          const classTime = c.startTime?.toMillis() || 0
+          const wasRecent = (now - classTime) < ONE_WEEK_MS
+          const alreadyPassedModule = passedTopicNames.some(topic => c.topic?.toLowerCase().includes(topic))
+          
+          return wasRecent && !alreadyPassedModule
+        }
+        
+        return false
+      })
+
+      setLiveClasses(filteredTimetable)
+      
+      // Select the "featured" class for the HUD: 
+      // 1. First Live class
+      // 2. Next Scheduled class
+      // 3. Last Completed class
+      const active = filteredTimetable.find(c => c.status === 'live') ||
+                     filteredTimetable.find(c => c.status === 'scheduled') ||
+                     [...filteredTimetable].reverse().find(c => c.status === 'completed')
+
+      if (active) setUpcomingClass(active)
 
       // 2. Load Existing Curriculum Media/Recordings
       const allCurricula = await curriculumService.getAllCurricula()
@@ -411,36 +443,70 @@ function StudentLearningContent() {
 
       {/* ─── LIVE TIMETABLE HUD ─── */}
       {upcomingClass && (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-8 md:p-12 rounded-[3rem] bg-gradient-to-br from-yellow-400 to-yellow-500 text-black shadow-2xl relative overflow-hidden group">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className={`p-8 md:p-12 rounded-[3rem] text-black shadow-2xl relative overflow-hidden group transition-all duration-500 ${
+          upcomingClass.status === 'live' ? 'bg-gradient-to-br from-red-500 to-red-600 !text-white' : 
+          upcomingClass.status === 'completed' ? 'bg-gradient-to-br from-indigo-500 to-indigo-600 !text-white' : 
+          'bg-gradient-to-br from-yellow-400 to-yellow-500'
+        }`}>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 relative z-10">
             <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 bg-black/10 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-black/10">
+              <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                upcomingClass.status === 'live' ? 'bg-black/20 border-white/20' : 
+                upcomingClass.status === 'completed' ? 'bg-white/10 border-white/20' : 
+                'bg-black/10 border-black/10'
+              }`}>
                 {upcomingClass.status === 'live' ? (
-                  <><div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" /> LIVE NOW</>
+                  <><div className="w-2 h-2 rounded-full bg-white animate-pulse" /> LIVE NOW</>
+                ) : upcomingClass.status === 'completed' ? (
+                  <><div className="w-2 h-2 rounded-full bg-indigo-200" /> PASSED CLASS</>
                 ) : (
                   <><div className="w-2 h-2 rounded-full bg-black animate-pulse" /> UPCOMING CLASS</>
                 )}
               </div>
               <h2 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter leading-tight">{upcomingClass.topic}</h2>
               <div className="flex flex-wrap gap-4 pt-2">
-                <div className="flex items-center gap-2 bg-black/5 px-4 h-10 rounded-xl text-xs font-bold font-mono">
+                <div className={`flex items-center gap-2 px-4 h-10 rounded-xl text-xs font-bold font-mono ${
+                  upcomingClass.status === 'scheduled' ? 'bg-black/5' : 'bg-white/10 text-white'
+                }`}>
                   <Calendar className="h-4 w-4" /> 
                   {new Date(upcomingClass.startTime.seconds * 1000).toLocaleDateString()}
                 </div>
-                <div className="flex items-center gap-2 bg-black/5 px-4 h-10 rounded-xl text-xs font-bold font-mono">
+                <div className={`flex items-center gap-2 px-4 h-10 rounded-xl text-xs font-bold font-mono ${
+                  upcomingClass.status === 'scheduled' ? 'bg-black/5' : 'bg-white/10 text-white'
+                }`}>
                   <Clock className="h-4 w-4" /> 
                   {new Date(upcomingClass.startTime.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} ({upcomingClass.durationMinutes} mins)
                 </div>
-                <div className="flex items-center gap-2 bg-black/5 px-4 h-10 rounded-xl text-xs font-bold">
+                <div className={`flex items-center gap-2 px-4 h-10 rounded-xl text-xs font-bold ${
+                  upcomingClass.status === 'scheduled' ? 'bg-black/5' : 'bg-white/10 text-white'
+                }`}>
                   <Users className="h-4 w-4" /> Tutor: {upcomingClass.tutorName}
                 </div>
               </div>
             </div>
             <div className="shrink-0 w-full md:w-auto flex flex-col gap-3">
-              <a href={upcomingClass.meetLink} target="_blank" rel="noopener noreferrer" className="bg-black hover:bg-gray-900 text-white w-full md:w-64 h-16 rounded-2xl flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-2xl">
-                <Video className="h-5 w-5 text-yellow-400" /> Join Google Meet
-              </a>
-              <p className="text-[10px] font-black uppercase tracking-widest text-black/60 text-center">Class starts promptly</p>
+              {upcomingClass.status === 'completed' ? (
+                upcomingClass.recordingLink ? (
+                  <button onClick={() => setViewingUrl(upcomingClass.recordingLink!)} className="bg-white text-indigo-600 w-full md:w-64 h-16 rounded-2xl flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest transition-all hover:scale-105 active:scale-95 shadow-2xl">
+                    <PlayCircle className="h-5 w-5" /> REPLAY LESSON
+                  </button>
+                ) : (
+                  <div className="bg-white/10 text-white/60 w-full md:w-64 h-16 rounded-2xl flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest border border-white/10">
+                    <Clock className="h-5 w-5" /> RECORDING PENDING
+                  </div>
+                )
+              ) : (
+                <a href={upcomingClass.meetLink} target="_blank" rel="noopener noreferrer" className={`${
+                  upcomingClass.status === 'live' ? 'bg-white text-red-600' : 'bg-black text-white hover:bg-gray-900 shadow-[0_20px_40px_rgba(0,0,0,0.3)]'
+                } w-full md:w-64 h-16 rounded-2xl flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest transition-all hover:scale-105 active:scale-95`}>
+                  <Video className={`h-5 w-5 ${upcomingClass.status === 'live' ? 'text-red-600' : 'text-yellow-400'}`} /> {upcomingClass.status === 'live' ? 'JOIN CLASS NOW' : 'GO TO MEETING'}
+                </a>
+              )}
+              <p className={`text-[10px] font-black uppercase tracking-widest text-center ${
+                upcomingClass.status === 'scheduled' ? 'text-black/60' : 'text-white/60'
+              }`}>
+                {upcomingClass.status === 'live' ? 'CLASS IN SESSION' : upcomingClass.status === 'completed' ? 'ARCHIVE PROTOCOL' : 'Class starts promptly'}
+              </p>
             </div>
           </div>
           <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-white/20 blur-3xl rounded-full" />

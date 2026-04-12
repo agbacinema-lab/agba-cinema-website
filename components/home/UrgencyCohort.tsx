@@ -100,7 +100,7 @@ export default function UrgencyCohort() {
             {data.cohortTitle}
           </h2>
           <p className="text-gray-400 text-xl mb-10">
-            Don't miss your chance to start your career in video editing this quarter.
+            Don&apos;t miss your chance to launch your creative career this quarter. 6 tracks. Real internships. Real income.
           </p>
 
           {/* Application social proof stats */}

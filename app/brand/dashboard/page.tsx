@@ -61,6 +61,7 @@ function BrandDashboardContent() {
   const [brandData, setBrandData] = useState<BrandProfile | null>(null)
   const [talents, setTalents] = useState<StudentProfile[]>([])
   const [requests, setRequests] = useState<InternshipRequest[]>([])
+  const [allRequests, setAllRequests] = useState<InternshipRequest[]>([])
   const [activeInterns, setActiveInterns] = useState<InternshipRequest[]>([])
   const [fetching, setFetching] = useState(true)
   const [isRecruiting, setIsRecruiting] = useState<string | null>(null)
@@ -89,12 +90,13 @@ function BrandDashboardContent() {
     if (!profile?.uid) return
     setFetching(true)
     try {
-      const [b, t, r, a, s] = await Promise.all([
+      const [b, t, r, a, s, allR] = await Promise.all([
         brandService.getBrandProfile(profile.uid),
         studentService.getAllTalent(),
         brandService.getBrandRequests(profile.uid),
         brandService.getActiveInternships(profile.uid),
-        brandService.getSettings()
+        brandService.getSettings(),
+        brandService.getBrandRequests("all")
       ])
       
       let codesUsed = 0;
@@ -107,6 +109,7 @@ function BrandDashboardContent() {
       setBrandData(b)
       setTalents(t)
       setRequests(r)
+      setAllRequests(allR)
       setActiveInterns(a)
       setBrandSettings({ ...s, codesUsed })
     } finally {
@@ -132,7 +135,7 @@ function BrandDashboardContent() {
     }
   }
 
-  const handleRecruit = async (student: StudentProfile, plan: 'subscription' | 'onetime') => {
+  const handleRecruit = async (student: StudentProfile, plan: 'subscription' | 'onetime', specializationTitle: string) => {
     if (!profile?.uid || !brandData) return
     setIsRecruiting(student.studentId || student.userId)
     try {
@@ -150,6 +153,7 @@ function BrandDashboardContent() {
           type: "intern_recruitment",
           brandId: profile.uid,
           studentId: student.studentId || student.userId,
+          specialization: specializationTitle,
           plan
         })
       });
@@ -373,7 +377,7 @@ function BrandDashboardContent() {
 
             <AnimatePresence mode="wait">
               {activeTab === "overview"  && <OverviewTab brandData={brandData} stats={{ interns: activeInterns.length, requests: requests.length }} settings={brandSettings} onUpdateBrief={() => handleTabChange("settings")} isNGO={false} />}
-              {activeTab === "roster"    && <RosterTab talents={talents} hasPaidAccess={brandData?.hasPaidAccess || false} onRefresh={loadData} onRecruit={handleRecruit} isRecruiting={isRecruiting} onViewProfile={(s: StudentProfile) => setSelectedStudentForProfile(s)} interviewQueue={interviewRequests} onToggleInterview={handleRequestInterview} onSubmitInterviews={handleSubmitInterviews} settings={brandSettings} brandData={brandData} />}
+              {activeTab === "roster"    && <RosterTab talents={talents} hasPaidAccess={brandData?.hasPaidAccess || false} onRefresh={loadData} onRecruit={handleRecruit} isRecruiting={isRecruiting} onViewProfile={(s: StudentProfile) => setSelectedStudentForProfile(s)} interviewQueue={interviewRequests} onToggleInterview={handleRequestInterview} onSubmitInterviews={handleSubmitInterviews} settings={brandSettings} brandData={brandData} allRequests={allRequests} />}
               {activeTab === "requests"  && <RequestsTab requests={requests} settings={brandSettings} />}
               {activeTab === "interns"   && <InternsTab interns={activeInterns} onRefresh={loadData} onQuery={handleQuery} onOpenChat={handleOpenChat} settings={brandSettings} onNavigateToRoster={() => handleTabChange("roster")} />}
               {activeTab === "meetings"  && <MeetingTab brandName={brandData?.companyName || ""} brandId={profile?.uid || ""} />}
@@ -746,7 +750,24 @@ function OverviewTab({ brandData, stats, onUpdateBrief, settings, isNGO }: any) 
   )
 }
 
-function RosterTab({ talents, hasPaidAccess, onRefresh, onRecruit, isRecruiting, onViewProfile, interviewQueue, onToggleInterview, onSubmitInterviews, brandData, settings }: any) {
+function RosterTab({ talents, hasPaidAccess, onRefresh, onRecruit, isRecruiting, onViewProfile, interviewQueue, onToggleInterview, onSubmitInterviews, brandData, settings, allRequests }: any) {
+  const [selections, setSelections] = useState<Record<string, string>>({})
+
+  const isSpecializationAvailable = (studentUid: string, specTitle: string) => {
+    return !(allRequests || []).some((r: any) => 
+      (r.studentId === studentUid || r.studentUID === studentUid) && 
+      r.specialization === specTitle && 
+      (r.status === 'approved' || r.status === 'assigned')
+    )
+  }
+
+  // Filter talents: only show if at least one specialization is available
+  const availableTalents = (talents || []).filter((t: StudentProfile) => {
+    const specs = t.enrolledSpecializations || (t.specialization ? [{ title: t.specialization, value: t.specialization }] : [])
+    if (specs.length === 0) return true // Show anyway if no specs defined (fallback)
+    return specs.some(s => isSpecializationAvailable(t.userId, s.title))
+  })
+
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-10">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
@@ -771,72 +792,98 @@ function RosterTab({ talents, hasPaidAccess, onRefresh, onRecruit, isRecruiting,
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-        {(talents || []).length === 0 ? (
+        {availableTalents.length === 0 ? (
           <div className="col-span-full bg-card p-20 rounded-[3rem] border border-dashed border-muted text-left transition-colors">
              <Search className="h-12 w-12 text-muted/30 mb-4" />
              <p className="text-sm font-black uppercase tracking-widest text-muted-foreground">Searching for available specialists...</p>
           </div>
         ) : (
-          (talents || []).map((t: StudentProfile) => (
-            <Card key={t.studentId || t.userId} className="group p-10 rounded-[3rem] border border-muted shadow-sm hover:shadow-premium hover:border-foreground/30 transition-all duration-500 flex flex-col h-full bg-card">
-              <div className="flex justify-between items-start mb-8">
-                  <div className="w-16 h-16 bg-muted/30 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-yellow-400 transition-colors">🎬</div>
-                  <div className="flex flex-wrap justify-end gap-2 max-w-[50%]">
-                    {(t.skills || []).slice(0, 3).map((skill: string) => (
-                      <span key={skill} className="bg-muted text-muted-foreground px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest">{skill}</span>
-                    ))}
-                  </div>
-              </div>
-              <div className="space-y-4 mb-8">
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-2xl font-black uppercase tracking-tighter text-foreground">
-                        {t.fullName || "SC_AGENT_" + (t.studentId || t.userId || "").slice(-4)}
-                    </h4>
-                    {t.strikes && t.strikes > 0 && (
-                        <div className="flex gap-1">
-                            {[...Array(t.strikes)].map((_, i) => <AlertTriangle key={i} className="h-4 w-4 text-red-500" />)}
-                        </div>
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground font-medium line-clamp-3">
-                    {t.bio || "No biography provided. Specialist is optimized for creative workflows."}
-                  </p>
-              </div>
-              
-              <div className="mt-auto space-y-4 pt-4 border-t border-muted/30">
-                  <div className="grid grid-cols-2 gap-4">
-                     <Button 
-                        onClick={() => onViewProfile(t)}
-                        variant="outline"
-                        className="rounded-2xl font-black text-[9px] uppercase tracking-widest h-14 border-muted hover:bg-black hover:text-white transition-all shadow-sm col-span-2 sm:col-span-1"
-                     >
-                       Full Profile
-                     </Button>
-                     <Button 
-                        onClick={() => onToggleInterview(t)}
-                        variant={interviewQueue?.includes(t.userId) ? "destructive" : "outline"}
-                        className={`rounded-2xl font-black text-[9px] uppercase tracking-widest h-14 col-span-2 sm:col-span-1 ${interviewQueue?.includes(t.userId) ? "bg-red-500 text-white border-none" : "border-muted shadow-sm hover:bg-black hover:text-white"}`}
-                     >
-                       {interviewQueue?.includes(t.userId) ? "Remove Interview" : "Book Interview"}
-                     </Button>
-                     <Button 
-                        onClick={() => onRecruit(t, 'subscription')}
-                        disabled={isRecruiting === (t.studentId || t.userId)}
-                        className="col-span-2 sm:col-span-1 bg-yellow-400 text-black rounded-2xl font-black text-[9px] uppercase tracking-[0.2em] h-14 hover:bg-foreground hover:text-background transition-all shadow-xl shadow-yellow-400/10"
-                     >
-                       {isRecruiting === (t.studentId || t.userId) ? "Linking..." : "Hire (3-Mo) - ₦100k"}
-                     </Button>
-                     <Button 
-                        onClick={() => onRecruit(t, 'onetime')}
-                        disabled={isRecruiting === (t.studentId || t.userId)}
-                        className="col-span-2 sm:col-span-1 bg-black text-white rounded-2xl font-black text-[9px] uppercase tracking-[0.2em] h-14 hover:bg-yellow-400 hover:text-black transition-all shadow-xl shadow-black/10"
-                     >
-                       {isRecruiting === (t.studentId || t.userId) ? "Linking..." : "Hire (1-Time) - ₦150k"}
-                     </Button>
-                  </div>
-              </div>
-            </Card>
-          ))
+          availableTalents.map((t: StudentProfile) => {
+            const specs = t.enrolledSpecializations || (t.specialization ? [{ title: t.specialization, value: t.specialization }] : [])
+            const availableSpecs = specs.filter(s => isSpecializationAvailable(t.userId, s.title))
+            const selectedSpec = selections[t.userId] || (availableSpecs.length > 0 ? availableSpecs[0].title : "")
+
+            return (
+              <Card key={t.studentId || t.userId} className="group p-10 rounded-[3rem] border border-muted shadow-sm hover:shadow-premium hover:border-foreground/30 transition-all duration-500 flex flex-col h-full bg-card">
+                <div className="flex justify-between items-start mb-8">
+                    <div className="w-16 h-16 bg-muted/30 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-yellow-400 transition-colors">🎬</div>
+                    <div className="flex flex-wrap justify-end gap-2 max-w-[50%]">
+                      {(t.skills || []).slice(0, 3).map((skill: string) => (
+                        <span key={skill} className="bg-muted text-muted-foreground px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest">{skill}</span>
+                      ))}
+                    </div>
+                </div>
+                <div className="space-y-4 mb-8">
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-2xl font-black uppercase tracking-tighter text-foreground">
+                          {t.fullName || "SC_AGENT_" + (t.studentId || t.userId || "").slice(-4)}
+                      </h4>
+                      {t.strikes && t.strikes > 0 && (
+                          <div className="flex gap-1">
+                              {[...Array(t.strikes)].map((_, i) => <AlertTriangle key={i} className="h-4 w-4 text-red-500" />)}
+                          </div>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground font-medium line-clamp-3">
+                      {t.bio || "No biography provided. Specialist is optimized for creative workflows."}
+                    </p>
+                </div>
+
+                {/* --- Specialization Selector --- */}
+                <div className="mb-8 space-y-3">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Select Specialization for Request</p>
+                    <div className="flex flex-wrap gap-2">
+                        {availableSpecs.map((s: any) => (
+                            <button
+                                key={s.title}
+                                onClick={() => setSelections(prev => ({ ...prev, [t.userId]: s.title }))}
+                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
+                                    selectedSpec === s.title 
+                                    ? 'bg-black text-yellow-400 border-black' 
+                                    : 'bg-muted/50 text-muted-foreground border-transparent hover:border-muted'
+                                }`}
+                            >
+                                {s.title}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+                
+                <div className="mt-auto space-y-4 pt-4 border-t border-muted/30">
+                    <div className="grid grid-cols-2 gap-4">
+                       <Button 
+                          onClick={() => onViewProfile(t)}
+                          variant="outline"
+                          className="rounded-2xl font-black text-[9px] uppercase tracking-widest h-14 border-muted hover:bg-black hover:text-white transition-all shadow-sm col-span-2 sm:col-span-1"
+                       >
+                         Full Profile
+                       </Button>
+                       <Button 
+                          onClick={() => onToggleInterview(t)}
+                          variant={interviewQueue?.includes(t.userId) ? "destructive" : "outline"}
+                          className={`rounded-2xl font-black text-[9px] uppercase tracking-widest h-14 col-span-2 sm:col-span-1 ${interviewQueue?.includes(t.userId) ? "bg-red-500 text-white border-none" : "border-muted shadow-sm hover:bg-black hover:text-white"}`}
+                       >
+                         {interviewQueue?.includes(t.userId) ? "Remove Interview" : "Book Interview"}
+                       </Button>
+                       <Button 
+                          onClick={() => onRecruit(t, 'subscription', selectedSpec)}
+                          disabled={isRecruiting === (t.studentId || t.userId) || !selectedSpec}
+                          className="col-span-2 sm:col-span-1 bg-yellow-400 text-black rounded-2xl font-black text-[9px] uppercase tracking-[0.2em] h-14 hover:bg-foreground hover:text-background transition-all shadow-xl shadow-yellow-400/10"
+                       >
+                         {isRecruiting === (t.studentId || t.userId) ? "Linking..." : "Hire (3-Mo) - ₦100k"}
+                       </Button>
+                       <Button 
+                          onClick={() => onRecruit(t, 'onetime', selectedSpec)}
+                          disabled={isRecruiting === (t.studentId || t.userId) || !selectedSpec}
+                          className="col-span-2 sm:col-span-1 bg-black text-white rounded-2xl font-black text-[9px] uppercase tracking-[0.2em] h-14 hover:bg-yellow-400 hover:text-black transition-all shadow-xl shadow-black/10"
+                       >
+                         {isRecruiting === (t.studentId || t.userId) ? "Linking..." : "Hire (1-Time) - ₦150k"}
+                       </Button>
+                    </div>
+                </div>
+              </Card>
+            )
+          })
         )}
       </div>
     </motion.div>
@@ -862,7 +909,12 @@ function RequestsTab({ requests, settings }: any) {
                    </div>
                    <div>
                       <p className="font-black uppercase tracking-tight text-xl text-foreground">{r.studentName || `Agent ${(r.studentId || "").slice(-4)}`}</p>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Status Report: Operation {r.status?.toUpperCase() || "PENDING"}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Status Report: Operation {r.status?.toUpperCase() || "PENDING"}</p>
+                        {r.specialization && (
+                          <span className="text-[8px] bg-muted px-2 py-0.5 rounded-md font-black uppercase text-foreground/60">{r.specialization}</span>
+                        )}
+                      </div>
                    </div>
                 </div>
                 <div className={`px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] shadow-sm ${r.status === 'approved' ? 'bg-green-500 text-white' : 'bg-yellow-400 text-black animate-pulse'}`}>

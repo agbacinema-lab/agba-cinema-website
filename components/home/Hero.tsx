@@ -136,25 +136,27 @@ export default function Hero() {
             >
               <div className="w-2 h-2 bg-yellow-400 rounded-full animate-ping" />
               <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.4em] text-yellow-500">
-                ÀGBÀ CINEMA PRESENTS
+                ÀGBÀ CINEMA — CREATIVE EDUCATION &amp; PRODUCTION
               </span>
             </motion.div>
 
             {/* Main Title */}
             <div className="space-y-2">
               <h1 className="text-5xl md:text-8xl lg:text-9xl font-black mb-6 leading-[0.85] tracking-tighter uppercase italic">
-                Architecting <br />
-                <span className="text-yellow-400 drop-shadow-[0_0_40px_rgba(250,204,21,0.3)]">Master Editors</span>
+                Building Africa&apos;s <br />
+                <span className="text-yellow-400 drop-shadow-[0_0_40px_rgba(250,204,21,0.3)]">Creative Professionals</span>
               </h1>
             </div>
 
             {/* Narrative Subtitle */}
             <p className="text-lg md:text-2xl mb-12 max-w-3xl mx-auto text-gray-300 leading-relaxed font-medium italic opacity-80">
-              The only mentorship designed to transform African creatives into <span className="text-white">industry-ready cinematographers</span> and world-class editors. Work on real sets. Deploy real projects.
+              One academy. Six creative disciplines. We transform African talent into <span className="text-white">industry-ready professionals</span> in Filmmaking, Writing, Social Media, Digital Marketing, Content Creation, and Virtual Assistance.
             </p>
 
             {/* Social Proof Bar */}
             <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 mb-12">
+               <span className="flex items-center gap-2 italic"><Zap className="h-3 w-3 text-yellow-400" /> 6 Creative Tracks</span>
+               <span className="w-1 h-1 bg-gray-700 rounded-full hidden md:block" />
                <span className="flex items-center gap-2 italic"><Zap className="h-3 w-3 text-yellow-400" /> 200+ Graduates</span>
                <span className="w-1 h-1 bg-gray-700 rounded-full hidden md:block" />
                <span className="flex items-center gap-2 italic"><Zap className="h-3 w-3 text-yellow-400" /> 50+ Brand Partners</span>

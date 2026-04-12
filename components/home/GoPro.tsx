@@ -11,17 +11,17 @@ import { doc, getDoc } from "firebase/firestore"
 
 export default function GoPro() {
   const [features, setFeatures] = useState<string[]>([
-    "Structured video editing training (Premiere Pro + After Effects)",
+    "Choose from 6 creative disciplines — Filmmaking, Editing, Writing, Social Media, Digital Marketing & VA",
     "Real brand projects you can add to your portfolio",
     "Internship placement with top Nigerian brands",
     "1-on-1 mentorship from working professionals",
     "Portfolio development & career guidance",
   ])
   const [steps, setSteps] = useState<{step: string, label: string}[]>([
-    { step: "01", label: "Learn Editing" },
-    { step: "02", label: "Work on Real Brands" },
-    { step: "03", label: "Get Internship" },
-    { step: "04", label: "Build Portfolio" },
+    { step: "01", label: "Pick Your Track" },
+    { step: "02", label: "Train with Pros" },
+    { step: "03", label: "Work on Real Brands" },
+    { step: "04", label: "Get Internship" },
   ])
 
   useEffect(() => {
@@ -73,10 +73,10 @@ export default function GoPro() {
             Become a{" "}
             <span className="text-yellow-400">Professional</span>
             <br />
-            Video Editor
+            Creative in Africa
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Our <strong className="text-white">Go Pro Program</strong> trains beginners and places them into real brand internships — so your career starts before you even graduate.
+            Our <strong className="text-white">Go Pro Program</strong> trains African creatives in 6 disciplines and places them into real brand internships — so your career starts before you even finish training.
           </p>
         </motion.div>
 

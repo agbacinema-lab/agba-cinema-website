@@ -36,31 +36,29 @@ export default function StudentAssignments() {
   const [submitting, setSubmitting] = useState(false)
   const [previewing, setPreviewing] = useState(false)
   const [deadline, setDeadline] = useState<Date | null>(null)
-  const [timeLeft, setTimeLeft] = useState<{ hours: number, minutes: number }>({ hours: 0, minutes: 0 })
+  const [timeLeft, setTimeLeft] = useState<{ days: number, hours: number, minutes: number }>({ days: 0, hours: 0, minutes: 0 })
   const [isLockedOut, setIsLockedOut] = useState(false)
 
   useEffect(() => {
     if (deadline && !isLockedOut) {
-      const timer = setInterval(() => {
+      const updateTimer = () => {
         const now = new Date()
         const diff = deadline.getTime() - now.getTime()
         
         if (diff <= 0) {
           setIsLockedOut(true)
-          setTimeLeft({ hours: 0, minutes: 0 })
-          clearInterval(timer)
+          setTimeLeft({ days: 0, hours: 0, minutes: 0 })
         } else {
-          const hours = Math.floor(diff / (1000 * 60 * 60))
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
           const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-          setTimeLeft({ hours, minutes })
+          setTimeLeft({ days, hours, minutes })
         }
-      }, 60000)
-      
-      // Init
-      const diff = deadline.getTime() - new Date().getTime()
-      if (diff <= 0) setIsLockedOut(true)
-      else setTimeLeft({ hours: Math.floor(diff / (1000 * 60 * 60)), minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)) })
+      }
 
+      const timer = setInterval(updateTimer, 60000)
+      updateTimer() // Initial run
+      
       return () => clearInterval(timer)
     }
   }, [deadline, isLockedOut])
@@ -110,11 +108,21 @@ export default function StudentAssignments() {
       // PHASE 3: FETCH LIVE CLASSES FOR TIMING LOGIC
       try {
         const classes = await classSchedulerService.getStudentTimetable(profile?.uid || "", (profile as any)?.cohort)
-        // Find the most recent LIVE or COMPLETED class
-        const latestClass = classes.reverse().find(c => c.status === 'live' || c.status === 'completed' || c.status === 'scheduled')
-        if (latestClass) {
-          const startTimestamp = latestClass.startTime?.seconds ? latestClass.startTime.seconds * 1000 : latestClass.startTime
-          const endTimestamp = new Date(startTimestamp).getTime() + (latestClass.durationMinutes * 60000)
+        const now = Date.now()
+        
+        // Find the "Active Module" session:
+        // Either the one currently live, or the most recently completed one that hasn't been submitted yet
+        const activeClass = classes.find(c => c.status === 'live') || 
+                          classes.filter(c => c.status === 'completed' || c.status === 'scheduled').reverse().find(c => {
+                            const startTime = c.startTime?.toMillis?.() || (c.startTime?.seconds * 1000) || 0;
+                            // A scheduled class only starts the timer if it was in the past (i.e. it "happened")
+                            const hasStarted = startTime < now;
+                            return hasStarted && (!c.moduleId || !subMap[c.moduleId]);
+                          })
+
+        if (activeClass) {
+          const startTimestamp = activeClass.startTime?.toMillis?.() || (activeClass.startTime?.seconds * 1000) || 0
+          const endTimestamp = startTimestamp + (activeClass.durationMinutes * 60000)
           
           // Deadline is exactly 48 hours from the exact ending of the class!
           const generatedDeadline = new Date(endTimestamp + (48 * 60 * 60 * 1000))
@@ -216,6 +224,7 @@ export default function StudentAssignments() {
                    <p className="text-6xl md:text-7xl font-mono font-black tracking-tighter">00:00</p>
                  ) : (
                    <p className="text-6xl md:text-7xl font-mono font-black tracking-tighter">
+                     {timeLeft.days > 0 && <><span className="text-yellow-400/30">{String(timeLeft.days).padStart(2, '0')}</span><span className="text-4xl md:text-5xl opacity-20 mx-2">:</span></>}
                      {String(timeLeft.hours).padStart(2, '0')}<span className="animate-pulse">:</span>{String(timeLeft.minutes).padStart(2, '0')}
                    </p>
                  )}

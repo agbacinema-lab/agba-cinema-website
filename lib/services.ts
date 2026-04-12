@@ -180,10 +180,15 @@ export const adminService = {
   updateUserRole: async (userId: string, newRole: any): Promise<void> => {
     const isPartnerRole = newRole === 'brand' || newRole === 'ngo';
 
+    const isStaffRole = ['staff', 'tutor', 'hod', 'director', 'admin', 'super_admin'].includes(newRole);
+
     // Always update the users document
     await updateDoc(doc(db, "users", userId), { 
       role: newRole,
       isNGO: newRole === 'ngo',
+      // If an admin manually changes a role, the account is effectively "vetted" 
+      // or it was already an active staff account (like an admin converted to tutor)
+      ...(isStaffRole ? { approvalStatus: 'approved' } : {}),
       updatedAt: serverTimestamp()
     });
 
@@ -500,8 +505,33 @@ export const studentService = {
     });
   },
   updateFullProfile: async (studentId: string, data: any): Promise<void> => {
-    // Using setDoc with merge: true ensures the doc is created if it doesn't exist
-    await setDoc(doc(db, "users", studentId), { ...data, updatedAt: serverTimestamp() }, { merge: true });
+    // 1. Update/Sync the root user document
+    await setDoc(doc(db, "users", studentId), { 
+      ...data, 
+      updatedAt: serverTimestamp() 
+    }, { merge: true });
+
+    // 2. Sync to students collection if it's a student
+    const studentRef = collection(db, "students");
+    const q = query(studentRef, where("userId", "==", studentId));
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      await updateDoc(snap.docs[0].ref, { 
+        ...data, 
+        updatedAt: serverTimestamp() 
+      });
+    } else {
+      // If student profile doesn't exist yet but they are becoming a student, create it
+      if (data.status === 'student' || data.role === 'student') {
+        await addDoc(studentRef, {
+          userId: studentId,
+          studentUID: studentId,
+          fullName: data.name || "New Student",
+          ...data,
+          createdAt: serverTimestamp()
+        });
+      }
+    }
   },
 
   // Assign a tutor to a student (super admin only)
@@ -1412,6 +1442,7 @@ export interface LiveClassSession {
   meetLink: string;
   recordingLink?: string;
   status: 'scheduled' | 'live' | 'completed' | 'cancelled';
+  moduleId?: string; // Link to a curriculum module for assignment timing
   createdAt: any;
 }
 

@@ -95,6 +95,12 @@ export interface StudentProfile {
   postalCode?: string;
   strikes?: number;
   specialization?: string;
+  enrolledSpecializations?: Array<{
+    id: string;
+    title: string;
+    value: string;
+    programType: string;
+  }>;
 }
 
 export interface ProductVariant {
@@ -178,6 +184,7 @@ export interface InternshipRequest {
   studentId: string;
   studentName?: string;
   brandName?: string;
+  specialization?: string;
   requestedAt: any;
   status: 'pending' | 'approved' | 'declined' | 'assigned';
   requirements?: string;

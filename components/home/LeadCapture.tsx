@@ -9,11 +9,11 @@ import { doc, getDoc } from "firebase/firestore"
 import { toast } from "sonner"
 
 const mistakes = [
-  "Cutting on the wrong frame",
-  "Ignoring audio quality",
-  "Over-relying on effects",
-  "No colour grading workflow",
-  "Not understanding pacing",
+  "Starting without knowing your niche or discipline",
+  "Building skills without a real portfolio to show brands",
+  "Working for free with no path to paid internship",
+  "Ignoring personal branding and online presence",
+  "Learning tools without understanding client deliverables",
 ]
 
 export default function LeadCapture() {
@@ -84,10 +84,10 @@ export default function LeadCapture() {
             </span>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
               The 5 Biggest Mistakes<br />
-              <span className="text-yellow-500">Beginner Video Editors</span> Make
+              <span className="text-yellow-500">Beginner Creatives</span> Make
             </h2>
             <p className="text-lg text-gray-600 mb-8">
-              Watch our free training and learn how to avoid the exact errors that keep most Nigerian editors from getting hired.
+              Watch our free training and learn how to avoid the exact mistakes that keep most African creatives from getting hired or paid.
             </p>
 
             <ul className="space-y-3">

@@ -49,7 +49,7 @@ function AdminDashboardContent() {
   const { user, profile, loading, isAdmin, isSuperAdmin, isStudent, isBrand } = useAuth()
   const searchParams = useSearchParams()
   const router = useRouter()
-  
+
   const initialTab = searchParams.get('tab') || 'overview'
   const [activeTab, setActiveTab] = useState(initialTab)
   const [stats, setStats] = useState<{ revenue: number; users: number; pending: number }>({ revenue: 0, users: 0, pending: 0 })
@@ -103,6 +103,7 @@ function AdminDashboardContent() {
 
     const permissions: Record<string, string[]> = {
       hod: ['readiness', 'courses', 'content', 'assignments', 'timetable'],
+      head_of_department: ['readiness', 'courses', 'content', 'assignments', 'timetable'],
       tutor: ['content', 'assignments', 'timetable', 'communications'],
       staff: ['readiness', 'content'],
       admin: ['readiness', 'content', 'assignments', 'timetable', 'communications']
@@ -140,40 +141,40 @@ function AdminDashboardContent() {
 
   // --- STAFF APPROVAL GUARD ---
   // Allow super_admin and verified students/brands. Staff/Tutors/HOD/Director need approvalStatus === 'approved'
-  const restrictedRoles = ['staff', 'tutor', 'hod', 'director'];
+  const restrictedRoles = ['staff', 'tutor', 'hod', 'head_of_department', 'director', 'admin'];
   // Ensure the check only runs for non-super_admins
-  const isApproved = (profile as any).approvalStatus === 'approved';
-  
-  if (restrictedRoles.includes(profile.role) && profile.role !== 'super_admin' && !isApproved) {
+  const isPendingApproval = (profile as any).approvalStatus === 'pending';
+
+  if (restrictedRoles.includes(profile.role) && profile.role !== 'super_admin' && isPendingApproval) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black px-4 overflow-hidden relative">
-         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(250,204,21,0.1),transparent_50%)]" />
-         <motion.div 
-           initial={{ scale: 0.9, opacity: 0 }} 
-           animate={{ scale: 1, opacity: 1 }}
-           className="max-w-md w-full text-center space-y-10 relative z-10"
-         >
-            <div className="w-32 h-32 bg-yellow-400 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-[0_40px_80px_rgba(250,204,21,0.3)]">
-               <Shield className="h-16 w-16 text-black" />
-            </div>
-            <div className="space-y-4">
-               <h2 className="text-4xl font-black italic uppercase tracking-tighter text-white">Access Pending</h2>
-               <p className="text-gray-400 font-medium leading-relaxed">
-                 Your staff account is currently scheduled for <span className="text-yellow-400 font-black">Admin Approval</span>. 
-                 Access to operational tools is restricted until verified.
-               </p>
-            </div>
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 text-left space-y-3">
-               <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Security Note</p>
-               <p className="text-sm text-gray-300 font-medium">Verify your credentials with the Super Admin or Director to activate your dashboard access.</p>
-            </div>
-            <Button 
-              onClick={() => authService.logout()} 
-              className="w-full bg-white hover:bg-yellow-400 text-black font-black h-14 rounded-2xl transition-all shadow-xl active:scale-95"
-            >
-              Sign Out Securely
-            </Button>
-         </motion.div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(250,204,21,0.1),transparent_50%)]" />
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="max-w-md w-full text-center space-y-10 relative z-10"
+        >
+          <div className="w-32 h-32 bg-yellow-400 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-[0_40px_80px_rgba(250,204,21,0.3)]">
+            <Shield className="h-16 w-16 text-black" />
+          </div>
+          <div className="space-y-4">
+            <h2 className="text-4xl font-black italic uppercase tracking-tighter text-white">Access Pending</h2>
+            <p className="text-gray-400 font-medium leading-relaxed">
+              Your staff account is currently scheduled for <span className="text-yellow-400 font-black">Admin Approval</span>.
+              Access to operational tools is restricted until verified.
+            </p>
+          </div>
+          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 text-left space-y-3">
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Security Note</p>
+            <p className="text-sm text-gray-300 font-medium">Verify your credentials with the Super Admin or Director to activate your dashboard access.</p>
+          </div>
+          <Button
+            onClick={() => authService.logout()}
+            className="w-full bg-white hover:bg-yellow-400 text-black font-black h-14 rounded-2xl transition-all shadow-xl active:scale-95"
+          >
+            Sign Out Securely
+          </Button>
+        </motion.div>
       </div>
     )
   }
@@ -187,7 +188,7 @@ function AdminDashboardContent() {
     ] : []),
     { id: 'analytics', label: 'Stats', icon: BarChart3 },
     ...(['super_admin', 'tutor', 'admin'].includes(profile?.role || '') ? [
-       { id: 'communications', label: 'Comms', icon: MessageSquare }
+      { id: 'communications', label: 'Comms', icon: MessageSquare }
     ] : [])
   ]
 
@@ -349,9 +350,9 @@ function AdminDashboardContent() {
             )}
 
             {activeTab === 'armory' && (['super_admin', 'director'].includes(profile?.role || '')) && (
-               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                 <ProductManager />
-               </motion.div>
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <ProductManager />
+              </motion.div>
             )}
 
             {activeTab === 'profile' && (
@@ -420,10 +421,10 @@ function NavItem({ active, icon, label, onClick, disabled }: any) {
       onClick={disabled ? undefined : onClick}
       disabled={disabled}
       className={`w-full flex items-center gap-5 p-5 rounded-[1.5rem] transition-all font-black text-[13px] tracking-[0.2em] ${disabled
-          ? 'opacity-20 cursor-not-allowed text-white/30'
-          : active
-            ? 'bg-yellow-400 text-black shadow-xl shadow-yellow-400/20 scale-[1.02]'
-            : 'text-white hover:bg-white/5 active:scale-95'
+        ? 'opacity-20 cursor-not-allowed text-white/30'
+        : active
+          ? 'bg-yellow-400 text-black shadow-xl shadow-yellow-400/20 scale-[1.02]'
+          : 'text-white hover:bg-white/5 active:scale-95'
         }`}
     >
       <div className={`transition-colors ${active ? 'text-black' : 'text-yellow-400'}`}>{icon}</div>

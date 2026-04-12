@@ -6,11 +6,11 @@ import { CheckCircle2, XCircle, ArrowRight } from "lucide-react"
 import { motion } from "framer-motion"
 
 const forList = [
-  "Beginners who want to become professional video editors",
+  "Beginners who want to become professional creatives in any of our 6 tracks",
   "Creators who want to start working with brands professionally",
-  "Students looking to build a career in media and content",
-  "Freelancers who want to level up their skills and rates",
-  "Anyone serious about turning creativity into income",
+  "Students looking to build a career in media, writing, or digital marketing",
+  "Freelancers who want to level up their skills and command higher rates",
+  "Anyone serious about turning creativity into a sustainable income",
 ]
 
 const notForList = [
@@ -21,12 +21,14 @@ const notForList = [
 ]
 
 const careers = [
-  "🎬 Freelance Video Editor",
-  "🏢 Agency Editor",
-  "📱 Social Media Editor",
-  "▶️ YouTube Content Editor",
-  "🎨 Motion Designer",
+  "🎬 Filmmaker / Cinematographer",
+  "✏️ Creative Writer / Copywriter",
+  "📱 Social Media Manager",
+  "📊 Digital Marketing Specialist",
+  "🎨 Motion Designer / Video Editor",
+  "💼 Virtual Assistant",
   "🗂️ Content Creator",
+  "▶️ YouTube / Brand Strategist",
 ]
 
 export default function WhoIsItFor() {
@@ -41,7 +43,7 @@ export default function WhoIsItFor() {
           className="text-center mb-16"
         >
           <span className="text-yellow-600 text-sm font-bold uppercase tracking-widest block mb-3">Is This For You?</span>
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Who This Program Is For</h2>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Who This Academy Is For</h2>
           <p className="text-xl text-gray-500 max-w-2xl mx-auto">
             We're selective because we want every student to succeed. Read this carefully before applying.
           </p>

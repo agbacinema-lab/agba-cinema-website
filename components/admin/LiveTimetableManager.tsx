@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useAuth } from "@/context/AuthContext"
-import { classSchedulerService, adminService, LiveClassSession } from "@/lib/services"
+import { classSchedulerService, adminService, curriculumService, LiveClassSession } from "@/lib/services"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,22 +27,64 @@ export default function LiveTimetableManager() {
   const [time, setTime] = useState("")
   const [duration, setDuration] = useState("60")
   const [meetLink, setMeetLink] = useState("https://meet.google.com/new")
+  const [moduleId, setModuleId] = useState("")
+  const [curricula, setCurricula] = useState<any[]>([])
+  const [modules, setModules] = useState<any[]>([])
+  const [selectedCurriculumId, setSelectedCurriculumId] = useState("")
 
   const cohorts = ["Cohort 3"] // Hardcoded for now based on current logic
+
+  const filteredCurricula = useMemo(() => {
+    // 1. Filter by Program Type (gopro vs mentorship) - Case Insensitive & Resilient
+    let base = curricula.filter(c => {
+      const cType = String(c.programType || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      const pType = String(programType || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      return cType === pType;
+    })
+    
+    // 2. If an individual student is picked, further filter by their specialization
+    if (targetAudience === 'individual' && targetId) {
+      const student = students.find(s => (s.uid === targetId || s.id === targetId))
+      if (student) {
+        const studentSpecs = [
+          student.specialization,
+          ...(student.enrolledSpecializations?.map((s: any) => s.value || s.title || s.id) || [])
+        ].filter(Boolean).map(s => String(s).toLowerCase().trim())
+        
+        if (studentSpecs.length > 0) {
+          const matching = base.filter(c => {
+            const cSpec = String(c.specialization || "").toLowerCase().trim();
+            const cTitle = String(c.title || "").toLowerCase().trim();
+            return studentSpecs.some(s => cSpec.includes(s) || cTitle.includes(s) || s.includes(cSpec));
+          })
+          if (matching.length > 0) return matching
+        }
+      }
+    }
+    
+    return base
+  }, [curricula, programType, targetId, targetAudience, students])
 
   useEffect(() => {
     loadData()
   }, [profile?.uid])
 
+  useEffect(() => {
+    setSelectedCurriculumId("")
+    setModuleId("")
+  }, [programType])
+
   const loadData = async () => {
     setLoading(true)
     try {
       if (profile?.uid) {
-        const [classData, studentData] = await Promise.all([
+        const [classData, studentData, curriculumData] = await Promise.all([
           classSchedulerService.getClassesByTutor(profile.uid),
-          adminService.getAllUsers() // Get all users to find students assigned to this tutor
+          adminService.getAllUsers(),
+          curriculumService.getAllCurricula()
         ])
         setClasses(classData)
+        setCurricula(curriculumData)
         // Filter to only show students who are assigned to this tutor
         const assignedStudents = studentData.filter(u => 
           u.role === 'student' && 
@@ -61,6 +103,22 @@ export default function LiveTimetableManager() {
     }
   }
 
+  useEffect(() => {
+    const loadModules = async () => {
+      if (!selectedCurriculumId) {
+        setModules([])
+        return
+      }
+      try {
+        const mods = await curriculumService.getModulesByCurriculum(selectedCurriculumId)
+        setModules(mods)
+      } catch (e) {
+        setModules([])
+      }
+    }
+    loadModules()
+  }, [selectedCurriculumId])
+
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this scheduled class?")) return
     const t = toast.loading("Removing class...")
@@ -74,13 +132,25 @@ export default function LiveTimetableManager() {
   }
 
   const onEdit = (c: LiveClassSession) => {
-    setEditingId(c.id)
+    setEditingId(c.id || null)
     setTopic(c.topic)
     setProgramType(c.programType)
     setTargetAudience(c.targetAudience)
     setTargetId(c.targetId)
     setDuration(c.durationMinutes.toString())
     setMeetLink(c.meetLink)
+    setModuleId(c.moduleId || "")
+    
+    // Auto-select curriculum if moduleId exists
+    if (c.moduleId) {
+      // Find the curriculum that actually contains this module
+      // Note: This is an expensive lookup but safer
+      const found = curricula.find(curr => curr.id === (c as any).curriculumId) || 
+                    filteredCurricula.find(curr => curr.programType === c.programType)
+      if (found) setSelectedCurriculumId(found.id)
+    } else {
+      setSelectedCurriculumId("")
+    }
     
     // Parse Date/Time from Firestore Timestamp if possible
     const dateObj = c.startTime?.toDate ? c.startTime.toDate() : new Date(c.startTime || Date.now())
@@ -155,7 +225,8 @@ export default function LiveTimetableManager() {
         startTime: new Date(startDateTime),
         durationMinutes: parseInt(duration),
         meetLink: generatedMeetLink || "https://meet.google.com/new",
-        status: 'scheduled'
+        status: 'scheduled',
+        moduleId: moduleId || null
       }
 
       if (editingId) {
@@ -270,6 +341,32 @@ export default function LiveTimetableManager() {
                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Time</label>
                       <Input type="time" value={time} onChange={e => setTime(e.target.value)} className="bg-white/5 border-white/10 text-white h-12 rounded-xl" required />
                     </div>
+                  </div>
+
+                  {/* Curriculum & Module Sync */}
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Link to Curriculum / Module (Optional)</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <select 
+                        className="h-12 px-4 rounded-xl bg-white/5 border border-white/10 text-white outline-none" 
+                        value={selectedCurriculumId} 
+                        onChange={e => setSelectedCurriculumId(e.target.value)}
+                      >
+                        <option value="" className="text-black">Select Curriculum...</option>
+                        {filteredCurricula.map(c => <option key={c.id} value={c.id} className="text-black">{c.title} ({c.specialization})</option>)}
+                      </select>
+                      
+                      <select 
+                        className="h-12 px-4 rounded-xl bg-white/5 border border-white/10 text-white outline-none" 
+                        value={moduleId} 
+                        onChange={e => setModuleId(e.target.value)}
+                        disabled={!selectedCurriculumId}
+                      >
+                        <option value="" className="text-black">Select Module...</option>
+                        {modules.map(m => <option key={m.id} value={m.id} className="text-black">Mod {m.order}: {m.title}</option>)}
+                      </select>
+                    </div>
+                    <p className="text-[9px] text-gray-500 font-bold italic mt-1">Linking sets assignment deadlines 48h after this session.</p>
                   </div>
                 </div>
 
