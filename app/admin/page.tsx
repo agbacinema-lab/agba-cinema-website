@@ -119,9 +119,9 @@ function AdminDashboardContent() {
     if (tab === 'overview' || tab === 'settings' || tab === 'profile' || tab === 'lms' || tab === 'portfolio' || tab === 'requests') return true;
     if (['super_admin', 'director'].includes(profile?.role || '')) return true;
 
-    const staffPerms = ['readiness', 'content', 'users'];
-    const tutorPerms = ['content', 'assignments', 'timetable', 'communications', 'users'];
-    const hodPerms = ['readiness', 'courses', 'content', 'assignments', 'timetable', 'users'];
+    const staffPerms = ['readiness', 'content'];
+    const tutorPerms = ['content', 'assignments', 'timetable', 'communications'];
+    const hodPerms = ['readiness', 'courses', 'content', 'assignments', 'timetable'];
 
     const permissions: Record<string, string[]> = {
       hod: hodPerms,
@@ -129,7 +129,7 @@ function AdminDashboardContent() {
       tutor: tutorPerms,
       staff: staffPerms,
       admin: Array.from(new Set([...staffPerms, ...tutorPerms, ...hodPerms])),
-      more: ['content', 'assignments', 'communications', 'users', 'courses', 'timetable'] 
+      more: ['content', 'assignments', 'communications', 'courses', 'timetable'] 
     };
 
     if (tab === 'more') {
@@ -254,52 +254,51 @@ function AdminDashboardContent() {
             <NavItem active={activeTab === 'overview'} disabled={!hasAccess('overview')} icon={<LayoutDashboard className="h-5 w-5" />} label="Overview" onClick={() => handleTabChange('overview')} />
             {isStaff && (
               <>
-                <div className="space-y-1">
-                  <button
-                    onClick={() => {
-                      setIsManageUsersOpen(!isManageUsersOpen)
-                      if (!isManageUsersOpen) handleTabChange('users', 'students') // Automatically navigate when opening
-                    }}
-                    disabled={!hasAccess('users')}
-                    className={`w-full flex items-center justify-between p-5 rounded-[1.5rem] transition-all font-black text-[13px] tracking-[0.2em] ${!hasAccess('users')
-                      ? 'opacity-20 cursor-not-allowed text-muted-foreground/30'
-                      : activeTab === 'users'
-                        ? 'bg-yellow-400 text-black shadow-xl shadow-yellow-400/20 scale-[1.02]'
-                        : 'text-foreground hover:bg-foreground/5 active:scale-95'
-                      }`}
-                  >
-                     <div className="flex items-center gap-5">
-                       <div className={`transition-colors ${activeTab === 'users' ? 'text-black' : 'text-yellow-400'}`}>
-                         <Users className="h-5 w-5" />
-                       </div>
-                       Manage Users
-                     </div>
-                     <ChevronDown className={`h-4 w-4 transition-transform ${isManageUsersOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  
-                  {isManageUsersOpen && hasAccess('users') && (
-                    <div className="pl-12 pr-4 space-y-1 py-2 relative before:absolute before:left-8 before:top-4 before:bottom-4 before:w-px before:bg-border">
-                       <button 
-                         onClick={() => handleTabChange('users', 'students')}
-                         className={`w-full flex items-center p-3 rounded-xl transition-all font-black text-[11px] tracking-widest text-left ${activeTab === 'users' && searchParams.get('view') === 'students' ? 'bg-yellow-400/10 text-yellow-500' : 'text-foreground/60 hover:text-foreground hover:bg-foreground/5'}`}
-                       >
-                         Students
-                       </button>
-                       <button 
-                         onClick={() => handleTabChange('users', 'staff')}
-                         className={`w-full flex items-center p-3 rounded-xl transition-all font-black text-[11px] tracking-widest text-left ${activeTab === 'users' && searchParams.get('view') === 'staff' ? 'bg-yellow-400/10 text-yellow-500' : 'text-foreground/60 hover:text-foreground hover:bg-foreground/5'}`}
-                       >
-                         Tutors & Staff
-                       </button>
-                       <button 
-                         onClick={() => handleTabChange('users', 'brands')}
-                         className={`w-full flex items-center p-3 rounded-xl transition-all font-black text-[11px] tracking-widest text-left ${activeTab === 'users' && searchParams.get('view') === 'brands' ? 'bg-yellow-400/10 text-yellow-500' : 'text-foreground/60 hover:text-foreground hover:bg-foreground/5'}`}
-                       >
-                         Brands
-                       </button>
+                  {hasAccess('users') && (
+                    <div className="space-y-1">
+                      <button
+                        onClick={() => {
+                          setIsManageUsersOpen(!isManageUsersOpen)
+                          if (!isManageUsersOpen) handleTabChange('users', 'students') // Automatically navigate when opening
+                        }}
+                        className={`w-full flex items-center justify-between p-5 rounded-[1.5rem] transition-all font-black text-[13px] tracking-[0.2em] ${activeTab === 'users'
+                            ? 'bg-yellow-400 text-black shadow-xl shadow-yellow-400/20 scale-[1.02]'
+                            : 'text-foreground hover:bg-foreground/5 active:scale-95'
+                          }`}
+                      >
+                         <div className="flex items-center gap-5">
+                           <div className={`transition-colors ${activeTab === 'users' ? 'text-black' : 'text-yellow-400'}`}>
+                             <Users className="h-5 w-5" />
+                           </div>
+                           Manage Users
+                         </div>
+                         <ChevronDown className={`h-4 w-4 transition-transform ${isManageUsersOpen ? 'rotate-180' : ''}`} />
+                      </button>
+                      
+                      {isManageUsersOpen && (
+                        <div className="pl-12 pr-4 space-y-1 py-2 relative before:absolute before:left-8 before:top-4 before:bottom-4 before:w-px before:bg-border">
+                           <button 
+                             onClick={() => handleTabChange('users', 'students')}
+                             className={`w-full flex items-center p-3 rounded-xl transition-all font-black text-[11px] tracking-widest text-left ${activeTab === 'users' && searchParams.get('view') === 'students' ? 'bg-yellow-400/10 text-yellow-500' : 'text-foreground/60 hover:text-foreground hover:bg-foreground/5'}`}
+                           >
+                             Students
+                           </button>
+                           <button 
+                             onClick={() => handleTabChange('users', 'staff')}
+                             className={`w-full flex items-center p-3 rounded-xl transition-all font-black text-[11px] tracking-widest text-left ${activeTab === 'users' && searchParams.get('view') === 'staff' ? 'bg-yellow-400/10 text-yellow-500' : 'text-foreground/60 hover:text-foreground hover:bg-foreground/5'}`}
+                           >
+                             Tutors & Staff
+                           </button>
+                           <button 
+                             onClick={() => handleTabChange('users', 'brands')}
+                             className={`w-full flex items-center p-3 rounded-xl transition-all font-black text-[11px] tracking-widest text-left ${activeTab === 'users' && searchParams.get('view') === 'brands' ? 'bg-yellow-400/10 text-yellow-500' : 'text-foreground/60 hover:text-foreground hover:bg-foreground/5'}`}
+                           >
+                             Brands
+                           </button>
+                        </div>
+                      )}
                     </div>
                   )}
-                </div>
                 {!hasExecutiveView && (
                   <NavItem active={activeTab === 'readiness'} disabled={!hasAccess('readiness')} icon={<Shield className="h-5 w-5" />} label="Nominate Ready" onClick={() => handleTabChange('readiness')} />
                 )}
