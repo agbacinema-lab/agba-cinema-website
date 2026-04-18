@@ -44,12 +44,12 @@ function InternalViewer({ url, onClose }: { url: string; onClose: () => void }) 
     >
       <div className="w-full px-8 h-24 flex justify-between items-center border-b border-white/10">
         <div className="flex items-center gap-6">
-          <button onClick={onClose} className="flex items-center gap-3 bg-foreground text-background px-8 h-14 rounded-2xl font-black tracking-[0.2em] text-[10px] hover:bg-yellow-400 hover:text-black transition-all shadow-2xl">
+          <button onClick={onClose} className="flex items-center gap-3 bg-white text-black px-8 h-14 rounded-2xl font-black tracking-[0.2em] text-[10px] hover:bg-yellow-400 hover:text-black transition-all shadow-2xl">
             <ArrowLeft className="h-4 w-4" /> Exit review
           </button>
           <div>
-            <h3 className="text-foreground font-black tracking-widest text-[11px]">Tutor evaluation workspace</h3>
-            <p className="text-muted-foreground text-[9px] font-black tracking-[0.4em]">Protocol: A1-secure-view</p>
+            <h3 className="text-white font-black tracking-widest text-[11px]">Tutor evaluation workspace</h3>
+            <p className="text-white/40 text-[9px] font-black tracking-[0.4em]">Protocol: A1-secure-view</p>
           </div>
         </div>
         <button onClick={onClose} className="group p-4 bg-red-500/10 hover:bg-red-500 rounded-2xl text-red-500 hover:text-white transition-all">

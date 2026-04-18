@@ -9,7 +9,9 @@ import PortfolioManager from "./PortfolioManager"
 import UrgencyManager from "./UrgencyManager"
 import BlueprintManager from "./BlueprintManager"
 import LeadDispatcher from "./LeadDispatcher"
+import AnnouncementManager from "./AnnouncementManager"
 import { motion } from "framer-motion"
+import { Bell } from "lucide-react"
 
 const TABS = [
   { id: "blog", label: "Blog Posts", icon: FileText, color: "from-orange-400 to-yellow-400" },
@@ -19,6 +21,7 @@ const TABS = [
   { id: "urgency", label: "Urgency Signals", icon: Clock, color: "from-red-500 to-orange-400" },
   { id: "blueprint", label: "Program Blueprint", icon: Clipboard, color: "from-indigo-500 to-violet-400" },
   { id: "leads", label: "Lead Dispatcher", icon: MailOpen, color: "from-pink-500 to-rose-400" },
+  { id: "broadcasts", label: "Broadcasts", icon: Bell, color: "from-yellow-500 to-orange-400" },
 ]
 
 export default function ContentHub() {
@@ -68,6 +71,7 @@ export default function ContentHub() {
         {activeSection === "urgency" && <UrgencyManager />}
         {activeSection === "blueprint" && <BlueprintManager />}
         {activeSection === "leads" && <LeadDispatcher />}
+        {activeSection === "broadcasts" && <AnnouncementManager />}
       </motion.div>
     </div>
   )

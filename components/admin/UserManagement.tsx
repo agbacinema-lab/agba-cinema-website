@@ -7,8 +7,10 @@ import { UserProfile, UserRole } from "@/lib/types"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Shield, UserCheck, ChevronDown, Users, Search, RefreshCw, XCircle, ArrowRight, Globe, Trash2, GraduationCap } from "lucide-react"
 import PasswordVerifyDialog from "./PasswordVerifyDialog"
+import BrandManagementPanel from "./BrandManagementPanel"
 import { toast } from "sonner"
 import { motion } from "framer-motion"
+import { useSearchParams, useRouter } from "next/navigation"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,7 +22,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-export default function UserManagement() {
+export default function UserManagement({ compact = false, filterByTutorId }: { compact?: boolean; filterByTutorId?: string }) {
   const { profile: currentAdmin, isSuperAdmin } = useAuth()
   const [users, setUsers] = useState<UserProfile[]>([])
   const [loading, setLoading] = useState(true)
@@ -49,6 +51,30 @@ export default function UserManagement() {
   const [searchQuery, setSearchQuery] = useState("")
   const [limitView, setLimitView] = useState(true)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  
+  // View selector state for non-compact mode
+  const initialView = searchParams.get('view') as 'students' | 'staff' | 'brands' | null
+  const [currentView, setCurrentView] = useState<'students' | 'staff' | 'brands'>(
+    (initialView && ['students', 'staff', 'brands'].includes(initialView)) ? initialView : 'students'
+  )
+
+  useEffect(() => {
+    const view = searchParams.get('view')
+    if (view && ['students', 'staff', 'brands'].includes(view) && view !== currentView) {
+      setCurrentView(view as 'students' | 'staff' | 'brands')
+    }
+  }, [searchParams])
+
+  const handleDropdownChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value as 'students' | 'staff' | 'brands'
+    setCurrentView(val)
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('view', val)
+    router.replace(`?${params.toString()}`, { scroll: false })
+  }
 
   const loadData = async () => {
     setLoading(true)
@@ -58,8 +84,6 @@ export default function UserManagement() {
       setTutors(data.filter(u => 
         u.role === 'tutor' || 
         u.role === 'admin' || 
-        u.role === 'super_admin' || 
-        u.role === 'director' || 
         u.role === 'head_of_department'
       ))
       
@@ -70,6 +94,42 @@ export default function UserManagement() {
       setLoading(false)
     }
   }
+
+  const toggleInternshipReadiness = async (student: any) => {
+    if (!currentAdmin) return
+    try {
+      if (student.status === 'internship_ready') {
+         if (isSuperAdmin) {
+            await adminService.revokeInternshipReadiness(student.uid)
+            toast.success("Readiness revoked")
+         } else {
+            await adminService.createApprovalRequest({
+               type: 'revoke_internship',
+               requestBy: { uid: currentAdmin.uid, name: currentAdmin.name, email: currentAdmin.email },
+               data: { userId: student.uid, userName: student.name }
+            })
+            toast.success("Request to revoke sent for approval")
+         }
+      } else {
+         if (isSuperAdmin) {
+            await adminService.setInternshipStatus(student.uid, 'internship_ready')
+            toast.success("Student assigned as ready")
+         } else {
+            await adminService.createApprovalRequest({
+               type: 'internship_ready',
+               requestBy: { uid: currentAdmin.uid, name: currentAdmin.name, email: currentAdmin.email },
+               data: { userId: student.uid, userName: student.name }
+            })
+            toast.success("Nomination sent for approval")
+         }
+      }
+      loadData()
+    } catch (err) {
+      console.error(err)
+      toast.error("Failed to update status")
+    }
+  }
+
 
   useEffect(() => {
     loadData()
@@ -258,6 +318,19 @@ export default function UserManagement() {
     }
   }
 
+  const handleToggleBrandAccess = async (brandId: string, currentHasAccess: boolean) => {
+    try {
+      const { doc, updateDoc } = await import('firebase/firestore');
+      const { db } = await import('@/lib/firebase');
+      await updateDoc(doc(db, "brands", brandId), { hasPaidAccess: !currentHasAccess });
+      await updateDoc(doc(db, "users", brandId), { hasPaidAccess: !currentHasAccess });
+      toast.success(`Paid access ${!currentHasAccess ? 'granted' : 'revoked'}.`);
+      loadData();
+    } catch (err) {
+      toast.error("Failed to toggle brand access.");
+    }
+  }
+
   if (loading) return (
     <div className="p-24 text-left">
        <div className="w-10 h-10 border-4 border-foreground border-t-transparent rounded-full animate-spin mb-4" />
@@ -267,16 +340,30 @@ export default function UserManagement() {
 
   const students = users
     .filter(u => u.role === 'student')
+    .filter(s => {
+       if (filterByTutorId) {
+          const assigned = (s as any).assignedTutors || {}
+          return Object.values(assigned).some((a: any) => a.tutorId === filterByTutorId)
+       }
+       return true
+    })
     .filter(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()))
     .sort((a,b) => {
       if (sortAsc) return a.name.localeCompare(b.name)
       return b.name.localeCompare(a.name)
     })
   
-  const displayedStudents = limitView && searchQuery === "" ? students.slice(0, 5) : students
-  const staff = users.filter(u => u.role !== 'student' && u.role !== 'brand' && u.role !== 'ngo' && (u as any).approvalStatus !== 'pending')
-  const brands = users.filter(u => u.role === 'brand' || u.role === 'ngo')
-  const pendingApprovals = users.filter(u => (u as any).approvalStatus === 'pending')
+  const displayedStudents = (limitView || compact) && searchQuery === "" ? students.slice(0, 5) : students
+  // If compact, limit other views to 5 as well
+  let staff = users.filter(u => u.role !== 'student' && u.role !== 'brand' && u.role !== 'ngo' && (u as any).approvalStatus !== 'pending')
+  let brands = users.filter(u => u.role === 'brand' || u.role === 'ngo')
+  let pendingApprovals = users.filter(u => (u as any).approvalStatus === 'pending')
+
+  if (compact) {
+    staff = staff.slice(0, 5)
+    brands = brands.slice(0, 5)
+    pendingApprovals = pendingApprovals.slice(0, 3)
+  }
 
   const handleApproveStaff = async (userId: string) => {
     try {
@@ -325,24 +412,24 @@ export default function UserManagement() {
                   key={u.uid} 
                   initial={{ opacity: 0, scale: 0.95 }} 
                   animate={{ opacity: 1, scale: 1 }}
-                  className="bg-black text-white p-8 rounded-[2.5rem] border border-white/10 shadow-2xl space-y-8 flex flex-col justify-between"
+                  className="bg-card text-foreground p-8 rounded-[2.5rem] border border-border shadow-2xl space-y-8 flex flex-col justify-between"
                 >
                    <div className="space-y-4">
                       <div className="flex justify-between items-start">
-                         <div className="w-12 h-12 bg-yellow-400 rounded-2xl flex items-center justify-center text-black font-black">
+                         <div className="w-12 h-12 bg-yellow-400 rounded-2xl flex items-center justify-center text-black font-black shadow-lg shadow-yellow-400/20">
                             <Shield className="h-6 w-6" />
                          </div>
-                         <span className="bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-[8px] font-black tracking-widest text-yellow-400">
-                            PENDING: {u.role?.toUpperCase()}
+                         <span className="bg-muted border border-border px-4 py-1.5 rounded-full text-[8px] font-black tracking-widest text-yellow-500 uppercase">
+                            PENDING: {u.role?.replace('_', ' ')}
                          </span>
                       </div>
                       <div>
                          <h4 className="text-xl font-black italic tracking-tighter">{u.name}</h4>
-                         <p className="text-white/40 text-[10px] font-bold mt-1">{u.email}</p>
+                         <p className="text-muted-foreground text-[10px] font-bold mt-1 uppercase tracking-widest">{u.email}</p>
                       </div>
                    </div>
 
-                   <div className="grid grid-cols-2 gap-3 pt-6 border-t border-white/5">
+                   <div className="grid grid-cols-2 gap-3 pt-6 border-t border-border">
                       <button 
                         onClick={() => handleApproveStaff(u.uid)}
                         className="h-12 bg-yellow-400 text-black rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95"
@@ -362,22 +449,42 @@ export default function UserManagement() {
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-8 bg-muted/10 p-6 rounded-[2.5rem] border border-muted/30">
-        <div className="text-left">
-          <h2 className="text-2xl font-black tracking-tighter text-foreground">Talent command</h2>
-          <p className="text-[10px] font-black tracking-widest text-muted-foreground opacity-60">Synchronize and deploy your network assets.</p>
+      {!compact && (
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 bg-muted/10 p-6 rounded-[2.5rem] border border-muted/30 gap-6">
+          <div className="text-left">
+            <h2 className="text-2xl font-black tracking-tighter text-foreground">Talent command</h2>
+            <p className="text-[10px] font-black tracking-widest text-muted-foreground opacity-60">Synchronize and deploy your network assets.</p>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-4">
+             <div className="relative">
+                <select 
+                  value={currentView}
+                  onChange={handleDropdownChange}
+                  className="appearance-none h-[42px] pl-6 pr-12 rounded-xl border-2 border-foreground/30 bg-background text-[11px] font-black tracking-widest uppercase text-foreground outline-none focus:border-yellow-400 focus:ring-4 focus:ring-yellow-400/20 transition-all cursor-pointer shadow-sm hover:border-foreground/50"
+                >
+                  <option value="students" className="bg-card text-foreground uppercase tracking-widest font-black">Students</option>
+                  <option value="staff" className="bg-card text-foreground uppercase tracking-widest font-black">Tutors / Staff</option>
+                  <option value="brands" className="bg-card text-foreground uppercase tracking-widest font-black">Brands</option>
+                </select>
+                <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-foreground/50">
+                   <ChevronDown className="h-4 w-4" />
+                </div>
+             </div>
+             
+             {currentView === 'students' && (
+                <button 
+                  onClick={() => setMassChangeMode(!massChangeMode)}
+                  className={`h-[42px] px-6 rounded-xl font-black tracking-widest text-[10px] transition-all border ${massChangeMode ? 'bg-red-500 text-white border-red-500' : 'bg-card text-foreground border-muted hover:bg-muted'}`}
+                >
+                  {massChangeMode ? "Cancel mass change" : "Reassign tutor pool"}
+                </button>
+             )}
+          </div>
         </div>
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => setMassChangeMode(!massChangeMode)}
-            className={`h-14 px-6 rounded-2xl font-black tracking-widest text-[10px] transition-all border ${massChangeMode ? 'bg-red-500 text-white border-red-500' : 'bg-card text-foreground border-muted'}`}
-          >
-            {massChangeMode ? "Cancel mass change" : "Reassign tutor pool"}
-          </button>
-        </div>
-      </div>
+      )}
 
-      {massChangeMode && (
+      {!compact && massChangeMode && (
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-12 p-10 bg-black text-white rounded-[2.5rem] shadow-2xl border border-white/10 relative overflow-hidden text-left">
            <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
               <RefreshCw className="w-32 h-32 animate-spin-[20s]" />
@@ -426,7 +533,8 @@ export default function UserManagement() {
       )}
 
       {/* ─── Tutor Assignment Table (Students) ─── */}
-      <Card className="border border-muted shadow-premium rounded-[3rem] bg-card overflow-hidden transition-colors relative group">
+      {(compact || currentView === 'students') && (
+        <Card className="border border-muted shadow-premium rounded-[3rem] bg-card overflow-hidden transition-colors relative group">
         <CardHeader className="p-10 lg:p-14 border-b border-muted bg-muted/20 transition-colors flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           <div className="space-y-4 max-w-lg text-left">
             <CardTitle className="flex items-center gap-5 text-2xl font-black tracking-tighter text-foreground transition-colors">
@@ -440,18 +548,20 @@ export default function UserManagement() {
             </p>
           </div>
           
-          <div className="relative w-full md:w-80 group">
-             <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-muted-foreground group-focus-within:text-yellow-400 transition-colors" />
-             </div>
-             <input 
-               type="text" 
-               placeholder="Search talent..." 
-               value={searchQuery}
-               onChange={e => setSearchQuery(e.target.value)}
-               className="w-full h-14 pl-14 pr-6 bg-card border border-muted rounded-2xl text-[10px] font-black tracking-widest outline-none focus:border-yellow-400 transition-all shadow-sm"
-             />
-          </div>
+          {!compact && (
+            <div className="relative w-full md:w-80 group">
+               <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+                  <Search className="h-4 w-4 text-muted-foreground group-focus-within:text-yellow-400 transition-colors" />
+               </div>
+               <input 
+                 type="text" 
+                 placeholder="Search talent..." 
+                 value={searchQuery}
+                 onChange={e => setSearchQuery(e.target.value)}
+                 className="w-full h-14 pl-14 pr-6 bg-card border border-muted rounded-2xl text-[10px] font-black tracking-widest outline-none focus:border-yellow-400 transition-all shadow-sm"
+               />
+            </div>
+          )}
         </CardHeader>
         <CardContent className="p-0 transition-colors">
           <div className="overflow-x-auto relative z-10">
@@ -477,11 +587,25 @@ export default function UserManagement() {
                            <div className="flex items-center gap-6">
                               <div className={`w-3 h-3 rounded-full ${isExpanded ? 'bg-yellow-400' : 'bg-muted'} transition-all shadow-[0_0_10px_rgba(250,204,21,0.5)]`} />
                               <div className="text-left">
-                                <p className="font-black text-foreground tracking-tighter text-xl transition-colors">{u.name}</p>
+                                <div className="flex items-center gap-3">
+                                  <p className="font-black text-foreground tracking-tighter text-xl transition-colors">{u.name || (u.role === 'admin' ? 'Unnamed Admin' : 'Unnamed Personnel')}</p>
+                                  {(u as any).status === 'internship_ready' && (
+                                    <span className="px-2 py-0.5 bg-green-500/20 text-green-500 border border-green-500/20 rounded-md text-[8px] font-black uppercase tracking-widest hidden md:inline-block">Ready</span>
+                                  )}
+                                </div>
                                 <p className="text-[9px] text-muted-foreground font-black tracking-widest mt-1 opacity-40">{u.email}</p>
                               </div>
                            </div>
                            <div className="flex items-center gap-4">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  toggleInternshipReadiness((u as any))
+                                }}
+                                className={`px-4 py-2 rounded-xl transition-all font-black text-[9px] tracking-widest uppercase hidden md:inline-block ${(u as any).status === 'internship_ready' ? 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white' : 'bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white'}`}
+                              >
+                                {(u as any).status === 'internship_ready' ? (isSuperAdmin ? 'Revoke Ready' : 'Request Revoke') : (isSuperAdmin ? 'Approve Ready' : 'Nominate Ready')}
+                              </button>
                              {isSuperAdmin && (
                                <button
                                  onClick={(e) => {
@@ -504,74 +628,61 @@ export default function UserManagement() {
                         <tr>
                           <td className="p-0 border-b border-muted bg-muted/5">
                              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="overflow-hidden">
-                                <div className="p-10 lg:p-14 space-y-10">
-                                 <div className="flex items-center gap-4 border-b border-muted pb-6 text-left">
-                                      <div className="w-10 h-10 bg-foreground/10 rounded-xl flex items-center justify-center text-foreground font-black text-[10px]">
-                                         {u.name[0]}
-                                      </div>
-                                       <div>
-                                          <h4 className="text-sm font-black tracking-widest text-foreground">Operational track engagement</h4>
-                                          <p className="text-[10px] text-muted-foreground font-medium">Enrolled specializations and assigned tutorial personnel.</p>
-                                       </div>
-                                   </div>
-  
-                                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                <div className="p-6 lg:p-8">
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                       {(u.enrolledSpecializations || [{ value: u.specialization || 'general' }]).map((spec: any) => {
                                          const specId = spec.value || spec.id || u.specialization || 'general'
                                          const assignment = (u as any).assignedTutors?.[specId]
                                          const specLabel = specs.find(s => s.value === specId)?.label || specId
                                          
                                          return (
-                                           <div key={specId} className="p-8 bg-card rounded-[2rem] border border-muted shadow-xl space-y-6 group/spec hover:border-yellow-400/50 transition-colors text-left">
-                                             <div className="flex justify-between items-start">
-                                                <p className="text-[10px] font-black text-yellow-500 tracking-[0.2em]">{specLabel}</p>
-                                                <div className="h-1.5 w-1.5 rounded-full bg-yellow-400 animate-pulse" />
-                                             </div>
-                                             
-                                             {assigningTo === `${u.uid}_${specId}` ? (
-                                                <div className="space-y-4">
-                                                   <select
-                                                     value={assigningTutorId}
-                                                     autoFocus
-                                                     onChange={e => setAssigningTutorId(e.target.value)}
-                                                     className="h-14 w-full px-6 rounded-2xl border-2 border-muted-foreground/40 text-[10px] font-black bg-background text-foreground outline-none shadow-xl focus:border-yellow-400 transition-all appearance-none"
-                                                   >
-                                                      <option value="" className="bg-card text-foreground">— Select tutor —</option>
-                                                      {tutors.filter(t => {
-                                                        const tSpecs = (t as any).specializations || []
-                                                        return tSpecs.length === 0 || tSpecs.includes(specId)
-                                                      }).map(t => (
-                                                        <option key={t.uid} value={t.uid} className="bg-card text-foreground">{t.name}</option>
-                                                      ))}
-                                                   </select>
-                                                   <div className="flex gap-3">
-                                                      <button onClick={() => handleAssignTutor(u.uid, specId, u.name)} disabled={assignLoading} className="flex-1 h-12 bg-foreground text-background rounded-xl font-black text-[10px] hover:bg-yellow-400 hover:text-black transition-all shadow-lg active:scale-95">
+                                           <div key={specId} className="p-5 bg-card rounded-2xl border border-muted shadow-sm hover:border-yellow-400/50 transition-colors text-left flex flex-col justify-between min-h-[120px]">
+                                              
+                                              <div className="flex justify-between items-start mb-4">
+                                                 <div className="flex items-center gap-2">
+                                                   <div className="h-1.5 w-1.5 rounded-full bg-yellow-400 animate-pulse" />
+                                                   <h5 className="font-black text-[10px] text-yellow-500 tracking-widest uppercase truncate max-w-[200px]">{specLabel}</h5>
+                                                 </div>
+                                              </div>
+                                              
+                                              {assigningTo === `${u.uid}_${specId}` ? (
+                                                 <div className="space-y-3 mt-auto">
+                                                    <select
+                                                      value={assigningTutorId}
+                                                      autoFocus
+                                                      onChange={e => setAssigningTutorId(e.target.value)}
+                                                      className="h-10 w-full px-3 rounded-xl border border-muted-foreground/40 text-[10px] font-black bg-background text-foreground outline-none focus:border-yellow-400 transition-all appearance-none"
+                                                    >
+                                                       <option value="" className="bg-card text-foreground">— Select tutor —</option>
+                                                       {tutors.filter(t => {
+                                                         const tSpecs = (t as any).specializations || []
+                                                         return tSpecs.length === 0 || tSpecs.includes(specId)
+                                                       }).map(t => (
+                                                         <option key={t.uid} value={t.uid} className="bg-card text-foreground">
+                                                            {t.name || t.email || `Personnel (${t.uid.slice(0,6)})`}
+                                                         </option>
+                                                       ))}
+                                                    </select>
+                                                    <div className="flex gap-2">
+                                                      <button onClick={() => handleAssignTutor(u.uid, specId, u.name)} disabled={assignLoading} className="flex-1 h-9 bg-foreground text-background rounded-xl font-black text-[10px] hover:bg-yellow-400 hover:text-black transition-all active:scale-95">
                                                         {assignLoading ? "..." : "Deploy"}
                                                       </button>
-                                                      <button onClick={() => setAssigningTo(null)} className="px-6 h-12 bg-muted text-muted-foreground rounded-xl font-black text-[10px] hover:bg-black hover:text-white transition-all">Close</button>
-                                                   </div>
-                                                </div>
-                                             ) : (
-                                               <div className="space-y-6">
-                                                 <div className="flex items-center gap-4">
-                                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-2xl ${assignment ? 'bg-yellow-400 text-black' : 'bg-muted/20 text-muted-foreground opacity-20'}`}>
-                                                      {assignment ? (assignment.tutorName[0]) : "?"}
+                                                      <button onClick={() => setAssigningTo(null)} className="px-4 h-9 bg-muted text-muted-foreground rounded-xl font-black text-[10px] hover:bg-black hover:text-white transition-all">Cancel</button>
                                                     </div>
-                                                      <div>
-                                                        <p className="text-[10px] font-black tracking-widest text-muted-foreground mb-1">Assigned support</p>
-                                                        <h5 className="font-black text-lg text-foreground tracking-tighter leading-none">
-                                                          {assignment?.tutorName || "Awaiting unit"}
-                                                        </h5>
-                                                      </div>
                                                  </div>
-                                                 
-                                                 {isSuperAdmin && (
-                                                   <button onClick={(e) => { e.stopPropagation(); setAssigningTo(`${u.uid}_${specId}`) }} className="w-full h-12 bg-muted/30 hover:bg-foreground hover:text-background border-2 border-transparent hover:border-black rounded-xl text-[9px] font-black tracking-widest transition-all">
-                                                     {assignment ? "Modify deployment" : "Initialize tutor"}
+                                              ) : (
+                                                 <div className="flex items-end justify-between mt-auto">
+                                                   <div>
+                                                      <h5 className="font-black text-sm text-foreground tracking-tighter leading-none line-clamp-1">
+                                                        {assignment?.tutorName || "Awaiting support"}
+                                                      </h5>
+                                                   </div>
+                                                   
+                                                   <button onClick={(e) => { e.stopPropagation(); setAssigningTo(`${u.uid}_${specId}`) }} className="h-9 px-5 bg-muted/50 hover:bg-foreground hover:text-background rounded-xl text-[10px] font-black tracking-widest transition-all">
+                                                     {assignment ? "Modify" : "Assign"}
                                                    </button>
-                                                 )}
-                                               </div>
-                                             )}
+                                                 </div>
+                                              )}
                                            </div>
                                          )
                                       })}
@@ -588,7 +699,7 @@ export default function UserManagement() {
             </table>
           </div>
 
-          {!searchQuery && students.length > 5 && (
+          {!searchQuery && students.length > 5 && !compact && (
             <div className="p-10 border-t border-muted bg-muted/5 flex justify-start">
                <button 
                 onClick={() => setLimitView(!limitView)}
@@ -598,10 +709,21 @@ export default function UserManagement() {
                </button>
             </div>
           )}
+          {compact && students.length > 5 && (
+            <div className="p-10 border-t border-muted bg-muted/5 flex justify-start">
+               <button 
+                className="px-10 h-14 rounded-2xl border border-muted text-muted-foreground font-black tracking-widest text-[10px] cursor-default opacity-50"
+               >
+                 Showing Top 5 Recent Students
+               </button>
+            </div>
+          )}
         </CardContent>
       </Card>
+      )}
 
       {/* ─── Role Control Table (All Staff/Admins) ─── */}
+      {(compact || currentView === 'staff') && (
       <Card className="border border-muted shadow-premium rounded-[3rem] bg-card overflow-hidden mt-12 transition-colors relative group">
         <CardHeader className="p-10 lg:p-14 border-b border-muted bg-muted/20 transition-colors text-left">
           <CardTitle className="flex items-center gap-5 text-2xl font-black tracking-tighter text-foreground">
@@ -686,23 +808,32 @@ export default function UserManagement() {
                     <td className="px-6 py-6 text-right">
                       <div className="flex justify-end items-center gap-3">
                         {u.role !== 'super_admin' && (
-                          <select 
-                            value=""
-                            onChange={(e) => {
-                              if (e.target.value) {
-                                initiateRoleChange(u.uid, e.target.value as UserRole, u.name, u.role)
-                              }
-                            }}
-                            className="h-10 px-4 rounded-xl border border-muted-foreground/30 bg-card text-[10px] font-black text-foreground outline-none hover:border-yellow-400 transition-all cursor-pointer appearance-none"
-                          >
-                            <option value="" className="bg-card text-foreground">Change role...</option>
-                            <option value="director" className="bg-card text-foreground">Director</option>
-                            <option value="head_of_department" className="bg-card text-foreground">Head of Department</option>
-                            <option value="admin" className="bg-card text-foreground">Admin</option>
-                            <option value="tutor" className="bg-card text-foreground">Tutor</option>
-                            <option value="staff" className="bg-card text-foreground">Staff</option>
-                            {u.role !== 'student' && <option value="student" className="bg-card text-foreground">Deactivate</option>}
-                          </select>
+                          <>
+                            <button
+                              onClick={() => initiateRoleChange(u.uid, 'student', u.name, u.role)}
+                              className="h-10 px-4 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl text-[10px] font-black transition-all"
+                              title="Deactivate Staff"
+                            >
+                              Deactivate
+                            </button>
+                            <select 
+                              value=""
+                              onChange={(e) => {
+                                if (e.target.value) {
+                                  initiateRoleChange(u.uid, e.target.value as UserRole, u.name, u.role)
+                                }
+                              }}
+                              className="h-10 px-4 rounded-xl border border-muted-foreground/30 bg-card text-[10px] font-black text-foreground outline-none hover:border-yellow-400 transition-all cursor-pointer appearance-none"
+                            >
+                              <option value="" className="bg-card text-foreground">Change role...</option>
+                              <option value="director" className="bg-card text-foreground">Director</option>
+                              <option value="head_of_department" className="bg-card text-foreground">Head of Department</option>
+                              <option value="admin" className="bg-card text-foreground">Admin</option>
+                              <option value="tutor" className="bg-card text-foreground">Tutor</option>
+                              <option value="staff" className="bg-card text-foreground">Staff</option>
+                              <option value="student" className="bg-card text-foreground">Deactivate</option>
+                            </select>
+                          </>
                         )}
                         {isSuperAdmin && (
                           <button
@@ -727,9 +858,13 @@ export default function UserManagement() {
           </div>
         </CardContent>
       </Card>
+      )}
       
       {/* ─── Brand Control Table (Corporate Entities) ─── */}
-      <Card className="border border-muted shadow-premium rounded-[3rem] bg-card overflow-hidden mt-12 transition-colors relative group">
+      {(compact || currentView === 'brands') && (
+      <div className="space-y-12">
+        {!compact && <BrandManagementPanel />}
+        <Card className="border border-muted shadow-premium rounded-[3rem] bg-card overflow-hidden mt-12 transition-colors relative group">
         <CardHeader className="p-10 lg:p-14 border-b border-muted bg-muted/20 transition-colors text-left">
           <CardTitle className="flex items-center gap-5 text-2xl font-black tracking-tighter text-foreground">
             <div className="w-14 h-14 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-xl text-black">
@@ -780,6 +915,23 @@ export default function UserManagement() {
                       </td>
                       <td className="px-6 py-6 text-right">
                         <div className="flex justify-end items-center gap-3">
+                           <button
+                             onClick={() => handleToggleBrandAccess(u.uid, !!u.hasPaidAccess)}
+                             className={`h-10 px-4 rounded-xl text-[10px] font-black transition-all border ${
+                               u.hasPaidAccess 
+                                ? 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500 hover:text-white'
+                                : 'bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500 hover:text-white'
+                             }`}
+                           >
+                             {u.hasPaidAccess ? 'Revoke Access' : 'Grant Paid Access'}
+                           </button>
+                           <button
+                             onClick={() => initiateRoleChange(u.uid, 'student', u.name, u.role)}
+                             className="h-10 px-4 bg-muted hover:bg-foreground hover:text-background rounded-xl text-[10px] font-black transition-all"
+                             title="Deactivate Brand"
+                           >
+                             Deactivate
+                           </button>
                            <select 
                               value=""
                               onChange={(e) => {
@@ -823,6 +975,8 @@ export default function UserManagement() {
           </div>
         </CardContent>
       </Card>
+      </div>
+      )}
 
       <PasswordVerifyDialog 
         isOpen={verifyOpen}

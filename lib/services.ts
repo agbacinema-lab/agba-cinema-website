@@ -38,7 +38,7 @@ import {
 // NOTIFICATION UTILITY (Defined first to avoid TDZ errors)
 export const notifySuperAdmins = async (title: string, message: string, type: string, metadata?: any): Promise<void> => {
   const usersCol = collection(db, "users");
-  const q = query(usersCol, where("role", "==", "super_admin"));
+  const q = query(usersCol, where("role", "in", ["super_admin", "director"]));
   const snap = await getDocs(q);
 
   const batch = (await import('firebase/firestore')).writeBatch(db);
@@ -847,24 +847,57 @@ export interface BlogPost {
 
 // CURRICULUM SERVICE
 export const curriculumService = {
+  // Get all curricula pending approval (executive view)
+  getPendingCurricula: async (): Promise<any[]> => {
+    try {
+      const curriculaCol = collection(db, "curricula");
+      const q = query(curriculaCol, where("approvalStatus", "==", "pending_approval"));
+      const snapshot = await getDocs(q);
+      const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+      return docs.sort((a, b) => {
+        const timeA = a.submittedAt?.toMillis?.() || 0;
+        const timeB = b.submittedAt?.toMillis?.() || 0;
+        return timeB - timeA;
+      });
+    } catch (error) {
+      console.error("Error fetching pending curricula:", error);
+      return [];
+    }
+  },
+
   // Get all curricula
   getAllCurricula: async (): Promise<any[]> => {
-    const curriculaCol = collection(db, "curricula");
-    const snapshot = await getDocs(query(curriculaCol, orderBy("createdAt", "desc")));
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    try {
+      const curriculaCol = collection(db, "curricula");
+      const snapshot = await getDocs(curriculaCol);
+      const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+      return docs.sort((a, b) => {
+        const timeA = a.createdAt?.toMillis?.() || 0;
+        const timeB = b.createdAt?.toMillis?.() || 0;
+        return timeB - timeA;
+      });
+    } catch (error) {
+      console.error("Error fetching all curricula:", error);
+      return [];
+    }
   },
 
   // Get curricula by program type
   getCurriculaByProgram: async (programType: string): Promise<any[]> => {
-    const curriculaCol = collection(db, "curricula");
-    const q = query(curriculaCol, where("programType", "==", programType));
-    const snapshot = await getDocs(q);
-    const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
-    return docs.sort((a, b) => {
-      const timeA = a.createdAt?.toMillis?.() || 0;
-      const timeB = b.createdAt?.toMillis?.() || 0;
-      return timeB - timeA;
-    });
+    try {
+      const curriculaCol = collection(db, "curricula");
+      const q = query(curriculaCol, where("programType", "==", programType));
+      const snapshot = await getDocs(q);
+      const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+      return docs.sort((a, b) => {
+        const timeA = a.createdAt?.toMillis?.() || 0;
+        const timeB = b.createdAt?.toMillis?.() || 0;
+        return timeB - timeA;
+      });
+    } catch (error) {
+       console.error("Error fetching curricula by program:", error);
+       return [];
+    }
   },
 
   // Get a single curriculum
@@ -874,15 +907,59 @@ export const curriculumService = {
     return { id: curriculumDoc.id, ...curriculumDoc.data() };
   },
 
-  // Create a new curriculum
+  // Create a new curriculum (starts as draft)
   createCurriculum: async (curriculumData: any): Promise<string> => {
     const curriculaCol = collection(db, "curricula");
     const docRef = await addDoc(curriculaCol, {
       ...curriculumData,
+      approvalStatus: 'draft', // draft | pending_approval | approved | rejected
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
     return docRef.id;
+  },
+
+  // Submit a curriculum for executive approval
+  submitForApproval: async (curriculumId: string, submittedByName: string): Promise<void> => {
+    await updateDoc(doc(db, "curricula", curriculumId), {
+      approvalStatus: 'pending_approval',
+      submittedAt: serverTimestamp(),
+      submittedBy: submittedByName,
+      updatedAt: serverTimestamp()
+    });
+
+    // Notify Executives (Super Admin + Director)
+    await notifySuperAdmins(
+      "CURRICULUM PENDING APPROVAL",
+      `${submittedByName} has finalized a weekly curriculum and is requesting executive clearance.`,
+      "approval_request",
+      { 
+        requestId: curriculumId,
+        type: 'curriculum_approval',
+        curriculumId: curriculumId 
+      }
+    );
+  },
+
+  // Approve a curriculum (super_admin / director only)
+  approveCurriculum: async (curriculumId: string, approvedByName: string): Promise<void> => {
+    await updateDoc(doc(db, "curricula", curriculumId), {
+      approvalStatus: 'approved',
+      approvedAt: serverTimestamp(),
+      approvedBy: approvedByName,
+      updatedAt: serverTimestamp()
+    });
+  },
+
+  // Reject a curriculum with reason
+  rejectCurriculum: async (curriculumId: string, rejectedByName: string, reason: string): Promise<void> => {
+    await updateDoc(doc(db, "curricula", curriculumId), {
+      approvalStatus: 'rejected',
+      rejectedAt: serverTimestamp(),
+      rejectedBy: rejectedByName,
+      rejectionReason: reason,
+      updatedAt: serverTimestamp()
+    });
   },
 
   // Update curriculum
@@ -1475,6 +1552,17 @@ export const classSchedulerService = {
     const snap = await getDocs(q);
     return snap.docs.map(doc => ({ id: doc.id, ...(doc.data() as Omit<LiveClassSession, 'id'>) } as LiveClassSession));
   },
+
+  // Admin: Get all live classes across the entire db
+  getAllClasses: async () => {
+    const q = query(
+      collection(db, "live_classes"),
+      orderBy("startTime", "desc")
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map(doc => ({ id: doc.id, ...(doc.data() as Omit<LiveClassSession, 'id'>) } as LiveClassSession));
+  },
+
 
   // 4. For Students to see their personalized live timetable (1-on-1 Mentorship + Go Pro Cohort)
   getStudentTimetable: async (uid: string, cohortId?: string) => {

@@ -12,6 +12,8 @@ import { toast } from "sonner"
 
 export default function LiveTimetableManager() {
   const { profile } = useAuth()
+  const isExecutive = ['super_admin', 'director'].includes(profile?.role || '')
+
   const [classes, setClasses] = useState<LiveClassSession[]>([])
   const [students, setStudents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -79,7 +81,7 @@ export default function LiveTimetableManager() {
     try {
       if (profile?.uid) {
         const [classData, studentData, curriculumData] = await Promise.all([
-          classSchedulerService.getClassesByTutor(profile.uid),
+          isExecutive ? classSchedulerService.getAllClasses() : classSchedulerService.getClassesByTutor(profile.uid),
           adminService.getAllUsers(),
           curriculumService.getAllCurricula()
         ])
@@ -261,11 +263,15 @@ export default function LiveTimetableManager() {
       <div className="flex justify-between items-end">
         <div>
           <h2 className="text-3xl font-black tracking-tighter uppercase italic">Live Timetable</h2>
-          <p className="text-muted-foreground font-medium mt-1">Manage your Google Meet scheduling.</p>
+          <p className="text-muted-foreground font-medium mt-1">
+             {isExecutive ? "View and adjust active platform schedulings." : "Manage your Google Meet scheduling."}
+          </p>
         </div>
-        <Button onClick={() => setShowForm(true)} className="bg-yellow-400 text-black font-black h-12 rounded-2xl hover:bg-yellow-500">
-          <Plus className="h-4 w-4 mr-2" /> Schedule Class
-        </Button>
+        {!isExecutive && (
+          <Button onClick={() => setShowForm(true)} className="bg-yellow-400 text-black font-black h-12 rounded-2xl hover:bg-yellow-500">
+            <Plus className="h-4 w-4 mr-2" /> Schedule Class
+          </Button>
+        )}
       </div>
 
       <AnimatePresence>
@@ -418,7 +424,10 @@ export default function LiveTimetableManager() {
                   </div>
                 </div>
                 <h4 className="font-black text-xl italic uppercase tracking-tighter mb-1 line-clamp-2">{c.topic}</h4>
-                <p className="text-sm font-medium text-gray-500 mb-4">{c.targetAudience === 'individual' ? 'Student' : 'Batch'}: <span className="text-gray-900 font-bold">{c.targetName}</span></p>
+                <p className="text-sm font-medium text-gray-500 mb-2">{c.targetAudience === 'individual' ? 'Student' : 'Batch'}: <span className="text-gray-900 font-bold">{c.targetName}</span></p>
+                {isExecutive && c.tutorName && (
+                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-500 bg-indigo-500/10 px-2 py-1 rounded-md inline-block mb-4">Host: {c.tutorName}</p>
+                )}
                 
                 <div className="space-y-2 mb-6">
                   <div className="flex items-center gap-3 text-sm font-bold text-gray-600">

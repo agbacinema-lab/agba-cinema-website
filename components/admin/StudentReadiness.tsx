@@ -332,12 +332,29 @@ export default function StudentReadiness() {
                           </Button>
                         )
                       ) : isNominated ? (
-                        <Button 
-                          disabled
-                          className="w-full bg-yellow-400/10 text-yellow-600 border border-yellow-400/20 h-12 rounded-xl font-black text-[10px] tracking-widest cursor-default uppercase"
-                        >
-                          Nomination Pending
-                        </Button>
+                        (currentAdmin?.role === 'super_admin' || currentAdmin?.role === 'director') ? (
+                          <div className="flex gap-2 w-full">
+                            <Button 
+                              onClick={() => processRequest(s.userId, true)}
+                              className="flex-1 bg-green-500 text-white hover:bg-green-600 h-12 rounded-xl font-black text-[10px] tracking-widest transition-all uppercase"
+                            >
+                               Approve
+                            </Button>
+                            <Button 
+                              onClick={() => processRequest(s.userId, false)}
+                              className="flex-1 bg-red-500 text-white hover:bg-red-600 h-12 rounded-xl font-black text-[10px] tracking-widest transition-all uppercase"
+                            >
+                               Reject
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button 
+                            disabled
+                            className="w-full bg-yellow-400/10 text-yellow-600 border border-yellow-400/20 h-12 rounded-xl font-black text-[10px] tracking-widest cursor-default uppercase"
+                          >
+                            Nomination Pending
+                          </Button>
+                        )
                       ) : (
                         <div className="flex gap-2 w-full">
                           <Button 

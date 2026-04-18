@@ -12,7 +12,7 @@ import { motion } from "framer-motion"
 import { toast } from "sonner"
 
 interface CurriculumSelectorProps {
-  onSelectCurriculum: (curriculumId: string) => void
+  onSelectCurriculum: (curriculum: any) => void
   filter?: 'gopro' | 'mentorship' | 'all'
   specializationFilter?: string
 }
@@ -170,7 +170,7 @@ export default function CurriculumSelector({
 
                 <div className="flex gap-2 pt-2">
                    <Button
-                    onClick={() => onSelectCurriculum(curriculum.id)}
+                    onClick={() => onSelectCurriculum(curriculum)}
                     className="flex-1 bg-foreground text-background font-black text-[10px] tracking-widest rounded-xl flex items-center justify-center gap-2 hover:bg-yellow-400 hover:text-black transition-all"
                   >
                     View weeks
