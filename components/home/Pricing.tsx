@@ -8,28 +8,28 @@ import { motion } from "framer-motion"
 const mentorshipClasses = [
   {
     name: "Storytelling & Writing",
-    price: "₦70,000",
+    price: "₦100,000",
     tagline: "The foundation of every great film.",
     features: [
       "Visual storytelling fundamentals",
       "Professional script writing",
       "Creative direction & planning",
       "Narrative structure workshop",
-      "Certificate of completion"
+      "Content Writing with AI"
     ],
     highlighted: false,
     href: "/academy?track=storytelling"
   },
   {
     name: "Video Editing Mentorship",
-    price: "₦150,000",
+    price: "₦200,000",
     tagline: "Master the industry's most in-demand skill.",
     features: [
-      "Premiere Pro & After Effects",
-      "Advanced Color Grading",
+      "Premiere Pro",
+      "Color Grading",
       "Sound Design & Mixing",
       "Live Brand Projects",
-      "Internship placement support"
+      "Creative Business Strategy"
     ],
     highlighted: true,
     badge: "Most Popular",
@@ -37,21 +37,21 @@ const mentorshipClasses = [
   },
   {
     name: "Motion Design & VFX",
-    price: "₦250,000",
+    price: "₦300,000",
     tagline: "Advanced graphics for serious creators.",
     features: [
       "Advanced Motion Graphics",
       "3D Compositing & VFX",
       "Animated Brand Identities",
-      "Agency-style workflow",
-      "Lifetime community access"
+      "Live Brand Projects",
+      "Creative Business Strategy"
     ],
     highlighted: false,
     href: "/academy?track=motion"
   },
   {
     name: "Full Creative Masterclass",
-    price: "₦700,000",
+    price: "₦1,000,000",
     tagline: "The ultimate pathway to creative mastery.",
     features: [
       "Access to ALL mentorship tracks",
@@ -150,7 +150,7 @@ export default function Pricing() {
 
               <div className="mb-10">
                 <div className="flex items-baseline gap-1">
-                  <span className={`text-5xl font-black tracking-tighter ${plan.highlighted ? "text-white" : "text-gray-900"}`}>
+                  <span className={`text-3xl xl:text-4xl font-black tracking-tighter ${plan.highlighted ? "text-white" : "text-gray-900"}`}>
                     {plan.price}
                   </span>
                 </div>
