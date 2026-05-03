@@ -62,7 +62,7 @@ export default function WhoIsItFor() {
               <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
                 <CheckCircle2 className="h-6 w-6 text-green-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900">This Program Is <span className="text-green-600">For You</span> If…</h3>
+              <h3 className="text-xl font-bold text-gray-900">This Program Is <span className="text-green-600">For You</span> If You Are…</h3>
             </div>
             <ul className="space-y-4">
               {forList.map((item) => (
@@ -86,7 +86,7 @@ export default function WhoIsItFor() {
               <div className="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center">
                 <XCircle className="h-6 w-6 text-red-500" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900">This Program Is <span className="text-red-500">NOT For You</span> If…</h3>
+              <h3 className="text-xl font-bold text-gray-900">This Program Is <span className="text-red-500">NOT For You</span> If You are…</h3>
             </div>
             <ul className="space-y-4">
               {notForList.map((item) => (
@@ -119,16 +119,16 @@ export default function WhoIsItFor() {
           className="text-center"
         >
           <p className="text-gray-500 mb-6 text-lg">If you see yourself in the ✔ list, you're ready.</p>
-            <Button
-              size="lg"
-              asChild
-              className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-10 py-6 rounded-xl text-lg transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-yellow-400/20"
-            >
-              <a href="/academy">
-                Apply Now — Limited Spots
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </a>
-            </Button>
+          <Button
+            size="lg"
+            asChild
+            className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-10 py-6 rounded-xl text-lg transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-yellow-400/20"
+          >
+            <a href="/academy">
+              Apply Now — Limited Spots
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </a>
+          </Button>
         </motion.div>
       </div>
     </section>
