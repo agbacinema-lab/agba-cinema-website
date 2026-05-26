@@ -84,7 +84,7 @@ export default function Pricing() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="text-yellow-600 text-sm font-bold uppercase tracking-widest block mb-3">Mentorship Programs</span>
+          <span className="text-yellow-400 text-sm font-bold uppercase tracking-widest block mb-3">Mentorship Programs</span>
           <h2 className="text-4xl md:text-6xl font-black text-gray-900 mb-6 tracking-tighter">Choose Your Track</h2>
           <p className="text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed">
             Professional training designed to take you from beginner to industry-ready specialist.
@@ -199,7 +199,7 @@ export default function Pricing() {
           className="mt-20 text-center space-y-6"
         >
           <p className="text-gray-400 text-sm font-medium">
-            Not sure which track to choose? <a href="/contact" className="text-gray-900 font-black border-b-2 border-yellow-400 hover:text-yellow-600 transition-colors">Speak with a Mentor</a>
+            Not sure which track to choose? <a href="/contact" className="text-gray-900 font-black border-b-2 border-yellow-400 hover:text-[#D4AF37] transition-colors">Speak with a Mentor</a>
           </p>
           <div className="flex items-center justify-center gap-8 opacity-30 grayscale contrast-200">
             {/* Payment Logos or Trust Badges could go here */}

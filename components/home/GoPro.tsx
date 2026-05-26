@@ -140,15 +140,15 @@ export default function GoPro() {
             </p>
             <div className="flex items-center gap-3 mb-8 bg-yellow-400/10 border border-yellow-400/20 rounded-lg px-4 py-3">
               <span className="text-yellow-400 font-bold text-lg">⚡</span>
-              <span className="text-yellow-300 font-semibold text-sm">Strategic enrollment pipeline activated</span>
+              <span className="text-[#FFD700] font-semibold text-sm">Strategic enrollment pipeline activated</span>
             </div>
-            <Button size="lg" asChild className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-black text-lg py-6 rounded-xl transition-all duration-300 hover:scale-[1.02] mb-4">
+            <Button size="lg" asChild className="w-full bg-[#FFD700] hover:bg-[#D4AF37] text-black font-black text-lg py-6 rounded-xl transition-all duration-300 hover:scale-[1.02] mb-4">
               <a href="/portfolio">View Full Portfolio</a>
             </Button>
             <Button
               size="lg"
               asChild
-              className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-black text-lg py-6 rounded-xl transition-all duration-300 hover:scale-[1.02]"
+              className="w-full bg-[#FFD700] hover:bg-[#D4AF37] text-black font-black text-lg py-6 rounded-xl transition-all duration-300 hover:scale-[1.02]"
             >
               <a href="/academy">
                 Apply for the Next Cohort

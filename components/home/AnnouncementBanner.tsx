@@ -13,8 +13,12 @@ export default function AnnouncementBanner() {
 
   useEffect(() => {
     const fetch = async () => {
-      const data = await adminService.getAnnouncements()
-      setAnnouncements(data.filter(a => a.isActive))
+      try {
+        const data = await adminService.getAnnouncements()
+        setAnnouncements(data.filter(a => a.isActive))
+      } catch (e) {
+        console.error("Announcements fetch failed:", e)
+      }
     }
     fetch()
   }, [])
@@ -33,11 +37,11 @@ export default function AnnouncementBanner() {
       >
         <div className={`max-w-4xl mx-auto flex items-center justify-between p-4 md:p-6 rounded-[2rem] shadow-2xl backdrop-blur-xl border pointer-events-auto ${
            current.priority === 'high' ? 'bg-black text-white border-white/10' : 
-           current.priority === 'medium' ? 'bg-yellow-400 text-black border-yellow-500' : 'bg-white text-black border-gray-100'
+           current.priority === 'medium' ? 'bg-[#FFD700] text-black border-[#D4AF37]' : 'bg-white text-black border-gray-100'
         }`}>
           <div className="flex items-center gap-4 md:gap-6 flex-1">
              <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center shrink-0 ${
-                current.priority === 'high' ? 'bg-yellow-400 text-black' : 'bg-black text-white'
+                current.priority === 'high' ? 'bg-[#FFD700] text-black' : 'bg-black text-white'
              }`}>
                 <Megaphone className="h-5 w-5 md:h-6 md:w-6" />
              </div>
@@ -54,7 +58,7 @@ export default function AnnouncementBanner() {
                <a 
                 href={current.link} 
                 className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest px-6 h-12 rounded-xl transition-all ${
-                  current.priority === 'high' ? 'bg-white text-black hover:bg-yellow-400' : 'bg-black text-white hover:bg-white hover:text-black'
+                  current.priority === 'high' ? 'bg-white text-black hover:bg-[#FFD700]' : 'bg-black text-white hover:bg-white hover:text-black'
                 }`}
                >
                  View <ArrowRight className="h-4 w-4" />

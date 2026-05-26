@@ -30,7 +30,7 @@ export default function Curriculum() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="text-yellow-600 text-sm font-bold uppercase tracking-widest block mb-3">Program Breakdown</span>
+          <span className="text-yellow-400 text-sm font-bold uppercase tracking-widest block mb-3">Program Breakdown</span>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">What You'll Learn — Week by Week</h2>
           <p className="text-xl text-gray-500 max-w-2xl mx-auto">
             A structured 8-week curriculum built around real industry workflows — not theory.
@@ -48,7 +48,7 @@ export default function Curriculum() {
               viewport={{ once: true }}
               className={`rounded-2xl p-5 border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg
                 ${item.tag === "🔥 Live Project"
-                  ? "bg-gradient-to-br from-yellow-400 to-orange-400 border-yellow-300 text-black"
+                  ? "bg-gradient-to-br from-[#FFD700] to-[#D4AF37] border-[#D4AF37] text-black"
                   : "bg-gray-50 border-gray-100 text-gray-900"
                 }`}
             >
@@ -85,7 +85,7 @@ export default function Curriculum() {
             className="bg-gray-50 rounded-2xl p-8 border border-gray-100"
           >
             <div className="flex items-center gap-3 mb-5">
-              <Laptop className="h-6 w-6 text-yellow-500" />
+              <Laptop className="h-6 w-6 text-yellow-400" />
               <h3 className="text-lg font-bold text-gray-900">Tools You'll Master</h3>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -127,7 +127,7 @@ export default function Curriculum() {
           viewport={{ once: true }}
           className="text-center"
         >
-          <Button size="lg" asChild className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-10 py-6 rounded-xl text-lg hover:scale-[1.02] transition-all duration-300 shadow-lg shadow-yellow-400/20">
+          <Button size="lg" asChild className="bg-[#FFD700] hover:bg-[#D4AF37] text-black font-bold px-10 py-6 rounded-xl text-lg hover:scale-[1.02] transition-all duration-300 shadow-lg shadow-yellow-400/20">
             <a href="/academy">
               Enrol in the Program
               <ArrowRight className="ml-2 h-5 w-5" />

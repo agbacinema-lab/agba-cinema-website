@@ -122,7 +122,7 @@ function UnitCard({
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-2xl font-black italic uppercase tracking-tighter leading-none group-hover:text-yellow-600 transition-colors">
+        <h3 className="text-2xl font-black italic uppercase tracking-tighter leading-none group-hover:text-[#D4AF37] transition-colors">
           {title}
         </h3>
         <p className={`text-sm font-medium leading-relaxed italic ${featured ? "text-gray-400" : "text-gray-500"}`}>
@@ -159,7 +159,7 @@ export default function ServicesOverview() {
             viewport={{ once: true }}
             className="lg:col-span-8 space-y-6"
           >
-            <h4 className="text-yellow-500 font-black uppercase tracking-[0.5em] text-[10px]">Creative Education Tracks</h4>
+            <h4 className="text-yellow-400 font-black uppercase tracking-[0.5em] text-[10px]">Creative Education Tracks</h4>
             <h2 className="text-5xl md:text-8xl font-black text-black italic uppercase tracking-tighter leading-[0.85]">
               Six Paths. <br /> <span className="text-gray-200">One Academy.</span>
             </h2>

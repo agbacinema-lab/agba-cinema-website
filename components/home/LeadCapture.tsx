@@ -69,7 +69,7 @@ export default function LeadCapture() {
   }
 
   return (
-    <section className="py-24 bg-gradient-to-br from-yellow-50 to-orange-50 border-y border-yellow-100">
+    <section className="py-24 bg-gradient-to-br from-[#FFFDF0] to-[#FFF9E0] border-y border-[#FFD700]/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Left — mistakes list */}
@@ -79,12 +79,12 @@ export default function LeadCapture() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <span className="text-yellow-600 text-sm font-bold uppercase tracking-widest block mb-4">
+            <span className="text-yellow-400 text-sm font-bold uppercase tracking-widest block mb-4">
               Free Training for Creatives
             </span>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
               The 5 Biggest Mistakes<br />
-              <span className="text-yellow-500">Beginner Creatives</span> Make
+              <span className="text-yellow-400">Beginner Creatives</span> Make
             </h2>
             <p className="text-lg text-gray-600 mb-8">
               Watch our free training and learn how to avoid the exact mistakes that keep most African creatives from getting hired or paid.
@@ -121,7 +121,7 @@ export default function LeadCapture() {
             ) : (
               <>
                 <div className="flex items-center gap-3 mb-2">
-                  <PlayCircle className="h-8 w-8 text-yellow-500" />
+                  <PlayCircle className="h-8 w-8 text-yellow-400" />
                   <span className="text-gray-500 text-sm font-medium">Free Training Video — 23 mins</span>
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Watch the Free Training</h3>
@@ -152,7 +152,7 @@ export default function LeadCapture() {
                     type="submit"
                     size="lg"
                     disabled={loading}
-                    className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-6 rounded-xl text-lg transition-all duration-300 hover:scale-[1.02] disabled:opacity-70"
+                    className="w-full bg-[#FFD700] hover:bg-[#D4AF37] text-black font-bold py-6 rounded-xl text-lg transition-all duration-300 hover:scale-[1.02] disabled:opacity-70"
                   >
                     {loading ? "Sending…" : (
                       <>

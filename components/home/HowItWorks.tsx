@@ -11,35 +11,40 @@ const steps = [
     icon: ClipboardList,
     title: "Choose Your Creative Track",
     description: "Pick from 6 disciplines: Filmmaking, Video Editing, Writing, Social Media, Digital Marketing, or Virtual Assistance.",
-    color: "from-yellow-400 to-amber-400",
+    bgClass: "bg-[#FFD700]",
+    iconColor: "text-black",
   },
   {
     number: "02",
     icon: Monitor,
     title: "Train with Working Professionals",
     description: "Follow a structured curriculum taught by industry practitioners. Learn real workflows from day one, not theory.",
-    color: "from-orange-400 to-red-400",
+    bgClass: "bg-black",
+    iconColor: "text-[#FFD700]",
   },
   {
     number: "03",
     icon: Briefcase,
     title: "Work on Real Brand Projects",
     description: "Get assigned to actual client campaigns — not dummy exercises. Build real deliverables brands pay for.",
-    color: "from-purple-400 to-pink-400",
+    bgClass: "bg-[#D4AF37]",
+    iconColor: "text-black",
   },
   {
     number: "04",
     icon: Building2,
     title: "Get Internship Placement",
     description: "Top students are connected to our network of 50+ partner brands for paid internship opportunities.",
-    color: "from-blue-400 to-cyan-400",
+    bgClass: "bg-black",
+    iconColor: "text-[#FFD700]",
   },
   {
     number: "05",
     icon: FolderOpen,
     title: "Build Portfolio + Launch Career",
     description: "Leave with a professional portfolio, a career-ready CV, and ongoing support from the ÀGBÀ CINEMA community.",
-    color: "from-green-400 to-emerald-400",
+    bgClass: "bg-[#FFD700]",
+    iconColor: "text-black",
   },
 ]
 
@@ -54,7 +59,7 @@ export default function HowItWorks() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="text-yellow-600 text-sm font-bold uppercase tracking-widest block mb-3">The Process</span>
+          <span className="text-yellow-400 text-sm font-bold uppercase tracking-widest block mb-3">The Process</span>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">How It Works</h2>
           <p className="text-xl text-gray-500 max-w-2xl mx-auto">
             5 clear steps from zero experience to career-ready creative professional. One proven path, 6 disciplines.
@@ -63,7 +68,7 @@ export default function HowItWorks() {
 
         {/* Desktop: horizontal connector line */}
         <div className="hidden lg:block relative mb-12">
-          <div className="absolute top-8 left-[12%] right-[12%] h-0.5 bg-gradient-to-r from-yellow-400 via-purple-400 to-green-400 opacity-30" />
+          <div className="absolute top-8 left-[12%] right-[12%] h-0.5 bg-gradient-to-r from-[#FFD700] via-[#D4AF37] to-black opacity-30" />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-4">
@@ -77,8 +82,8 @@ export default function HowItWorks() {
               className="relative flex flex-col items-center text-center group"
             >
               {/* Icon circle */}
-              <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                <step.icon className="h-7 w-7 text-white" />
+              <div className={`w-16 h-16 rounded-2xl ${step.bgClass} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                <step.icon className={`h-7 w-7 ${step.iconColor}`} />
               </div>
 
               {/* Step number */}

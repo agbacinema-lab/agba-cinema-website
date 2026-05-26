@@ -61,7 +61,7 @@ export default function GroupChat({ roomId, currentUser, onClose }: GroupChatPro
 
   const getRoleColor = (role: string) => {
     switch(role) {
-      case 'super_admin': return 'bg-yellow-400 text-black border-yellow-500/20';
+      case 'super_admin': return 'bg-[#FFD700] text-black border-[#D4AF37]/20';
       case 'tutor': return 'bg-blue-500 text-white border-blue-600/20';
       case 'brand': return 'bg-purple-600 text-white border-purple-700/20';
       case 'student': return 'bg-emerald-500 text-white border-emerald-600/20';
@@ -75,7 +75,7 @@ export default function GroupChat({ roomId, currentUser, onClose }: GroupChatPro
       <div className="p-6 bg-white dark:bg-[#1a1a1a] border-b border-muted/40 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="w-12 h-12 bg-yellow-400 rounded-2xl flex items-center justify-center text-black shadow-lg shadow-yellow-400/20">
+            <div className="w-12 h-12 bg-[#FFD700] rounded-2xl flex items-center justify-center text-black shadow-lg shadow-yellow-400/20">
               <MessageSquare className="h-6 w-6 stroke-[2.5]" />
             </div>
             <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white dark:border-[#1a1a1a] rounded-full animate-pulse" />
@@ -114,7 +114,7 @@ export default function GroupChat({ roomId, currentUser, onClose }: GroupChatPro
       >
         {loading ? (
              <div className="h-full flex flex-col items-center justify-center gap-4">
-                <Loader2 className="h-10 w-10 animate-spin text-yellow-500" />
+                <Loader2 className="h-10 w-10 animate-spin text-[#FFD700]" />
                 <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground italic">Establishing Uplink...</p>
              </div>
         ) : messages.length === 0 ? (
@@ -132,7 +132,7 @@ export default function GroupChat({ roomId, currentUser, onClose }: GroupChatPro
             
             if (isSystem) return (
                <div key={msg.id || idx} className="flex justify-center my-4">
-                  <span className="px-4 py-1.5 bg-yellow-400/10 border border-yellow-400/20 text-yellow-600 dark:text-yellow-400 text-[8px] font-black uppercase tracking-[0.3em] rounded-full">
+                  <span className="px-4 py-1.5 bg-[#FFD700]/10 border border-[#FFD700]/20 text-[#D4AF37] dark:text-[#FFD700] text-[8px] font-black uppercase tracking-[0.3em] rounded-full">
                     {msg.text}
                   </span>
                </div>
@@ -164,13 +164,13 @@ export default function GroupChat({ roomId, currentUser, onClose }: GroupChatPro
                   <div 
                     className={`relative px-5 py-4 rounded-[1.8rem] text-sm font-medium leading-relaxed shadow-sm transition-all ${
                         isMe 
-                            ? 'bg-yellow-400 text-black rounded-tr-none hover:shadow-yellow-400/10 hover:shadow-xl' 
+                            ? 'bg-[#FFD700] text-black rounded-tr-none hover:shadow-[#FFD700]/10 hover:shadow-xl' 
                             : 'bg-white dark:bg-[#1a1a1a] text-foreground border border-muted/30 rounded-tl-none hover:shadow-lg dark:hover:shadow-white/5'
                     }`}
                   >
                     {msg.text}
                     {isMe && (
-                       <svg className="absolute -right-2 top-0 text-yellow-400 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                       <svg className="absolute -right-2 top-0 text-[#FFD700] h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M0 0h20v15c-5 0-20-15-20-15z" />
                        </svg>
                     )}
@@ -216,7 +216,7 @@ export default function GroupChat({ roomId, currentUser, onClose }: GroupChatPro
           <Button 
             type="submit" 
             disabled={!inputText.trim()}
-            className="h-14 w-14 rounded-2xl bg-yellow-400 text-black hover:bg-black hover:text-[#fbbf24] transition-all shadow-xl shadow-yellow-400/20 group active:scale-90 flex-shrink-0"
+            className="h-14 w-14 rounded-2xl bg-[#FFD700] text-black hover:bg-black hover:text-[#FFD700] transition-all shadow-xl shadow-yellow-400/20 group active:scale-90 flex-shrink-0"
           >
             <Send className="h-6 w-6 stroke-[2.5]" />
           </Button>

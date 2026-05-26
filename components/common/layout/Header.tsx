@@ -127,7 +127,7 @@ export default function Header() {
                   <a
                     key={item.name}
                     href={item.href}
-                    className="block px-4 py-3 text-sm font-black uppercase italic tracking-widest text-gray-400 hover:text-yellow-600 transition-colors"
+                    className="block px-4 py-3 text-sm font-black uppercase italic tracking-widest text-gray-400 hover:text-[#D4AF37] transition-colors"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}

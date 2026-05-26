@@ -118,7 +118,7 @@ export default function UrgencyCohort() {
             </div>
             <div className="bg-white/10 rounded-full h-3 overflow-hidden">
               <motion.div
-                className="bg-gradient-to-r from-yellow-400 to-orange-400 h-full rounded-full"
+                className="bg-gradient-to-r from-[#FFD700] to-[#D4AF37] h-full rounded-full"
                 initial={{ width: 0 }}
                 whileInView={{ width: `${(filled / totalSlots) * 100}%` }}
                 transition={{ duration: 1.5, delay: 0.3 }}

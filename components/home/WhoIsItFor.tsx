@@ -42,7 +42,7 @@ export default function WhoIsItFor() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="text-yellow-600 text-sm font-bold uppercase tracking-widest block mb-3">Is This For You?</span>
+          <span className="text-yellow-400 text-sm font-bold uppercase tracking-widest block mb-3">Is This For You?</span>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Who This Academy Is For</h2>
           <p className="text-xl text-gray-500 max-w-2xl mx-auto">
             We're selective because we want every student to succeed. Read this carefully before applying.
@@ -122,7 +122,7 @@ export default function WhoIsItFor() {
           <Button
             size="lg"
             asChild
-            className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold px-10 py-6 rounded-xl text-lg transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-yellow-400/20"
+            className="bg-[#FFD700] hover:bg-[#D4AF37] text-black font-bold px-10 py-6 rounded-xl text-lg transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-yellow-400/20"
           >
             <a href="/academy">
               Apply Now — Limited Spots

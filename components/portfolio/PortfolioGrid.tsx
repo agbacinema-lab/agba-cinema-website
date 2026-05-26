@@ -21,9 +21,20 @@ export default function PortfolioGrid({ selectedCategory = "All" }: { selectedCa
     });
   }, []);
 
-  const filteredItems = items.filter(item => 
-    selectedCategory === "All" || item.category === selectedCategory
-  );
+  const filteredItems = items.filter(item => {
+    if (selectedCategory === "All") return true;
+    if (!item || !item.category) return false;
+
+    const normalize = (str: string) => {
+      let val = str.toLowerCase().trim();
+      if (val.endsWith('s')) {
+        val = val.slice(0, -1);
+      }
+      return val;
+    };
+
+    return normalize(item.category) === normalize(selectedCategory);
+  });
 
   const container = {
     hidden: { opacity: 0 },

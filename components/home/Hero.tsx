@@ -135,7 +135,7 @@ export default function Hero() {
               className="inline-flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-6 py-3 rounded-full mb-4 shadow-2xl"
             >
               <div className="w-2 h-2 bg-yellow-400 rounded-full animate-ping" />
-              <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.4em] text-yellow-500">
+              <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.4em] text-yellow-400">
                 ÀGBÀ CINEMA — CREATIVE EDUCATION &amp; PRODUCTION
               </span>
             </motion.div>

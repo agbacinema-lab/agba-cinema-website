@@ -26,7 +26,7 @@ const students = [
     detail: "Now runs her own motion design studio serving 3 regular clients she found within 6 weeks of graduating.",
     emoji: "✨",
     tag: "Freelancer",
-    tagColor: "bg-blue-100 text-blue-700",
+    tagColor: "bg-[#D4AF37]/20 text-[#8B7336]",
   },
   {
     name: "Emmanuel K.",
@@ -48,7 +48,7 @@ const students = [
     detail: "Built her portfolio during the program, pitched to 3 YouTube creators, and landed a retainer client on her first outreach.",
     emoji: "📺",
     tag: "Retainer Client",
-    tagColor: "bg-purple-100 text-purple-700",
+    tagColor: "bg-[#FFD700]/20 text-black",
   },
   {
     name: "Tolu B.",
@@ -59,7 +59,7 @@ const students = [
     detail: "Produced a product launch video during internship that the client said tripled their social media engagement.",
     emoji: "📈",
     tag: "300% Engagement",
-    tagColor: "bg-orange-100 text-orange-700",
+    tagColor: "bg-[#D4AF37]/20 text-[#8B7336]",
   },
   {
     name: "Kola M.",
@@ -85,7 +85,7 @@ export default function StudentResults() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="text-yellow-600 text-sm font-bold uppercase tracking-widest block mb-3">Real Student Results</span>
+          <span className="text-yellow-400 text-sm font-bold uppercase tracking-widest block mb-3">Real Student Results</span>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Our Students Don't Just Learn — They Earn</h2>
           <p className="text-xl text-gray-500 max-w-2xl mx-auto">
             Every card below is a real student who went through the Go Pro Program and landed a real result.
@@ -114,7 +114,7 @@ export default function StudentResults() {
 
               {/* Name + skill */}
               <h3 className="text-lg font-bold text-gray-900 mb-1">{s.name}</h3>
-              <p className="text-sm text-yellow-600 font-semibold mb-3">{s.skill}</p>
+              <p className="text-sm text-[#D4AF37] font-semibold mb-3">{s.skill}</p>
 
               {/* Project & brand */}
               <div className="space-y-1.5 mb-4">

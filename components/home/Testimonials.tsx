@@ -81,7 +81,7 @@ export default function Testimonials() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="text-yellow-600 text-sm font-bold uppercase tracking-widest block mb-3">Social Proof</span>
+          <span className="text-yellow-400 text-sm font-bold uppercase tracking-widest block mb-3">Social Proof</span>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Real Results, Real Clients</h2>
           <p className="text-xl text-gray-500 max-w-2xl mx-auto">
             Don't just take our word for it — see what brands and creatives say after working with ÀGBÀ CINEMA.
@@ -101,8 +101,8 @@ export default function Testimonials() {
                 <CardContent className="p-6 flex flex-col h-full">
                   {/* Result badge */}
                   <div className="flex items-center gap-2 mb-4">
-                    <TrendingUp className="h-4 w-4 text-yellow-500" />
-                    <span className="text-xs font-bold text-yellow-600 bg-yellow-50 border border-yellow-100 px-2.5 py-1 rounded-full">
+                    <TrendingUp className="h-4 w-4 text-yellow-400" />
+                    <span className="text-xs font-bold text-[#D4AF37] bg-yellow-50 border border-yellow-100 px-2.5 py-1 rounded-full">
                       {t.result}
                     </span>
                   </div>
@@ -122,7 +122,7 @@ export default function Testimonials() {
 
                   {/* Author */}
                   <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 flex items-center justify-center text-black font-bold text-sm flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FFD700] to-[#D4AF37] flex items-center justify-center text-black font-bold text-sm flex-shrink-0">
                       {t.name.charAt(0)}
                     </div>
                     <div>

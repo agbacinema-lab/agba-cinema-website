@@ -67,10 +67,10 @@ export default function FounderStory() {
             transition={{ duration: 0.7, delay: 0.1 }}
             viewport={{ once: true }}
           >
-            <span className="text-yellow-600 text-sm font-bold uppercase tracking-widest block mb-4">Meet the Founder</span>
+            <span className="text-yellow-400 text-sm font-bold uppercase tracking-widest block mb-4">Meet the Founder</span>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
               The Story Behind<br />
-              <span className="text-yellow-500">ÀGBÀ CINEMA</span>
+              <span className="text-yellow-400">ÀGBÀ CINEMA</span>
             </h2>
 
             <div className="space-y-4 text-gray-600 text-lg leading-relaxed mb-8">
@@ -89,7 +89,7 @@ export default function FounderStory() {
             <div className="grid grid-cols-3 gap-4 mb-8">
               {stats.map((stat) => (
                 <div key={stat.label} className="text-center bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
-                  <stat.icon className="h-6 w-6 text-yellow-500 mx-auto mb-2" />
+                  <stat.icon className="h-6 w-6 text-yellow-400 mx-auto mb-2" />
                   <p className="text-2xl font-black text-gray-900">{stat.value}</p>
                   <p className="text-xs text-gray-500 font-medium">{stat.label}</p>
                 </div>
