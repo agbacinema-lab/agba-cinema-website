@@ -252,22 +252,5 @@
     ],
     "year": 2025,
     "duration": "0:04"
-  },
-  {
-    "id": 16,
-    "title": "Brain jotter",
-    "slug": "product-launch-event",
-    "category": "Motion Graphic",
-    "client": "Tutorial",
-    "description": "A man-made to changed global conmedy forever.",
-    "youtubeEmbedUrl": "https://www.youtube.com/embed//DeQB2F0gbag",
-    "image": "/brain jotter.png?height=400&width=600",
-    "tags": [
-      "Comedy",
-      "Documentary",
-      "storytelling"
-    ],
-    "year": 2025,
-    "duration": "0:04"
   }
 ]
