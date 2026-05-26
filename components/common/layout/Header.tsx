@@ -4,13 +4,14 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Menu, X, User, Zap } from "lucide-react"
+import { Menu, X, User, Zap, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/context/AuthContext"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isWorkBankOpen, setIsWorkBankOpen] = useState(false)
   const { user, profile } = useAuth()
   const pathname = usePathname()
 
@@ -57,26 +58,54 @@ export default function Header() {
             {navigation.map((item) => {
               const isActive = pathname === item.href
               return (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="relative px-4 py-2 group"
-                >
-                  <span className={`relative z-10 text-[10px] font-black uppercase italic tracking-widest transition-colors duration-300 ${
-                    isActive ? "text-black" : "text-gray-400 group-hover:text-black"
-                  }`}>
-                    {item.name}
-                  </span>
-                  {isActive && (
-                    <motion.div 
-                      key="headerNav"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="absolute bottom-1 left-4 right-4 h-0.5 bg-yellow-400 rounded-full"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
-                </a>
+                // If this nav item has children, render a hover dropdown
+                item.name === 'Work Bank' ? (
+                  <div key={item.name} className="relative px-4 py-2 group">
+                    <a href={item.href} className="relative z-10 text-[10px] font-black uppercase italic tracking-widest transition-colors duration-300 text-gray-400 group-hover:text-black">
+                      {item.name}
+                    </a>
+
+                    <div className="absolute left-0 mt-3 w-56 bg-white border border-gray-100 rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transform scale-95 group-hover:scale-100 transition-all duration-200 pointer-events-none group-hover:pointer-events-auto">
+                      <div className="py-2">
+                        <a href="/portfolio/video" className="block px-4 py-3 text-sm font-semibold text-gray-600 hover:bg-yellow-50 hover:text-black">Video</a>
+                        <a href="/portfolio/graphics" className="block px-4 py-3 text-sm font-semibold text-gray-600 hover:bg-yellow-50 hover:text-black">Graphics</a>
+                        <a href="/portfolio/content-writing" className="block px-4 py-3 text-sm font-semibold text-gray-600 hover:bg-yellow-50 hover:text-black">Content Writing</a>
+                        <a href="/portfolio/digital-marketing" className="block px-4 py-3 text-sm font-semibold text-gray-600 hover:bg-yellow-50 hover:text-black">Digital Marketing</a>
+                      </div>
+                    </div>
+
+                    {isActive && (
+                      <motion.div 
+                        key="headerNav"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="absolute bottom-1 left-4 right-4 h-0.5 bg-yellow-400 rounded-full"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    className="relative px-4 py-2 group"
+                  >
+                    <span className={`relative z-10 text-[10px] font-black uppercase italic tracking-widest transition-colors duration-300 ${
+                      isActive ? "text-black" : "text-gray-400 group-hover:text-black"
+                    }`}>
+                      {item.name}
+                    </span>
+                    {isActive && (
+                      <motion.div 
+                        key="headerNav"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="absolute bottom-1 left-4 right-4 h-0.5 bg-yellow-400 rounded-full"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                  </a>
+                )
               )
             })}
 
@@ -123,16 +152,42 @@ export default function Header() {
               className="md:hidden overflow-hidden border-t border-gray-100"
             >
               <div className="py-8 space-y-4 px-2">
-                {navigation.map((item) => (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    className="block px-4 py-3 text-sm font-black uppercase italic tracking-widest text-gray-400 hover:text-[#D4AF37] transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {item.name}
-                  </a>
-                ))}
+                {navigation.map((item) => {
+                  if (item.name === 'Work Bank') {
+                    return (
+                      <div key={item.name} className="px-2">
+                        <button
+                          onClick={() => setIsWorkBankOpen(!isWorkBankOpen)}
+                          aria-expanded={isWorkBankOpen}
+                          className="w-full flex items-center justify-between px-4 py-3 text-sm font-black uppercase italic tracking-widest text-gray-400 hover:text-[#D4AF37] transition-colors"
+                        >
+                          <span>{item.name}</span>
+                          <ChevronDown className={`h-4 w-4 transition-transform ${isWorkBankOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {isWorkBankOpen && (
+                          <div className="pl-6 mt-2 space-y-1">
+                            <a href="/portfolio/video" className="block px-4 py-2 text-sm font-semibold text-gray-500 hover:text-black" onClick={() => { setIsMenuOpen(false); setIsWorkBankOpen(false); }}>Video</a>
+                            <a href="/portfolio/graphics" className="block px-4 py-2 text-sm font-semibold text-gray-500 hover:text-black" onClick={() => { setIsMenuOpen(false); setIsWorkBankOpen(false); }}>Graphics</a>
+                            <a href="/portfolio/content-writing" className="block px-4 py-2 text-sm font-semibold text-gray-500 hover:text-black" onClick={() => { setIsMenuOpen(false); setIsWorkBankOpen(false); }}>Content Writing</a>
+                            <a href="/portfolio/digital-marketing" className="block px-4 py-2 text-sm font-semibold text-gray-500 hover:text-black" onClick={() => { setIsMenuOpen(false); setIsWorkBankOpen(false); }}>Digital Marketing</a>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  }
+
+                  return (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      className="block px-4 py-3 text-sm font-black uppercase italic tracking-widest text-gray-400 hover:text-[#D4AF37] transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {item.name}
+                    </a>
+                  )
+                })}
                 <div className="pt-6 border-t border-gray-50 space-y-4 px-4">
                   {user ? (
                     <Button asChild className="w-full bg-black text-white font-black uppercase italic h-14 rounded-2xl">

@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 
-const categories = ["All", "Motion Graphic", "Short Form", "Documentary", "Event", "Product Launch"]
+const categories = ["All", "Video", "Motion Graphic", "Short Form", "Documentary", "Event", "Product Launch"]
 
 interface PortfolioFiltersProps {
   selectedCategory: string;

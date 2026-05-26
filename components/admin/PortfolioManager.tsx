@@ -20,6 +20,7 @@ export default function PortfolioManager() {
     title: "",
     client: "",
     category: "",
+    portfolioSection: "",
     description: "",
     image: "",
     duration: "",
@@ -48,8 +49,8 @@ export default function PortfolioManager() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!formData.title || !formData.category || !formData.youtubeEmbedUrl) {
-      toast.error("Please fill in required fields (Title, Category, YouTube Embed URL)")
+    if (!formData.title || (!formData.category && !formData.portfolioSection) || !formData.youtubeEmbedUrl) {
+      toast.error("Please fill in required fields (Title, Category/Portfolio Section, YouTube Embed URL)")
       return
     }
 
@@ -63,6 +64,7 @@ export default function PortfolioManager() {
         title: formData.title,
         client: formData.client,
         category: formData.category,
+        portfolioSection: formData.portfolioSection,
         description: formData.description,
         image: formData.image,
         duration: formData.duration,
@@ -93,6 +95,7 @@ export default function PortfolioManager() {
       title: item.title || "",
       client: item.client || "",
       category: item.category || "",
+      portfolioSection: item.portfolioSection || "",
       description: item.description || "",
       image: item.image || "",
       duration: item.duration || "",
@@ -120,6 +123,7 @@ export default function PortfolioManager() {
       title: "",
       client: "",
       category: "",
+      portfolioSection: "",
       description: "",
       image: "",
       duration: "",
@@ -187,8 +191,20 @@ export default function PortfolioManager() {
                     placeholder="e.g., Documentary, sport, brand promo"
                     className="h-12 rounded-xl border-muted-foreground/30 bg-background"
                   />
-                </div>
-              </div>
+                </div>                <div className="space-y-2">
+                  <label className="text-xs font-black tracking-widest text-gray-400">Portfolio Section</label>
+                  <select
+                    value={formData.portfolioSection}
+                    onChange={(e) => setFormData({ ...formData, portfolioSection: e.target.value })}
+                    className="h-12 rounded-xl border-muted-foreground/30 bg-background w-full px-3"
+                  >
+                    <option value="">(select)</option>
+                    <option value="Video">Video</option>
+                    <option value="Graphics">Graphics</option>
+                    <option value="Content Writing">Content Writing</option>
+                    <option value="Digital Marketing">Digital Marketing</option>
+                  </select>
+                </div>              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -287,10 +303,17 @@ export default function PortfolioManager() {
             <motion.div key={item.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
               <Card className="border border-muted shadow-premium rounded-[2rem] bg-card p-6 hover:shadow-lg transition-all text-left">
                 <CardContent className="p-0 flex flex-col gap-4 text-left">
-                  <div className="text-left">
-                    <span className="bg-yellow-400 text-black px-4 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-3 inline-block">
-                      {item.category}
-                    </span>
+                  <div className="text-left space-y-3">
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <span className="bg-yellow-400 text-black px-4 py-1 rounded-full text-[10px] font-black tracking-widest uppercase inline-block">
+                        {item.category || "Uncategorized"}
+                      </span>
+                      {item.portfolioSection && (
+                        <span className="bg-black text-white px-4 py-1 rounded-full text-[10px] font-black tracking-widest uppercase inline-block">
+                          {item.portfolioSection}
+                        </span>
+                      )}
+                    </div>
                     <h3 className="text-xl font-black text-foreground mb-1 tracking-tighter leading-tight">{item.title}</h3>
                     <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{item.description}</p>
                   </div>

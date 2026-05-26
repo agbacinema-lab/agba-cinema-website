@@ -23,17 +23,22 @@ export default function PortfolioGrid({ selectedCategory = "All" }: { selectedCa
 
   const filteredItems = items.filter(item => {
     if (selectedCategory === "All") return true;
-    if (!item || !item.category) return false;
+    if (!item) return false;
 
     const normalize = (str: string) => {
-      let val = str.toLowerCase().trim();
+      let val = (str || '').toString().toLowerCase().trim();
       if (val.endsWith('s')) {
         val = val.slice(0, -1);
       }
       return val;
     };
 
-    return normalize(item.category) === normalize(selectedCategory);
+    const section = item.portfolioSection || item.section || item.category || '';
+    if (normalize(selectedCategory) === "video") {
+      return Boolean(item.youtubeEmbedUrl || item.videoUrl || item.video);
+    }
+
+    return normalize(section) === normalize(selectedCategory) || normalize(item.category || '') === normalize(selectedCategory);
   });
 
   const container = {
