@@ -2,14 +2,15 @@
 
 import { motion } from "framer-motion"
 
-const categories = ["All", "Video", "Motion Graphic", "Short Form", "Documentary", "Event", "Product Launch"]
+const defaultCategories = ["All", "Video", "Motion Graphic", "Short Form", "Documentary", "Event", "Product Launch"]
 
 interface PortfolioFiltersProps {
   selectedCategory: string;
   onCategoryChange: (category: string) => void;
+  categories?: string[];
 }
 
-export default function PortfolioFilters({ selectedCategory, onCategoryChange }: PortfolioFiltersProps) {
+export default function PortfolioFilters({ selectedCategory, onCategoryChange, categories = defaultCategories }: PortfolioFiltersProps) {
   return (
     <div className="flex flex-wrap gap-4 items-center justify-center md:justify-start">
       {categories.map((category) => (

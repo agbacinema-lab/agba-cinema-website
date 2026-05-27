@@ -6,23 +6,31 @@ import { portfolioService } from "@/lib/services";
 import portfolioStaticData from "@/data/portfolio.json";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function PortfolioGrid({ selectedCategory = "All" }: { selectedCategory?: string }) {
+export default function PortfolioGrid({ selectedCategory = "All", section }: { selectedCategory?: string; section?: string }) {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    portfolioService.getAllItems().then(data => {
-      if (data.length === 0) {
+    const fetchItems = async () => {
+      try {
+        const data = await portfolioService.getAllItems();
+        if (data.length === 0) {
+          setItems(portfolioStaticData);
+        } else {
+          setItems(data);
+        }
+      } catch (error) {
+        console.error("Portfolio load failed, falling back to static data:", error);
         setItems(portfolioStaticData);
-      } else {
-        setItems(data);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    });
+    };
+
+    fetchItems();
   }, []);
 
   const filteredItems = items.filter(item => {
-    if (selectedCategory === "All") return true;
     if (!item) return false;
 
     const normalize = (str: string) => {
@@ -33,12 +41,26 @@ export default function PortfolioGrid({ selectedCategory = "All" }: { selectedCa
       return val;
     };
 
-    const section = item.portfolioSection || item.section || item.category || '';
-    if (normalize(selectedCategory) === "video") {
-      return Boolean(item.youtubeEmbedUrl || item.videoUrl || item.video);
+    const normalizedSelectedCategory = normalize(selectedCategory);
+    const normalizedSelectedSection = section ? normalize(section) : null;
+    const itemSection = normalize(item.portfolioSection || item.section || '');
+    const itemCategory = normalize(item.category || '');
+    const videoSource = item.youtubeEmbedUrl || item.videoUrl || item.video || item.embedUrl || item.youtubeUrl;
+
+    // If a section is specified, ONLY show items with matching portfolioSection
+    if (normalizedSelectedSection && itemSection !== normalizedSelectedSection) {
+      return false;
     }
 
-    return normalize(section) === normalize(selectedCategory) || normalize(item.category || '') === normalize(selectedCategory);
+    if (normalizedSelectedCategory === "all") {
+      return true;
+    }
+
+    if (normalizedSelectedCategory === "video") {
+      return Boolean(videoSource);
+    }
+
+    return itemCategory === normalizedSelectedCategory || itemSection === normalizedSelectedCategory;
   });
 
   const container = {

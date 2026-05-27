@@ -16,14 +16,25 @@ export interface PortfolioItem {
   id: string;
   title: string;
   slug: string;
-  category: string;
-  client: string;
-  description: string;
-  image: string;
-  youtubeEmbedUrl: string;
+  category?: string;
+  client?: string;
+  description?: string;
+  image?: string;
+  youtubeEmbedUrl?: string;
+  videoUrl?: string;
+  video?: string;
+  embedUrl?: string;
+  youtubeUrl?: string;
+  assetLink?: string;
+  driveLink?: string;
+  externalLink?: string;
+  url?: string;
+  link?: string;
+  portfolioSection?: string;
+  section?: string;
   tags: string[];
-  year: number;
-  duration: string;
+  year?: number;
+  duration?: string;
 }
 
 export type UserRole = 'super_admin' | 'director' | 'head_of_department' | 'admin' | 'tutor' | 'staff' | 'student' | 'brand' | 'ngo';

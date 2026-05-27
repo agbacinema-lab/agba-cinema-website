@@ -26,6 +26,7 @@ export default function PortfolioManager() {
     duration: "",
     year: new Date().getFullYear(),
     youtubeEmbedUrl: "",
+    assetLink: "",
     tags: ""
   })
 
@@ -49,8 +50,8 @@ export default function PortfolioManager() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!formData.title || (!formData.category && !formData.portfolioSection) || !formData.youtubeEmbedUrl) {
-      toast.error("Please fill in required fields (Title, Category/Portfolio Section, YouTube Embed URL)")
+    if (!formData.title || (!formData.category && !formData.portfolioSection) || (!formData.youtubeEmbedUrl && !formData.assetLink)) {
+      toast.error("Please fill in required fields (Title, Category/Portfolio Section, and either a YouTube embed URL or asset link)")
       return
     }
 
@@ -70,6 +71,7 @@ export default function PortfolioManager() {
         duration: formData.duration,
         year: Number(formData.year),
         youtubeEmbedUrl: formData.youtubeEmbedUrl,
+        assetLink: formData.assetLink,
         tags: formData.tags.split(",").map(t => t.trim()).filter(t => t),
         slug,
       }
@@ -101,6 +103,7 @@ export default function PortfolioManager() {
       duration: item.duration || "",
       year: item.year || new Date().getFullYear(),
       youtubeEmbedUrl: item.youtubeEmbedUrl || "",
+      assetLink: item.assetLink || "",
       tags: (item.tags || []).join(", "),
     })
     setEditingId(item.id)
@@ -129,6 +132,7 @@ export default function PortfolioManager() {
       duration: "",
       year: new Date().getFullYear(),
       youtubeEmbedUrl: "",
+      assetLink: "",
       tags: ""
     })
     setEditingId(null)
@@ -217,7 +221,19 @@ export default function PortfolioManager() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-black tracking-widest text-gray-400">YouTube embed URL *</label>
+                  <label className="text-xs font-black tracking-widest text-gray-400">Primary asset / external link</label>
+                  <Input
+                    value={formData.assetLink}
+                    onChange={(e) => setFormData({ ...formData, assetLink: e.target.value })}
+                    placeholder="https://drive.google.com/... or https://..."
+                    className="h-12 rounded-xl border-muted-foreground/30 bg-background"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-black tracking-widest text-gray-400">YouTube embed URL</label>
                   <Input
                     value={formData.youtubeEmbedUrl}
                     onChange={(e) => setFormData({ ...formData, youtubeEmbedUrl: e.target.value })}
