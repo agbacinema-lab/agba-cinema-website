@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation"
 import Image from "next/image"
-import { Mail, Phone, MapPin, Facebook, Instagram, Twitter, Youtube, Linkedin } from "lucide-react"
+import { Mail, Phone, MapPin, Facebook, Instagram, Twitter, Linkedin } from "lucide-react"
 
 export default function Footer() {
   const pathname = usePathname()
@@ -42,6 +42,16 @@ export default function Footer() {
               </a>
               <a href="https://www.linkedin.com/company/agbacinema/" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-[#FFD700] transition-colors">
                 <Linkedin className="h-5 w-5" />
+              </a>
+              <a href="https://www.tiktok.com/@agbacinema" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-[#FFD700] transition-colors">
+                <Image
+                  src="/tiktok-svgrepo-com.svg"
+                  alt="TikTok"
+                  width={20}
+                  height={20}
+                  className="h-5 w-5 filter invert brightness-[200%]"
+                  unoptimized
+                />
               </a>
             </div>
           </div>
