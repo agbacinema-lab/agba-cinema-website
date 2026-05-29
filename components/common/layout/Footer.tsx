@@ -1,7 +1,8 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { Camera, Mail, Phone, MapPin, Facebook, Instagram, Twitter, Youtube, Linkedin } from "lucide-react"
+import Image from "next/image"
+import { Mail, Phone, MapPin, Facebook, Instagram, Twitter, Youtube, Linkedin } from "lucide-react"
 
 export default function Footer() {
   const pathname = usePathname()
@@ -16,9 +17,14 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="col-span-1 md:col-span-2">
-            <a href="/" className="flex items-center space-x-2 mb-4">
-              <Camera className="h-8 w-8 text-[#FFD700]" />
-              <span className="text-2xl font-bold">ÀGBÀ CINEMA</span>
+            <a href="/" className="inline-block mb-4">
+              <Image 
+                src="/white long logo.png" 
+                alt="ÀGBÀ CINEMA Logo" 
+                width={240}
+                height={80}
+                priority
+              />
             </a>
             <p className="text-gray-300 mb-6 max-w-md">
               Professional video production services for brands, events, and storytelling. Creating cinematic

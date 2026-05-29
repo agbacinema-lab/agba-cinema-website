@@ -37,17 +37,17 @@ export default function Header() {
   ]
 
   return (
-    <header className="bg-white/95 backdrop-blur-xl sticky top-0 z-[9999] border-b border-gray-100 pointer-events-auto">
+    <header className="bg-transparent backdrop-blur-xl sticky top-0 z-[9999] border-b border-gray-100 pointer-events-auto">
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-[9999]">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <a href="/" className="flex items-center group relative">
             <div className="absolute -inset-2 bg-yellow-400/0 group-hover:bg-yellow-400/5 rounded-xl transition-all duration-500" />
             <Image
-              src="/agba  white.jpg"
+              src="/white short logo.png"
               alt="ÀGBÀ CINEMA Logo"
               width={140}
-              height={45}
+              height={25}
               className="relative transition-transform duration-500 group-hover:scale-[1.02]"
               priority
             />

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Download, ArrowRight, Zap, Play } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import Image from "next/image"
 
@@ -92,20 +92,45 @@ function GuideModal({ open, onClose }: { open: boolean; onClose: () => void }) {
 
 export default function Hero() {
   const [guideOpen, setGuideOpen] = useState(false)
+  const heroSlides = [
+    "/1778420867714.png",
+    "/1778429626442.png",
+  ]
+  const [activeSlide, setActiveSlide] = useState(0)
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setActiveSlide((current) => (current + 1) % heroSlides.length)
+    }, 5000)
+
+    return () => window.clearInterval(interval)
+  }, [heroSlides.length])
 
   return (
     <>
       <section className="relative min-h-screen flex items-center justify-center bg-[#050505] text-white overflow-hidden">
         {/* Background Atmosphere */}
         <div className="absolute inset-0 z-0">
-          <Image
-            src="/cinematic-video-setup.png"
-            alt="Cinematic Video Setup"
-            fill
-            quality={60}
-            priority
-            className="object-cover object-center grayscale-[40%] scale-105"
-          />
+          <AnimatePresence initial={false} mode="wait">
+            <motion.div
+              key={activeSlide}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute inset-0"
+            >
+              <Image
+                src={heroSlides[activeSlide]}
+                alt="Cinematic Hero Slide"
+                fill
+                quality={60}
+                priority
+                className="object-cover object-center grayscale-[40%] scale-105"
+              />
+            </motion.div>
+          </AnimatePresence>
+
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-[#050505]" />
           <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
           

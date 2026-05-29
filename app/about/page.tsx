@@ -43,6 +43,8 @@ const team = [
 
 export default function AboutPage() {
   const images = [
+    "/1778420867714.png",
+    "/1778429626442.png",
     "/IMG-20240515-WA0028.jpg",
     "/Screenshot (11).png",
     "/Screenshot (191).png",
@@ -54,6 +56,10 @@ export default function AboutPage() {
     "/gp pro.jpg",
     "/creative and legal crises.jpg",
   ];
+
+  const heroSlides = images.slice(0, 6).map((src) => ({
+    backgroundImage: src,
+  }))
 
   const sliderSettings: any = {
     dots: false,
