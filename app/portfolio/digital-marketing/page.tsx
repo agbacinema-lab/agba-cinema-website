@@ -11,7 +11,7 @@ const categories = [
   "Social Ads",
   "Growth",
   "Strategy",
-  "Analytics",
+
 ]
 
 export default function DigitalMarketingPortfolioPage() {

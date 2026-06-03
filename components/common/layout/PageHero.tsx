@@ -79,7 +79,10 @@ export default function PageHero({
 
   return (
     <section ref={containerRef} className="relative h-[60vh] md:h-[75vh] flex items-center justify-center overflow-hidden bg-[#050505]">
-      {/* Cinematic Background Layer */}
+      {/* Cinematic Background L      const images = [
+        "/new-hero-1.jpg",
+        "/hero-slides/slide-2.jpg",
+      ]ayer */}
       <AnimatePresence initial={false} mode="wait">
         <motion.div
           key={activeSlide}

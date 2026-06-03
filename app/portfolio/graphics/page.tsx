@@ -7,12 +7,10 @@ import PortfolioGrid from "@/components/portfolio/PortfolioGrid"
 
 const categories = [
   "All",
-  "Motion Graphic",
   "Logo",
   "Brand Identity",
   "Social",
-  "Print",
-  "Packaging",
+  "Print & Packaging",
 ]
 
 export default function GraphicsPortfolioPage() {

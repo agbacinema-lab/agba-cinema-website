@@ -9,9 +9,6 @@ const categories = [
   "All",
   "Scripts",
   "Copywriting",
-  "Ad Copy",
-  "Blog",
-  "SEO",
   "Case Study",
 ]
 

@@ -41,9 +41,7 @@ export default function PortfolioItemCard({ item }: PortfolioItemCardProps) {
   const assetUrl = item.assetLink || item.driveLink || item.externalLink || item.url || item.link
   const imageSrc = item.image
     ? item.image.startsWith("http") || item.image.startsWith("/")
-      ? item.image.includes("drive.google.com")
-        ? getDirectDriveUrl(item.image)
-        : item.image
+      ? getDirectDriveUrl(item.image)
       : `/${item.image}`
     : "/agba cinema black.jpg"
   const hasVideo = Boolean(videoUrl)
