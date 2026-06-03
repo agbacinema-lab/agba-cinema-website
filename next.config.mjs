@@ -8,6 +8,7 @@ const nextConfig = {
   },
   images: {
     formats: ['image/avif', 'image/webp'],
+    domains: ['drive.google.com', 'lh3.googleusercontent.com', 'docs.google.com'],
   },
   async headers() {
     return [
