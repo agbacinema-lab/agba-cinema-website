@@ -39,11 +39,23 @@ export default function PortfolioItemCard({ item }: PortfolioItemCardProps) {
   const [isPlaying, setIsPlaying] = useState(false)
   const videoUrl = item.youtubeEmbedUrl || item.videoUrl || item.video || item.embedUrl || item.youtubeUrl
   const assetUrl = item.assetLink || item.driveLink || item.externalLink || item.url || item.link
-  const imageSrc = item.image
-    ? item.image.startsWith("http") || item.image.startsWith("/")
-      ? getDirectDriveUrl(item.image)
-      : `/${item.image}`
+  
+  // Resolve image URL; use server-side proxy for Drive/docs hosts to avoid CORS/Next/Image host restrictions
+  const rawImage = item.image
+  let imageSrc = rawImage
+    ? getDirectDriveUrl(rawImage)
     : "/agba cinema black.jpg"
+
+  try {
+    const parsed = new URL(imageSrc)
+    const driveHosts = ['drive.google.com', 'docs.google.com']
+    if (driveHosts.includes(parsed.hostname)) {
+      imageSrc = `/api/image-proxy?url=${encodeURIComponent(imageSrc)}`
+    }
+  } catch (e) {
+    // ignore URL parse errors and keep imageSrc as-is
+  }
+
   const hasVideo = Boolean(videoUrl)
   const hasAssetLink = Boolean(assetUrl)
 
