@@ -28,7 +28,7 @@ export default function VideoPortfolioPage() {
               categories={categories}
             />
           </div>
-          <PortfolioGrid selectedCategory={selectedCategory} />
+          <PortfolioGrid section="Video" selectedCategory={selectedCategory} />
         </div>
       </section>
     </div>

@@ -47,8 +47,19 @@ export default function PortfolioGrid({ selectedCategory = "All", section }: { s
     const itemCategory = normalize(item.category || '');
     const videoSource = item.youtubeEmbedUrl || item.videoUrl || item.video || item.embedUrl || item.youtubeUrl;
 
-    // If a section is specified, ONLY show items with matching portfolioSection
+    const videoSectionCategories = [
+      "video",
+      "documentary",
+      "motion graphic",
+      "short form",
+      "event",
+      "product launch"
+    ];
+
     if (normalizedSelectedSection && itemSection !== normalizedSelectedSection) {
+      if (normalizedSelectedSection === "video") {
+        return videoSectionCategories.includes(itemCategory);
+      }
       return false;
     }
 
@@ -57,7 +68,7 @@ export default function PortfolioGrid({ selectedCategory = "All", section }: { s
     }
 
     if (normalizedSelectedCategory === "video") {
-      return Boolean(videoSource);
+      return Boolean(videoSource) && videoSectionCategories.includes(itemCategory);
     }
 
     return itemCategory === normalizedSelectedCategory || itemSection === normalizedSelectedCategory;
